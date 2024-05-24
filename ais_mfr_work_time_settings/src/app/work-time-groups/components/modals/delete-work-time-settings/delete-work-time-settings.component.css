@@ -1,0 +1,11 @@
+.saveWorkTime{
+    padding: 15px;
+}
+
+.title{
+    margin-bottom: 30px;
+}
+.actions{
+    display: flex;
+    justify-content: flex-end;
+}

@@ -1,0 +1,24 @@
+<div class="groups">
+  <app-header title="Настройки групп рабочего времени" [type]="'../work-time'">
+    <button  matTooltip="Добавить группу" mat-icon-button (click)="changeGroupCreator(true)">
+      <mat-icon id="addSetting">group_add</mat-icon>
+    </button>
+  
+  </app-header>
+
+  <mat-sidenav-container  class="sidenav-container">
+   
+    <mat-sidenav-content>
+      <div class="groupList">
+        <app-create-work-time-group-item *ngIf="isGroupCreator" (onGroupClose)="changeGroupCreator(false)" (onGroupCreate)="onCreateGroup()"/>
+        <app-work-time-group-item (onGroupCopy)="addCopySettings()"  (click)="checkGroup(group)" [checkedGroup]="checkedGroup" (onGroupDelete)="filtrGroups($event)" [wtg]="group" *ngFor="let group of workTimesGroups | async"/>
+      </div>
+    </mat-sidenav-content>
+    <mat-sidenav mode="side" position="end" #drawer [(opened)]="opened"     >
+      <app-add-person-to-work-time-settings [wtg] = "checkedGroup"  (onGroupSave)="onCreateGroup()" (onClose)="closeAddPerson()">
+      </app-add-person-to-work-time-settings>
+    </mat-sidenav>
+  </mat-sidenav-container>
+  
+</div>
+

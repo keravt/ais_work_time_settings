@@ -1,0 +1,32 @@
+<div class="work-time-item">
+  <mat-icon *ngIf="!canDelete" fontIcon="av_timer"></mat-icon>
+  <mat-icon class="delete" (click)="deleteTime()" *ngIf="canDelete" fontIcon="delete"></mat-icon>
+
+  <div  class="timeSelects">
+
+
+    <mat-form-field class="timeSelect">
+ 
+      <mat-select  [hideSingleSelectionIndicator]="true"  (selectionChange)="changeTime($event.value,'start')"  [(value)]="startt">
+        <mat-option  class="ggg"     *ngFor="let time of timesStart" [value]="time">{{time}}</mat-option>
+ 
+      </mat-select>
+    </mat-form-field>
+    <div class="timeSelect-divide"></div>
+    <mat-form-field class="timeSelect">
+      <mat-select    [hideSingleSelectionIndicator]="true"     (selectionChange)="changeTime($event.value,'end')"  [(value)]="endd"  panelClass="panel">
+        <mat-option  class="ggg"    *ngFor="let time of timesEnd" [value]="time">{{time}}</mat-option>
+ 
+      </mat-select>
+    </mat-form-field>
+
+
+  </div>
+  <ngx-colors
+    *ngIf="viewColor"
+    ngx-colors-trigger
+    style="display: inline-block; margin: 5px"
+    [(ngModel)]="workTime.color"
+  ></ngx-colors>
+  <div style="font-weight: 600">Рабочие часы</div>
+</div>

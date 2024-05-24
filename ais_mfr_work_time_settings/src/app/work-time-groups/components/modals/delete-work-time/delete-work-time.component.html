@@ -1,0 +1,20 @@
+<div class="saveWorkTime">
+    <div class="saveWorkTime__body">
+        <label id="save-type-label" class="title">Удаление повторяющегося мероприятия</label>
+        <div class="saveTypes">
+        <mat-radio-group
+           aria-labelledby="save-type-label"
+           class="save-type-radio-group"
+           color="primary"
+           [(ngModel)]="type">
+            <mat-radio-button   value="one">Только это мероприятие</mat-radio-button>
+            <mat-radio-button *ngIf="aloowNext"  value="next">Это и последующие мероприятия</mat-radio-button>
+            <mat-radio-button  value="all">Все мероприятия</mat-radio-button>
+        </mat-radio-group>
+        </div>
+        <div class="actions">
+            <button mat-button (click)="closeDialog()">Отмена</button>
+            <button (click)="deleteWorkTime()" mat-button color="primary">ОК</button>
+        </div>
+    </div> 
+</div>

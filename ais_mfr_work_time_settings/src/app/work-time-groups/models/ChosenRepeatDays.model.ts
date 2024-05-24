@@ -1,0 +1,1 @@
+export type ChosenRepeatType = { name: string; num: number; alias: string }[]

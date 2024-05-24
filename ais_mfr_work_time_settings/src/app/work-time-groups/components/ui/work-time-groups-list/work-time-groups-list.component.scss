@@ -1,0 +1,40 @@
+:host{
+  flex: 1 1 auto
+}
+
+.groups{
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+}
+
+.sidenav-container{
+  flex: 1 1 auto;
+}
+mat-sidenav {
+  width: 50%  ;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    border-bottom: solid 1px rgba(0, 0, 0, 0.12);
+    padding: 8px;
+    gap: 10px;
+
+  }
+  .text {
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.25px;
+    line-height: 48px;
+  }
+
+  .AddEmployees{
+  justify-self: flex-end;
+  }
+
+
+  

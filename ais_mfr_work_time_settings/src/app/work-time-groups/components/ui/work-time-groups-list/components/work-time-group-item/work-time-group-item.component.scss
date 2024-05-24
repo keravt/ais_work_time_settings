@@ -1,0 +1,54 @@
+.group{
+    cursor: pointer;
+    padding-left: 30px;
+    display: flex;
+    gap: 10px;
+align-items: center;
+    height: 50px;
+    @media (any-hover: hover) {
+        &:hover {
+            background-color: rgba(0,0,0,0.04)
+        }
+        &.checked{
+            background-color: rgba(0,0,0,0.04)
+        }
+      }
+
+
+}
+
+.title{
+    text-align: center;
+    align-self: center;
+}
+
+.input {
+    color: #191919;
+    background: transparent;
+    padding-left: 0px;
+    padding-right: 0px;
+    height: 28px !important;
+    font-size: 14px;
+    line-height: 28px;
+    padding: 6px 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: none;
+    outline: none;
+    border-radius: 4px;
+    width: 0px;
+    pointer-events: none;
+
+  }
+  
+.changeName{
+    width: 80%;
+    pointer-events: visible;
+  }
+
+.supervisor{
+    color: rgba(0, 0, 0,0.4);
+}

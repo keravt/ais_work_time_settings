@@ -1,0 +1,25 @@
+
+<div  class="group" [ngClass]="{'checked': checkedGroup?.uid === wtg.uid}">
+    <button matTooltip="изменить имя" *ngIf="!changedName" (click)="changeName($event)"  mat-icon-button color="black">
+        <mat-icon>edit</mat-icon>
+      </button>  
+      <button matTooltip="отменить"   *ngIf="changedName" (click)="closeChanged($event)"  mat-icon-button color="black">
+        <mat-icon>close</mat-icon>
+      </button> 
+      <button matTooltip="сохранить"   *ngIf="changedName" (click)="updateTitle($event)"  mat-icon-button color="black">
+        <mat-icon>check</mat-icon>
+      </button> 
+    <button matTooltip="удалить настройку"  *ngIf="!changedName" (click)="removeGroup($event)" mat-icon-button color="black">
+        <mat-icon>delete</mat-icon>
+      </button> 
+      <button matTooltip="посмотреть группу"  *ngIf="!changedName" (click)="navigateToPreview($event)" mat-icon-button color="black">
+        <mat-icon>preview</mat-icon>
+      </button> 
+         
+    <button *ngIf="!changedName"  matTooltip="скопировать настройку"  (click)="copyWtg($event)" mat-icon-button color="black">
+      <mat-icon>content_copy</mat-icon>
+  </button>  
+    <mat-icon  class="supervisor" matListItemIcon>supervisor_account</mat-icon>
+    <div *ngIf="!changedName" class="title">{{wtg.title}}</div>
+    <input id="change"  class="input"  [ngClass]="{'changeName':changedName}" (keydown)="onKeyDown($event)" (click)="onInputClick($event)" [(ngModel)]="inputValue"   matInput  placeholder="Имя">
+ </div>  

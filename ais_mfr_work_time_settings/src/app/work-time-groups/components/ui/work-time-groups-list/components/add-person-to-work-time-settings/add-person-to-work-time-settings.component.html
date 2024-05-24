@@ -1,0 +1,90 @@
+<div class="body">
+  <div *ngIf="isUpdate" class="loader">
+    <mat-spinner   ></mat-spinner>
+  </div>
+<div class="controls">
+
+
+<mat-tab-group animationDuration="0ms">
+<mat-tab label="Пользователи">
+  <div class="persons">
+    <div class="divisions">
+     
+
+      <mat-form-field  class="divisions-field">
+        <mat-label>Подразделения</mat-label>
+        <input type="text"
+               placeholder="Pick one"
+               aria-label="Number"
+               matInput
+               [formControl]="divionInput"
+               [matAutocomplete]="auto">
+               <mat-autocomplete  #auto="matAutocomplete">
+                <mat-option (click)="onDivisionChange(null)"   [value]="''" >Все Подразделения</mat-option>
+                <mat-option (click)="onDivisionChange(division)" [value]="''" *ngFor="let division of fiteredDivisions">{{division.name}} {{division.parentDivision ? '(' + division.parentDivision.name + ')' : '' }}</mat-option>
+              
+            </mat-autocomplete>
+      </mat-form-field>
+    </div>
+    <div class="checkAll">
+      <button (click)="checkAll()" mat-raised-button color="primary">Выбрать всех пользователей</button>
+    </div>
+    <div class="inputControll">
+      <input class="input" placeholder="найти сотрудников" [formControl]="personsControl" />
+    </div>
+
+    <div class="persons-list">
+        <mat-spinner class="loaderSettings"  *ngIf="isLoading"></mat-spinner>
+        <div class="list"  *ngIf="!isLoading">
+   
+            <div class="list-item-user"    *ngFor="let person of filteredPersons">
+              <mat-checkbox
+                (change)="userChecked(person.keycloakUid)"
+                class="example-margin"
+                [checked]="person.keycloakUid | isUserInWorkTimeSetting : userIds"
+                [disabled]="(person.keycloakUid | IsUserDisabledPipe : lockedUsers).include"
+                >{{ person.name }}  {{(person.keycloakUid | IsUserDisabledPipe : lockedUsers).groupName}}</mat-checkbox
+              >
+            </div>
+
+
+        </div>
+    </div>
+  
+  </div>
+
+
+</mat-tab>
+<mat-tab label="Настройки времени">
+  <div class="settings">
+    <div class="persons-list">
+      <mat-spinner class="loaderSettings"  *ngIf="isLoadingSettings"></mat-spinner>
+      <div cdkDropList class="list"  *ngIf="!isLoadingSettings" (cdkDropListDropped)="drop($event)">
+   
+          <div class="list-item"  cdkDrag  *ngFor="let setting of settings">
+            <mat-checkbox
+              (change)="settingChecked(setting)"
+              class="example-margin"
+              [checked]="GroupSettings | isSettingInWorkTimeGroups : setting"
+             
+              >{{ setting.title }}
+            </mat-checkbox
+            >
+          </div>
+       
+
+      </div>
+    </div>
+  </div>
+</mat-tab>
+</mat-tab-group>
+</div>
+
+
+          <div class="buttons">
+            <button (click)="close()" mat-stroked-button>Закрыть</button>
+            <button (click)="updateWorkTimeSetting()" mat-stroked-button>Сохранить</button>
+          </div>
+
+
+</div>

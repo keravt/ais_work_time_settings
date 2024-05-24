@@ -1,0 +1,25 @@
+<div (click)="onItemClick(wts.uid)"   class="item">
+  <button matTooltip="удалить настройку"  *ngIf="!changedName" (click)="removeSetting($event)" mat-icon-button color="black">
+    <mat-icon>delete</mat-icon>
+  </button> 
+  <button matTooltip="изменить имя" *ngIf="!changedName" (click)="changeName($event)"  mat-icon-button color="black">
+    <mat-icon>edit</mat-icon>
+  </button>  
+  <button matTooltip="отменить"   *ngIf="changedName" (click)="closeChanged($event)"  mat-icon-button color="black">
+    <mat-icon>close</mat-icon>
+  </button> 
+  <button matTooltip="сохранить"   *ngIf="changedName" (click)="updateTitle($event)"  mat-icon-button color="black">
+    <mat-icon>check</mat-icon>
+  </button> 
+
+   
+    <button *ngIf="!changedName"  matTooltip="скопировать настройку"  (click)="copyWts($event)" mat-icon-button color="black">
+        <mat-icon>content_copy</mat-icon>
+    </button>  
+    <mat-icon  class="history" matListItemIcon>manage_history</mat-icon>
+  
+    <div *ngIf="!changedName"  class="title">{{ wts.title }}</div>
+    <div *ngIf="wts.isGeneral && !changedName"  matListItemTitle>(общая)</div>
+    <input id="change"  class="input"  [ngClass]="{'changeName':changedName}" (keydown)="onKeyDown($event)" (click)="onInputClick($event)" [(ngModel)]="inputValue"   matInput  placeholder="Имя">
+ 
+</div>

@@ -1,0 +1,230 @@
+<div class="wrapper" *ngIf="currentDate"> 
+  <div class="top-bar">
+    <div class="changeActions">
+      <button (click)="undo()"  class="change" [ngClass]="{'changeActive':undoActive}" matTooltip="сохранить"   mat-icon-button color="black">
+        <mat-icon>undo</mat-icon>
+      </button> 
+      <button (click)="redo()" class="change"  [ngClass]="{'changeActive':redoActive}"  matTooltip="сохранить"   mat-icon-button color="black">
+        <mat-icon>redo</mat-icon>
+      </button> 
+    </div>
+    <mat-icon (click)="deleteWorkTime()" style="cursor: pointer; color: red" fontIcon="delete"></mat-icon>
+    <mat-icon
+      (click)="closeSideBar()"
+      style="cursor: pointer"
+      matTooltip="Закрыть сведения"
+      fontIcon="last_page"
+    ></mat-icon>
+  </div>
+  <div class="space">
+    <div class="body">
+      <h4 class="title">
+        {{ getWeektName() }}, {{ getMonthShortName() }} {{ currentDate.day }}
+      </h4>
+      <mat-form-field *ngIf="workTime" class="field">
+        <mat-label>Название</mat-label>
+        <input   [(ngModel)]="workTimeName" matInput class="input">
+      </mat-form-field>
+      <ng-container *ngIf="workTime && !isHoliday">
+
+        <app-time-period
+          *ngFor="let wt of workTimes; let i = index"
+          [canDelete]="i > 0"
+          [workTime]="wt"
+          [today]="today"
+          (onTimeDelete)="removeTime(i)"
+        ></app-time-period>
+      </ng-container>
+      <button
+        *ngIf="!workTime || !isHoliday"
+        (click)="addTimePeriod()"
+        class="add-work-time-button"
+      >
+        Добавить промежуток
+      </button>
+      <div *ngIf="workTime" class="work-time-item">
+        <input
+          style="margin-left: 4px"
+          type="checkbox"
+          [(ngModel)]="isHoliday"
+        />
+        <span>Весь день</span>
+        <ngx-colors
+          ngx-colors-trigger
+          [(ngModel)]="holidayColor"
+          style="display: inline-block; margin: 5px"
+        ></ngx-colors>
+        <div style="font-weight: 600">Не рабочий</div>
+      </div>
+      <div
+        *ngIf="workTime"
+        (click)="showRepeatMenu = !showRepeatMenu"
+        class="repeat-toggle"
+      >
+        <mat-icon
+          [fontIcon]="showRepeatMenu ? 'refresh' : 'do_not_disturb'"
+        ></mat-icon>
+        <div>{{ showRepeatMenu ? "Повторять" : "Не повторять" }}</div>
+      </div>
+      <div *ngIf="showRepeatMenu && workTime">
+        <div class="repeate-menu">
+          <div  
+            (click)="currentRepeatType = rt"
+            class="repeate-menu-item"
+            *ngFor="let rt of repeatTypes"
+            [ngClass]="{ active: rt == currentRepeatType }"
+          >
+            {{ rt }}
+          </div>
+        </div>
+        <div class="interval-settings">
+          <div
+            class="current-interval-settings"
+            *ngIf="currentRepeatType == repeatType.DAILY"
+          >
+            <div class="interval-pick">
+              <div>Повторять с интервалом</div>
+              <input
+                [(ngModel)]="interval"
+                type="number"
+                max="99"
+                min="0"
+                class="number-picker"
+              />
+              <div style="font-weight: 500">день</div>
+            </div>
+          </div>
+
+          <div
+            class="current-interval-settings"
+            *ngIf="currentRepeatType == repeatType.WEEKLY"
+          >
+            <div class="interval-pick">
+              <div>Повторять с интервалом</div>
+              <input
+                [(ngModel)]="interval"
+                type="number"
+                max="99"
+                min="0"
+                class="number-picker"
+              />
+              <div style="font-weight: 500">неделя</div>
+            </div>
+            <div class="repeat-days">
+              <div style="margin-top: 5px">Дни повторения</div>
+              <div class="week-day-picker">
+                <div
+                  class="week-day-item"
+                  *ngFor="let wd of weekDays"
+                  (click)="repeatDayClick(wd)"
+                  [ngClass]="{ 'choosen-repeat-day': checkRepeatDay(wd) }"
+                >
+                  {{ wd.name }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="current-interval-settings"
+            *ngIf="currentRepeatType == repeatType.MONTHLY"
+          >
+            <div class="interval-pick">
+              <div>Повторять</div>
+       
+              <div>с интервалом</div>
+              <input
+                [(ngModel)]="interval"
+                type="number"
+                max="99"
+                min="0"
+                class="number-picker"
+              />
+              <div style="font-weight: 500">месяц</div>
+            </div>
+          </div>
+
+          <div
+            class="current-interval-settings"
+            *ngIf="currentRepeatType == repeatType.YEARLY"
+          >
+            <div class="interval-pick">
+              <div>Повторять с интервалом</div>
+              <input
+                [(ngModel)]="interval"
+                type="number"
+                max="99"
+                min="0"
+                class="number-picker"
+              />
+              <div style="font-weight: 500">год</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="repeat-end">
+          <div>Окончание</div>
+          <mat-radio-group [(ngModel)]="choosenRepeatEndType">
+            <div class="checkbox-row">
+              <mat-radio-button
+                class="example-margin"
+                color="primary"
+                [value]="repeatEndType.NEVER"
+              ></mat-radio-button>
+              <div>Никогда</div>
+            </div>
+            <div class="repeat-end-row">
+              <div class="checkbox-row">
+                <mat-radio-button
+                  class="repeat-end-row-title"
+                  color="primary"
+                  [value]="repeatEndType.DATE"
+                ></mat-radio-button>
+                <div>Дата</div>
+              </div>
+              <input  
+                matInput
+                (click)="picker.open()"
+                [(ngModel)]="endRepeatDate"             
+                (dateChange)="onDateChange($event)"
+                [matDatepicker]="picker"
+                class="calendar-picker"
+              />
+              <mat-datepicker #picker></mat-datepicker>
+            </div>
+            <div class="repeat-end-row">
+              <div class="checkbox-row">
+                <mat-radio-button
+                  style="color: #707172"
+                  class="repeat-end-row-title"
+                  color="primary"
+                  [value]="repeatEndType.COUNT"
+                ></mat-radio-button>
+                <div>После</div>
+              </div>
+              <input
+                [(ngModel)]="endRepeatCount"
+                type="number"
+                max="99"
+                min="0"
+                class="number-picker"
+              />
+
+              <div>повторов</div>
+            </div>
+          </mat-radio-group>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-buttons">
+    <button (click)="closeSideBar()" mat-flat-button>Отмена</button>
+    <button
+      (click)="saveWorkTime()"
+      style="color: rgb(82, 82, 216)"
+      mat-flat-button
+    >
+      Сохранить
+    </button>
+  </div>
+</div>

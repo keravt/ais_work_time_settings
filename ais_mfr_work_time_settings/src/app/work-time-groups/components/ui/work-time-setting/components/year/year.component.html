@@ -1,0 +1,83 @@
+
+
+<div *ngIf="type === 'year'" class="year">
+    <div *ngFor="let month of months; let i = index">
+      <div class="month-title">
+        {{ month}}
+      </div>
+      <div class="weekDays">
+        <div class="weekDay" *ngFor="let dayOfWeek of daysOfWeek">{{dayOfWeek}}</div>
+      </div>
+      <div class="monthDays">
+    
+        <ng-container  *ngFor="let day of daysMonth[i]">
+          <ng-container *ngIf="day !== '';else notDay">
+            <ng-container *ngIf="( getNgbDate(year,i+1,day) | colorDayTemplate : this.allUserWorkTimes : borderVisible) as result">
+              <div 
+                [ngClass]="ngClassSet(getNgbDate(year,i,day), result)"
+                (click)="onClick($event, getNgbDate(year,i,day), result)" 
+                class="day"
+                [style]="day !== ''  ? result : {}">
+                {{day}}
+              </div>
+            </ng-container>
+
+          </ng-container>
+          <ng-template #notDay>
+            <div>
+              {{day}}
+            </div>
+
+          </ng-template>
+
+          </ng-container>
+      </div>
+    </div>
+</div>
+
+<div *ngIf="type === 'month'" class="month">
+    <div class="month-top">
+      <div class="month-title month">
+        {{ months[month]}}  {{ year}}
+      </div>
+      <div class="actions">
+         <div (click)="toPrevMonth()" class="button">
+          <mat-icon>chevron_left</mat-icon>
+         </div>
+          <div (click)="toNextMonth()"  class="button">
+            <mat-icon>chevron_right</mat-icon>
+          </div>
+      </div>
+    </div>
+
+    <div class="weekDays month"  >
+      <div class="weekDay" *ngFor="let dayOfWeek of daysOfWeek">{{dayOfWeek}}</div>
+    </div>
+    <div class="monthDays month" >
+  
+      <ng-container  *ngFor="let day of daysMonth[month]">
+        <ng-container *ngIf="day !== '';else notDay">
+          <ng-container *ngIf="( getNgbDate(year,month,day) | colorDayTemplate : this.allUserWorkTimes : borderVisible) as result">
+            <div 
+              [ngClass]="ngClassSet(getNgbDate(year,month,day), result)"
+              (click)="onClick($event, getNgbDate(year,month,day), result)" 
+              class="day"
+              [style]="day !== ''  ? result : {}">
+              <div class="num">{{day}}</div>
+             
+            </div>
+          </ng-container>
+
+        </ng-container>
+        <ng-template #notDay>
+          <div>
+            {{day}}
+          </div>
+
+        </ng-template>
+
+        </ng-container>
+    </div>
+ 
+</div>
+

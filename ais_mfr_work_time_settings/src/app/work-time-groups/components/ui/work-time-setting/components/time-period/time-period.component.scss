@@ -1,0 +1,126 @@
+
+.mat-mdc-form-field-infix{
+    width: 50px !important;
+ }
+
+ .work-time-item {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    gap: 5px;
+    color: #707172;
+    font-weight: 500;
+}
+
+
+.timeSelects{
+    display: flex;
+    overflow: hidden;
+    max-width: 200px;
+    align-items: center;
+    gap: 8px;
+}
+
+.timeSelect-divide{
+ width: 10px;
+ height: 1px;
+ background: #000;
+}
+
+.delete{
+    cursor: pointer;
+    @media (any-hover: hover) {
+        &:hover {
+          color: red;
+        }
+      }
+}
+.ggg{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    ::ng-deep .mdc-list-item__primary-text{
+      margin: auto !important;
+      width: 100% !important;
+      text-align: center;
+    }
+ 
+}
+::ng-deep .mat-mdc-option{
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+
+}
+
+
+.timeSelect{
+
+    overflow: hidden !important;
+    position: relative;
+
+    
+  
+ 
+    ::ng-deep{
+        .mat-mdc-form-field-infix{
+            padding-top: 5px !important;
+            padding-bottom: 5px !important;
+            min-height:30px !important;
+        }
+
+    }
+
+    ::ng-deep .mdc-list-item__primary-text{
+        font-size: 9px !important;
+    }
+
+    ::ng-deep .mdc-list-item{
+        font-size: 9px !important; 
+    } 
+
+
+    ::ng-deep{
+        .mdc-text-field{
+            padding: 0 5px !important;
+        }
+    }
+
+    
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper{
+          position: absolute;
+          top: 100%;
+          &::-webkit-scrollbar {
+            width: 2px;
+          }
+
+    }
+
+    ::ng-deep .ng-trigger{
+      
+        &::-webkit-scrollbar{
+            display: none;
+          }
+    }
+  
+}
+
+
+.option{
+    width: 300px !important;
+}
+
+::ng-deep .mat-select-trigger {
+    min-width: 80vw;
+  }
+  
+  ::ng-deep .mat-select-panel {
+    max-height: 80vh !important;
+  }
+
+
+.dropdown-toggle::after {
+    display:none;
+}
+
+.drop-down-handler {
+    cursor: pointer;
+}

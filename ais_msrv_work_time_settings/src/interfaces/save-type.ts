@@ -1,0 +1,1 @@
+type SaveType = 'one' | 'next' | 'all' | 'noRepeat'

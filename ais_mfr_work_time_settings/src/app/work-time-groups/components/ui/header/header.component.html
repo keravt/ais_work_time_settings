@@ -1,0 +1,9 @@
+
+<div class="header">
+    <span class="text">{{title}}</span>
+    <ng-content></ng-content>
+    <button [routerLink]="[type]" matTooltip={{routerName}}  mat-icon-button>
+        <mat-icon>settings</mat-icon>
+    </button>
+
+</div>

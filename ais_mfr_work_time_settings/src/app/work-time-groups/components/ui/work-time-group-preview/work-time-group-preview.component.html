@@ -1,0 +1,42 @@
+<div  class="wrapper">
+    <div class="header">
+        <button mat-icon-button (click)="backClicked()"><mat-icon>arrow_back</mat-icon></button>
+    
+        
+     
+        <div class="skip-buttons">
+          <button (click)="onPrevYear()"  class="small-icon-button" mat-icon-button>
+            <mat-icon>keyboard_arrow_left</mat-icon>
+          </button>
+          <div class="today">{{ startDate.year}}</div>
+          <button (click)="onNextYear()" class="small-icon-button" mat-icon-button>
+            <mat-icon>keyboard_arrow_right</mat-icon>
+          </button>
+        </div>
+    </div>
+    <mat-sidenav-container>
+      <mat-sidenav
+        position="end"
+        #sidenav
+        mode="side"
+        style="width: 25%; position: absolute; top: 50px"
+        [fixedInViewport]="true"
+        [(opened)]="opened"
+      >
+        <app-side-bar-locked
+          *ngIf="opened"
+          [currentDate]="selectedDate"
+          [result]="result"
+          (closeSideNav)="closeSideNav()"
+        ></app-side-bar-locked>
+      </mat-sidenav>
+      <mat-sidenav-content  style="background-color: white">
+          <div class="year">
+            <app-year       (onDayClick)="onClickDate($event.event, $event.result, $event.date)"  [allUserWorkTimes]="workTimes"  [year]="startDate.year"  [borderVisible]="true"/>
+          </div>
+        
+       
+      </mat-sidenav-content>
+    </mat-sidenav-container>
+   
+  </div>

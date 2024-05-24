@@ -1,0 +1,138 @@
+.year{
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(288px,25%));
+    justify-content: space-between;
+    row-gap: 20px;
+
+
+}
+
+.cdk-overlay-backdrop {
+    display: none !important; 
+}
+.weekDays{
+    display: grid;
+    grid-template-columns: repeat(7, 25px);
+    gap: 8px;
+    margin-bottom: 5px;
+    &.month{
+        grid-template-columns: repeat(7, 1fr); 
+    }
+}
+
+.weekDay{
+  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: none !important;
+    color: black !important;
+    font-style: normal !important;
+    font-size: 12px;
+    color: #70757a !important;
+}
+
+.active{
+    background-color: rgb(241, 243, 244);
+  }
+
+  .today{
+
+    &::before{
+        border-radius: 50%;
+        content: '';
+        position: absolute;
+        width: 6px;
+        height:  6px;
+        top: -4px;
+        left: calc(100% - 6px);
+ 
+        box-shadow: 0px 6px 10px 0px rgba(83, 186, 230,.5) , 0px 1px 18px 0px rgba(83, 186, 230,.4) , 0px 3px 5px -1px rgba(83, 186, 230,.4) ;
+        background: rgb(83, 186, 230);
+    }
+  }
+
+  .num{
+    position: relative;
+    z-index: 2;
+  }
+  
+  .activeResult{
+    box-shadow: 0px 6px 10px 0px rgba(0,0,0,.3) , 0px 1px 18px 0px rgba(0,0,0,.2) , 0px 3px 5px -1px rgba(0,0,0,.2) ;
+  }
+
+.day{
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+     &:hover{
+        background-color: rgb(241,243,244);
+     }
+  
+   
+     width: 1.6rem;
+     height: 1.6rem;
+     line-height: 1.7rem;
+     border-radius: 50%;
+     font-size: 12px;
+     transition: all 0.1s ease-in;
+     -webkit-touch-callout: none; /* iOS Safari */
+     -webkit-user-select: none; /* Safari */
+      -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+         -ms-user-select: none; /* Internet Explorer/Edge */
+             user-select: none; 
+}
+
+.monthDays{
+
+    display: grid;
+    grid-template-columns: repeat(7,25px);
+    &.month{
+        grid-template-columns: repeat(7, 1fr); 
+    }
+    gap: 8px;
+}
+
+.month{
+
+}
+
+.month-top{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.button{
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba($color: #000000, $alpha: 0);
+    @media(any-hover:hover){
+        &:hover{
+            background: rgba($color: #000000, $alpha: 0.05);
+        }
+    }
+}
+
+.month-title{
+    font-size: 14px;
+    letter-spacing: 0.25px;
+    line-height: 20px;
+    color: #70757a;
+    margin-bottom: 10px;
+    &.month{
+        margin-bottom: 0;
+    }
+}
+
+.actions{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}

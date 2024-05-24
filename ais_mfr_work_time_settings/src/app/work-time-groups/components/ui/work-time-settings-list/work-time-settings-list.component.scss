@@ -1,0 +1,76 @@
+.list-item {
+  cursor: pointer;
+}
+
+.mat-mdc-list-item-icon {
+  color: rgba(0, 0, 0, 0.54);
+}
+.header {
+  display: flex;
+  align-items: center;
+  border-bottom: solid 1px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  gap: 10px;
+}
+.text {
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.25px;
+  line-height: 48px;
+}
+
+.edit{
+  color: rgb(24, 30, 28) !important;
+}
+
+.sketetons{
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+
+
+mat-list {
+    height: calc(100vh - 114px);
+    overflow: auto;
+}
+
+mat-list-item:hover {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.04
+  ); /* Define the desired hover background color */
+}
+
+
+
+  .radio{
+  margin-right: 10px;
+cursor: pointer;
+  }
+
+  .label{
+    cursor: pointer;
+    opacity: 0.8;
+    &:hover{
+      opacity: 1;
+    }
+  }
+
+  span.mdc-list-item__content {
+    height: 100% !important;
+   } 
+  
+  /* input:focus {
+    box-shadow: 0px 0px 0px calc(3px) #4484CD;
+    background-color: white;
+  } */
+
+ 
+
+  .createSetting{
+    display: flex;
+  }

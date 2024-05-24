@@ -1,0 +1,170 @@
+<div class="wrapper" *ngIf="currentDate"> 
+    <div class="top-bar">   
+      <mat-icon
+        (click)="closeSideBar()"
+        style="cursor: pointer"
+        matTooltip="Закрыть сведения"
+        fontIcon="last_page"
+      ></mat-icon>
+    </div>
+    <div class="space">
+      <div class="body">
+        <h4 class="title">
+          {{ getWeektName() }}, {{ getMonthShortName() }} {{ currentDate.day }}
+        </h4>
+        <div class="field" *ngIf="workTime" >
+           Название: {{workTimeName === '' ? 'отсутствует' : workTimeName }}
+        </div>  
+        <div *ngIf="workTime  && !isHoliday" >
+            <div class="wt-name">Рабочее время</div>
+            <div  class="workTime"  *ngFor="let wt of workTimes; let i = index">
+                <div class="wt">{{wt.start}}</div>
+                <div class="wt">-</div>
+                <div class="wt">{{wt.end}}</div>
+                <ngx-colors
+                disabled="true"
+                ngx-colors-trigger
+                [ngModel]="wt.color"
+                style="display: inline-block; margin: 5px"
+              ></ngx-colors>
+           
+            </div>
+        </div>
+    
+  
+      
+  
+    
+        <div *ngIf="workTime" class="work-time-item">   
+          <span *ngIf="isHoliday">Весь день</span>
+          <div   *ngIf="isHoliday">          
+            <ngx-colors
+            disabled="true"
+            ngx-colors-trigger
+            [ngModel]="holidayColor"
+            style="display: inline-block; margin: 5px"
+          ></ngx-colors>
+        </div>
+          <div *ngIf="isHoliday"  style="font-weight: 600">Не рабочий</div>
+        </div>
+        <div
+          *ngIf="workTime"
+
+          class="repeat-toggle"
+        >
+          <mat-icon
+            [fontIcon]="showRepeatMenu ? 'refresh' : 'do_not_disturb'"
+          ></mat-icon>
+          <div>{{ showRepeatMenu ? "Повторять" : "Не повторять" }}</div>
+        </div>
+
+
+        <div *ngIf="showRepeatMenu && workTime">
+          <div class="repeate-menu">
+            <div  
+              class="repeate-menu-item"
+           
+              [ngClass]="{ active: true }"
+            >
+              {{ currentRepeatType}}  
+            </div>
+          </div>
+          <div class="interval-settings">
+            <div
+              class="current-interval-settings"
+              *ngIf="currentRepeatType == repeatType.DAILY"
+            >
+              <div class="interval-pick">
+                <div>Повторять с интервалом</div>
+                <div>{{interval}}</div>
+                <div style="font-weight: 500">день</div>
+              </div>
+            </div>
+  
+            <div
+              class="current-interval-settings"
+              *ngIf="currentRepeatType == repeatType.WEEKLY"
+            >
+              <div class="interval-pick">
+                <div>Повторять с интервалом</div>
+                <div>{{interval}}</div>
+                <div style="font-weight: 500">неделя</div>
+              </div>
+              <div class="repeat-days">
+                <div style="margin-top: 5px">Дни повторения</div>
+                <div class="week-day-picker">
+                  <div
+                    class="week-day-item"
+                    *ngFor="let wd of weekDays"
+                    [ngClass]="{ 'choosen-repeat-day': checkRepeatDay(wd) }"
+                  >
+                    {{ wd.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            <div
+              class="current-interval-settings"
+              *ngIf="currentRepeatType == repeatType.MONTHLY"
+            >
+              <div class="interval-pick">
+                <div>Повторять</div>
+       
+                <div>с интервалом</div>
+                <div>{{interval}}</div>
+                <div style="font-weight: 500">месяц</div>
+              </div>
+            </div>
+  
+            <div
+              class="current-interval-settings"
+              *ngIf="currentRepeatType == repeatType.YEARLY"
+            >
+       
+            </div>
+          </div>
+  
+          <div class="repeat-end">
+            <div class="end">Окончание</div>
+            <div class="RepeatEndTypeFlex">
+                <div>{{choosenRepeatEndType}}</div>
+
+                <div *ngIf="choosenRepeatEndType == 'Дата'">
+                    <input  
+                    matInput
+                    disabled="true"
+                    [(ngModel)]="endRepeatDate"             
+         
+                    [matDatepicker]="picker"
+                    class="calendar-picker"      
+        
+                  />
+                  <mat-datepicker #picker></mat-datepicker>
+                </div>
+                <div *ngIf="choosenRepeatEndType == 'После'">
+                    <input
+                    disabled="true"
+                    [(ngModel)]="endRepeatCount"
+                    type="number"
+                    max="99"
+                    min="0"
+                    class="number-picker"
+    
+                  />
+                  <mat-datepicker #picker></mat-datepicker>
+                </div>
+                <div *ngIf="choosenRepeatEndType == 'Никогда'">
+                    <div>никогда</div>
+                </div>
+            </div>
+   
+
+   
+          </div>
+        </div>
+      </div>
+    </div>
+   
+  </div>
+  

@@ -1,0 +1,53 @@
+<div class="loading" *ngIf="isLoading">
+  <mat-spinner></mat-spinner>
+</div>
+<ng-container *ngIf="!isLoading">
+  <div class="header">
+    <button mat-icon-button (click)="backClicked()"><mat-icon>arrow_back</mat-icon></button>
+    <span matTooltip="изменить имя (двойной клик)" *ngIf="!changedName" (dblclick)="onDblclick()" class="text">{{ workTimeSetting.title }}</span>
+      <input matInput (keydown)="onKeyDown($event)"  *ngIf="changedName"  type="text" class="input"  [(ngModel)]="inputValue"     placeholder="Имя">
+
+    
+ 
+    <div class="skip-buttons">
+      <button (click)="onPrevYear()"  class="small-icon-button" mat-icon-button>
+        <mat-icon>keyboard_arrow_left</mat-icon>
+      </button>
+      <div class="today">{{ startDate.year}}</div>
+      <button (click)="onNextYear()" class="small-icon-button" mat-icon-button>
+        <mat-icon>keyboard_arrow_right</mat-icon>
+      </button>
+    </div>
+  </div>
+  <mat-sidenav-container>
+    <mat-sidenav
+      position="end"
+      #sidenav
+      mode="side"
+      style="width: 25%; position: absolute; top: 50px"
+      [fixedInViewport]="true"
+      [(opened)]="opened"
+    >
+      <side-bar
+        *ngIf="opened"
+        [currentDate]="selectedDate"
+        [result]="result"
+        (onSave)="updateWorkTimes($event)"
+        (closeSideNav)="closeSideNav()"
+        (onUpdate)="onClickDate(result, selectedDate)"
+      ></side-bar>
+    </mat-sidenav>
+    <mat-sidenav-content style="background-color: white">
+      <div class="wrapper">
+        <app-year 
+           [allUserWorkTimes]="workTimeSetting.workTimes"
+           (onDayClick)="onClickDate($event.result, $event.date)"
+           (onDaySecondClick)="onClickDate($event.result, $event.date)"
+           [year]="startDate.year"
+           [borderVisible]="true" 
+        />  
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+  
+</ng-container>
