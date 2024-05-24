@@ -12,7 +12,7 @@ services:
       - 5467:5432
     restart: unless-stopped
   back:
-    build: ais_msrv_work_time_groups/
+    build: ais_msrv_work_time_settings/
     environment:
       - ENV
     command: npm run start:${ENV:-test}
