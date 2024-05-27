@@ -5,9 +5,9 @@ services:
       - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
       - postgres_microservice_back:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: work_time_groups
-      POSTGRES_PASSWORD: work_time_groups
-      POSTGRES_DB:  work_time_groups
+      POSTGRES_USER: work_time_settings
+      POSTGRES_PASSWORD: work_time_settings
+      POSTGRES_DB:  work_time_settings
     ports:
       - 5467:5432
     restart: unless-stopped
