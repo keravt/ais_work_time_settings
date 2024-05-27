@@ -34,7 +34,7 @@ module.exports = {
       
       filename: "remoteEntry.js",
       exposes: {
-        "./WorkTimeGroupsModule": "./src/app/work-time-groups/work-time-groups.module.ts",
+        "./WorkTimeSettingsModule": "./src/app/work-time-settings/work-time-settings.module.ts",
       },
 
       shared:

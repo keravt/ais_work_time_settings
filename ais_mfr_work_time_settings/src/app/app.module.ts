@@ -6,8 +6,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { WorkTimeGroupsModule } from './work-time-groups/work-time-groups.module';
+
 import { initializeKeycloak } from './keycloak/keycloak-init.factory';
+import { WorkTimeSettingsModule } from './work-time-settings/work-time-settings.module';
 
 
 
@@ -21,7 +22,8 @@ import { initializeKeycloak } from './keycloak/keycloak-init.factory';
     AppRoutingModule,
     KeycloakAngularModule,
     FormsModule,
-    WorkTimeGroupsModule
+    WorkTimeSettingsModule,
+
    
 
   ],
