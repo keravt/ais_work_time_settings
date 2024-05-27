@@ -17,19 +17,19 @@ services:
       - ENV
     command: npm run start:${ENV:-test}
     ports:
-      - 50151:80
+      - 50150:80
     depends_on:
       - postgres
-  # front:
-  #   build: 
-  #     context: ais_mfr_work_time_settings/.
-  #   labels:
-  #     SERVICE_CHECK_INTERVAL: 10s
-  #   ports:
-  #     - 50100:80
-  #   depends_on:
-  #     - back
-volumes:
+  front:
+     build: 
+       context: ais_mfr_work_time_settings/.
+     labels:
+       SERVICE_CHECK_INTERVAL: 10s
+     ports:
+       - 50100:80
+     depends_on:
+       - back
+  volumes:
   postgres_microservice_back:
-#  front:
-#     build: */ 
+  front:
+  build: 

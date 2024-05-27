@@ -8,6 +8,6 @@ export const keycloakConfigInfo = {
   clientId: 'frontend-client'
 };
 
-export const mainURL = 'http://localhost:50151';
+export const mainURL = 'https://api.worktime.k-portal.ru';
 export const authUrl = 'https://api.authorization.k-portal.ru';
 export const staffingTableURL = 'https://test-staffing-table-api.k-portal.ru';
