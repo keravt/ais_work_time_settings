@@ -11,7 +11,7 @@ sharedMappings.register(path.join(__dirname, "tsconfig.json"), [
 
 module.exports = {
   output: {
-    uniqueName: "frontend_name",
+    uniqueName: "ais_work_time_Settings",
     publicPath: "auto",
   },
   optimization: {
@@ -30,7 +30,7 @@ module.exports = {
       library: { type: "module" },
       
       // For remotes (please adjust)
-      name: "ais_mfr_work_time_groups",
+      name: "ais_mfr_work_time_Settings",
       
       filename: "remoteEntry.js",
       exposes: {
