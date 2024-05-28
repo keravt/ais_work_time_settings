@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:15.1
@@ -7,12 +9,13 @@ services:
     environment:
       POSTGRES_USER: work_time_settings
       POSTGRES_PASSWORD: work_time_settings
-      POSTGRES_DB:  work_time_settings
+      POSTGRES_DB: work_time_settings
     ports:
       - 5467:5432
     restart: unless-stopped
+
   back:
-    build: ais_msrv_work_time_settings/
+    build: ./ais_msrv_work_time_settings/
     environment:
       - ENV
     command: npm run start:${ENV:-test}
@@ -20,16 +23,16 @@ services:
       - 50150:80
     depends_on:
       - postgres
+
   front:
-     build: 
-       context: ais_mfr_work_time_settings/.
-     labels:
-       SERVICE_CHECK_INTERVAL: 10s
-     ports:
-       - 50100:80
-     depends_on:
-       - back
-  volumes:
+    build: 
+      context: ./ais_mfr_work_time_settings/
+    labels:
+      SERVICE_CHECK_INTERVAL: 10s
+    ports:
+      - 50100:80
+    depends_on:
+      - back
+
+volumes:
   postgres_microservice_back:
-  front:
-  build: 
