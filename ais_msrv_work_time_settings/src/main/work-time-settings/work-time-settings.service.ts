@@ -326,14 +326,14 @@ export class WorkTimeSettingsService {
 
     let events:Event[] = []
 
-    try {
-      const response = await firstValueFrom(this.http.get(`https://api.calendar.k-portal.ru/api/events/event/${userUid}`, {params:query}))
-      events = response.data as unknown as Event[];
-      
+    // try {
+      // const response = await firstValueFrom(this.http.get(`https://api.calendar.k-portal.ru/api/events/event/${userUid}`, {params:query}))
+      // events = response.data as unknown as Event[];
+      // 
  
-    } catch (error) {
-      
-    }
+    // } catch (error) {
+      // 
+    // }
  
     
     const sortedEvents = [
