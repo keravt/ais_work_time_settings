@@ -14,7 +14,7 @@ on:
 jobs:
   prod:
     name: prod
-    runs-on: [self-hosted, work-time_running]
+    runs-on: self-hosted
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Run Docker Compose
