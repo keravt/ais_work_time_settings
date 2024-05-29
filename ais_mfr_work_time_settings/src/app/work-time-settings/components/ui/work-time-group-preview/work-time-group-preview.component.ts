@@ -70,13 +70,13 @@ export class WorkTimeGroupPreviewComponent implements OnInit {
   onPrevYear(){
     const { uid } = this.route.snapshot.params;
     this.startDate = {...this.startDate, year:this.startDate.year - 1}
-    this.router.navigate(["ais_mfr_calendar", "settings", "work-time-groups",uid,this.startDate.year])
+    this.router.navigate(["ais_mfr_work_time_settings", "work-time-groups",uid,this.startDate.year])
 
   }
   onNextYear(){
     const { uid } = this.route.snapshot.params;
     this.startDate = {...this.startDate, year:this.startDate.year + 1}
-    this.router.navigate(["ais_mfr_calendar", "settings", "work-time-groups",uid, this.startDate.year])
+    this.router.navigate(["ais_mfr_work_time_settings", "work-time-groups",uid, this.startDate.year])
   }
 
   backClicked() {

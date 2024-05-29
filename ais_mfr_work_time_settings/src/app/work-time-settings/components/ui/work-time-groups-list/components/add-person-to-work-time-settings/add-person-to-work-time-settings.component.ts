@@ -53,7 +53,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   fiteredDivisions:Division[] = []
   divionInput = new FormControl()
   selectedDivision:null | Division = null
-
+  settingPositions:{uid:string, position:number}[] = []
   ngOnInit(): void {
     this.divionInput.valueChanges.subscribe(data=>{
       console.log('dd', data);
@@ -182,14 +182,16 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
     moveItemInArray(this.settings, event.previousIndex, event.currentIndex);
     
     if (this.wtg) {
-      const settingPositions:{uid:string, position:number}[] = []
+      this.settingPositions = []
+      console.log('tttt', this.settings);
+      
       for (let i = 0; i < this.settings.length; i++) {
         const element = this.settings[i];
-        settingPositions.push({uid:element.uid, position:i})
+        this.settingPositions.push({uid:element.uid, position:i})
         
       }
       
-      this.workTimeGroupsApi.updateWorkTimeGroup({uid:this.wtg.uid, settingPositions}).subscribe()
+     
 
       
     }
@@ -210,7 +212,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
  
     this.GroupSettings = [...wtg.workTimeSettings]
     this.checkedWtg = wtg
-
+    this.settingPositions = wtg.settingPositions
 
     this.userIds =new Set([...wtg.userIds]) 
     this.isLoading = true
@@ -281,7 +283,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   console.log('this.GroupSettings', this.GroupSettings);
   
    
-    this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, userIds:Array.from(this.userIds) , workTimeSettings:this.GroupSettings}).subscribe({next:()=>{
+    this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, userIds:Array.from(this.userIds) , workTimeSettings:this.GroupSettings, settingPositions:this.settingPositions}).subscribe({next:()=>{
             
 
       this.snackBar.open(`рабочее время обновлено`, undefined,{

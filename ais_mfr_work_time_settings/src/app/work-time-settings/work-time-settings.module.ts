@@ -25,6 +25,7 @@ import { DeleteWorkTimeComponent } from './components/modals/delete-work-time/de
 import { SaveWorkTimeComponent } from './components/modals/save-work-time/save-work-time.component';
 import { TimePeriodComponent } from './components/ui/work-time-setting/components/time-period/time-period.component';
 import { WorkTimeSettingsListComponent } from './components/ui/work-time-settings-list/work-time-settings-list.component';
+import { DeleteWorkTimeGroupComponent } from './components/modals/delete-work-time-group/delete-work-time-group..component';
 
 
 @NgModule({
@@ -48,6 +49,7 @@ import { WorkTimeSettingsListComponent } from './components/ui/work-time-setting
     DeleteWorkTimeSettingsComponent,
     SideBarComponent,
     DeleteWorkTimeComponent,
+    DeleteWorkTimeGroupComponent,
     SaveWorkTimeComponent,
     TimePeriodComponent,
     WorkTimeSettingsListComponent,
