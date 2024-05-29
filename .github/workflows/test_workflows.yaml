@@ -1,0 +1,22 @@
+name: deploy worktime test
+
+on:
+  push:
+    branches: 
+      - test
+  workflow_dispatch:
+
+env:
+  DIR: "/home/user/ais_work_time_settings"
+
+jobs:
+  test:
+    name: Test
+    runs-on: [self-hosted, work-time_running]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/test'
+    steps:
+      - name: Run Docker Compose
+        run: |
+          cd $DIR
+          git pull origin test
+          docker-compose build --build-arg ENV=test && ENV=test docker-compose up -d
