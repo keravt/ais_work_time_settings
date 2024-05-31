@@ -5,6 +5,7 @@ import { WorkTimeGroup } from 'src/schemas/WorkTimeGroup.schema';
 import { updateWorkTimeGroupDto } from './DTO/update-work-time-group.dto';
 import { updateSettingPosition } from './DTO/update-setting-position.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Sort } from '../work-time-settings/models/sort.model';
 
 @Controller('work-time-groups')
 export class WorkTimeGroupsController {

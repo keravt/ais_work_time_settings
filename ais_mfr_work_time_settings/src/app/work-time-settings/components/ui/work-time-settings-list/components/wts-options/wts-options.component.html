@@ -1,0 +1,49 @@
+
+<div class="body">
+    <div *ngIf="isUpdate" class="loader">
+      <mat-spinner   ></mat-spinner>
+    </div>
+  
+    <div class="group">
+     
+      <div class="header">
+        <div class="title">Полная информация</div>
+        <div class="group-options">
+
+          <div (click)="chooseOption(1)"  [ngClass]="{'active':option === 1}"  class="group-option" >
+            <mat-icon fontIcon="edit"></mat-icon>
+          </div>
+          
+          
+          <div  class="group-option" (click)="deleteWtg()" >
+            <mat-icon fontIcon="delete"></mat-icon>
+          </div>
+          <div  class="group-option" (click)="copyWtg()" >
+            <mat-icon fontIcon="content_copy"></mat-icon>
+          </div>
+          <div  class="group-option" (click)="openPreview()" >
+            <mat-icon fontIcon="preview"></mat-icon>
+          </div>
+          <div  class="group-option" (click)="close()" >
+            <mat-icon fontIcon="last_page"></mat-icon>
+          </div>
+  
+        </div>
+      </div>
+      <div class="group-title">{{wts?.title}}</div>
+      <div class="group-body">
+        <div  class="content" [ngClass]="{'active':option === 1}">
+          <div class="change-name">
+            <input id="change"  class="inputTitle"  [(ngModel)]="inputValue"   matInput  placeholder="Имя">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="buttons">
+      <button (click)="close()" mat-stroked-button>Закрыть</button>
+      <button (click)="updateWorkTimeSetting()" mat-stroked-button>Сохранить</button>
+    </div>
+  
+   </div>
+  
+  

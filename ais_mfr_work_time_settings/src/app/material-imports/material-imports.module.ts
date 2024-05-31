@@ -57,7 +57,9 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
     MatListModule,
     ReactiveFormsModule,
     RouterModule,
-    DragDropModule
+    DragDropModule,
+    MatSortModule,
+
   ],
   exports: [
     DialogModule,
@@ -88,7 +90,8 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
     MatListModule,
     ReactiveFormsModule,
     RouterModule,
-    DragDropModule
+    DragDropModule,
+    MatSortModule
   ],
 })
 export class MaterialImportsModule {}

@@ -1,5 +1,6 @@
 .group{
     cursor: pointer;
+ 
     padding-left: 30px;
     display: flex;
     gap: 10px;
@@ -18,8 +19,14 @@ align-items: center;
 }
 
 .title{
-    text-align: center;
+    text-align: left;
     align-self: center;
+    max-width: 50%;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 28px;
+    font-weight: 500;
+    flex: 1 1 auto;
 }
 
 .input {
@@ -38,14 +45,18 @@ align-items: center;
     text-overflow: ellipsis;
     border: none;
     outline: none;
-    border-radius: 4px;
-    width: 0px;
+
+    width: 0px ;
     pointer-events: none;
+
 
   }
   
 .changeName{
-    width: 80%;
+   
+    width: 50%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+
     pointer-events: visible;
   }
 

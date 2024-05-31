@@ -1,24 +1,61 @@
-
-<app-header title="Настройки  рабочего времени" [type]="'../work-time-groups'">
-  <button  (click)="showSettingCreate()" matTooltip="Добавить настройку"  mat-icon-button>
-    <mat-icon id="addSetting">more_time</mat-icon>
-  </button>
-</app-header>
-
-<mat-list  style="overflow: auto;">
+<div class="settings">
+  <div class="top-pannel__block">
+    <div class="more-buttons">
+      <span class="material-symbols-outlined"  matTooltip="Добавить группу" mat-icon-button (click)="showSettingCreate()"
+        style="cursor: pointer; margin-left: 5px">
+        add
+      </span>
   
-  <mat-list-item *ngIf="showSettingCreator">
-   <app-create-work-time-setting-item (onSettingClose)="closeSettingCreate()" (onSettingCreate)="createWorkTimeSetting()"/>
-  </mat-list-item>
+  
+      <div class="filter-block">
+        <span class="resetAllFilters" class="material-symbols-outlined"
+          style="display:flex; align-items: center; margin-left: 15px; cursor: pointer;" (click)="resetFilters()">
+          filter_alt_off
+        </span>
+        <input type="text" class="form-control" (keydown)="onAllFiltrChange()"  placeholder="Искать в таблице" [(ngModel)]="allSearch">
+      </div>
+    </div>
+    <div class="rows-count">
+      Показано строк: {{this.lengthOfSortedWtg}} из {{allWorkTimeSettings.length}}
+    </div>
+  </div>
+  
+  
+  <mat-sidenav-container [@.disabled]="true" [hasBackdrop]='false'  class="sidenav-container">
+    <mat-sidenav-content>
+  
+      <app-header (onSort)="sortSetting($event)" title="Настройки  рабочего времени" [type]="'../work-time-groups'">
+        <span #filtr class="filtr"  [ngClass]="{'active':filterData.filterType && filterData.filterValue}" class="material-symbols-outlined filter" (click)="openFiltrModal()"
+        style="cursor: pointer;">
+        filter_alt
+      
+      </span>
+  
+      </app-header>
+      <div class="groupList">
+        <app-create-work-time-setting-item *ngIf="showSettingCreator" (onSettingClose)="closeSettingCreate()" (onSettingCreate)="createWorkTimeSetting()"/>
+        <app-work-time-setting-item [checkedSetting]="checkedSetting" (click)="checkSetting(wts)"  (onSettingUpdate)="updateItem()"  (onSettingCopy)="addCopySettings()" (onSettingDelete)="filtrSettings()" class="item-list" [wts]="wts"      *ngFor="let wts of workTimesSettings | async "/>
+      </div>
+    </mat-sidenav-content>
+  
+    <mat-sidenav mode="side"  position="end" #drawer [(opened)]="opened"     >
+      <app-wts-options 
+      (onSettingDelete)="filtrSettings()" 
+      [wts] = "checkedSetting" 
+      (onSettingCopy)="addCopySettings()"  
+      (onSettingSave)="createWorkTimeSetting()" 
+      (onClose)="close()"
+      (onPreviewVisible)="changePreviewVisible($event)"
+      >
+      </app-wts-options >
+    </mat-sidenav>
+  </mat-sidenav-container>
+  
+  
+</div>
 
-  <mat-list-item
-    style="cursor: pointer"
-    *ngFor="let wts of workTimesSettings | async "
-  >
-   <app-work-time-setting-item  (onSettingCopy)="addCopySettings($event)" (onSettingDelete)="filtrSettings($event)" class="item-list" [wts]="wts" />
-  </mat-list-item>
 
 
-</mat-list>
+
 
 

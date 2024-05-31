@@ -1,14 +1,28 @@
 .item{
+
+
+    cursor: pointer;
+ 
+    padding-left: 30px;
     display: flex;
     gap: 10px;
 align-items: center;
-    max-height: 50px;
+    height: 50px;
+    @media (any-hover: hover) {
+        &:hover {
+            background-color: rgba(0,0,0,0.04)
+        }
+        &.checked{
+            background-color: rgba(0,0,0,0.04)
+        }
+      }
 
 }
 
 .title{
-    text-align: center;
+   
     align-self: center;
+    flex: 1 1 auto;
 }
 
 

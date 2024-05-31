@@ -7,5 +7,6 @@ export interface WorkTimeGroup {
     workTimeSettings:WorkTimeSetting[]
     userIds: string[]
     settingPositions:{uid:string, position:number}[]
+    created_at:Date
 
 }

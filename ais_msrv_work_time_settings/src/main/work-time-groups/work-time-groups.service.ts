@@ -6,6 +6,7 @@ import { Not, Repository } from 'typeorm';
 import { updateWorkTimeGroupDto } from './DTO/update-work-time-group.dto';
 
 import { updateSettingPosition } from './DTO/update-setting-position.dto';
+import { Sort } from '../work-time-settings/models/sort.model';
 
 @Injectable()
 export class WorkTimeGroupsService {
@@ -23,7 +24,10 @@ export class WorkTimeGroupsService {
       }
 
       async getWorkTimeGroups() {
-        return await this.workTimeGroupRepo.find({relations:{workTimeSettings:true}});
+        return await this.workTimeGroupRepo.find({relations:{workTimeSettings:true},order:{
+          created_at:'DESC'
+        }});
+ 
       }
 
       async updateWorkTimeGroup(dto: updateWorkTimeGroupDto) {

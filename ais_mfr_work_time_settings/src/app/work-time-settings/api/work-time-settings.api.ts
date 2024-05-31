@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { WorkTimeSetting } from '../models/WorkTimeSetting.model';
 import { mainURL } from 'src/environments/environment';
 import { WorkTimeModel } from '../models/WorkTime.model';
+import { Sort } from '../models/sort.model';
 
 @Injectable({
   providedIn: 'root'

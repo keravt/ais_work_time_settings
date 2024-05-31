@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { mainURL } from 'src/environments/environment';
 import { WorkTimeGroup } from '../models/WorkTimeGroup.model';
+import { Sort } from '../models/sort.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,10 +22,10 @@ export class WorkTimeGroupsApi {
   
 
 
-  updateWorkTimeGroup(workTimeGroup:Partial<WorkTimeGroup>): Observable<WorkTimeGroup[]> {
+  updateWorkTimeGroup(workTimeGroup:Partial<WorkTimeGroup>): Observable<WorkTimeGroup> {
     console.log('workTimeGroup', workTimeGroup);
     
-    return this.http.patch<WorkTimeGroup[]>(`${mainURL}/api/work-time-groups/update`, workTimeGroup)
+    return this.http.patch<WorkTimeGroup>(`${mainURL}/api/work-time-groups/update`, workTimeGroup)
   }
 
   copyWorkTimeGroup(workTimeGroup: WorkTimeGroup){

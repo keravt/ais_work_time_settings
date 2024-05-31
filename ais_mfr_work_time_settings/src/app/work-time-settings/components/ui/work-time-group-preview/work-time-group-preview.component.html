@@ -1,8 +1,6 @@
 <div  class="wrapper">
     <div class="header">
-        <button mat-icon-button (click)="backClicked()"><mat-icon>arrow_back</mat-icon></button>
-    
-        
+
      
         <div class="skip-buttons">
           <button (click)="onPrevYear()"  class="small-icon-button" mat-icon-button>
@@ -14,23 +12,27 @@
           </button>
         </div>
     </div>
-    <mat-sidenav-container>
+    <mat-sidenav-container  [@.disabled]="true"  [hasBackdrop]='false'>
+    
       <mat-sidenav
         position="end"
         #sidenav
-        mode="side"
+        mode="over"
         style="width: 25%; position: absolute; top: 50px"
         [fixedInViewport]="true"
         [(opened)]="opened"
+        
+        
       >
         <app-side-bar-locked
           *ngIf="opened"
+          
           [currentDate]="selectedDate"
           [result]="result"
           (closeSideNav)="closeSideNav()"
         ></app-side-bar-locked>
       </mat-sidenav>
-      <mat-sidenav-content  style="background-color: white">
+      <mat-sidenav-content   style="background-color: white">
           <div class="year">
             <app-year       (onDayClick)="onClickDate($event.event, $event.result, $event.date)"  [allUserWorkTimes]="workTimes"  [year]="startDate.year"  [borderVisible]="true"/>
           </div>

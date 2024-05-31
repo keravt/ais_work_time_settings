@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { WorkTimeGroup } from "./WorkTimeGroup.schema";
 import { WorkTimeSchema } from "./WorkTime.schema";
 
@@ -19,7 +19,8 @@ export class WorkTimeSetting {
     @ManyToMany(() => WorkTimeGroup,  (workTimeGroup)=>workTimeGroup.workTimeSettings, {onDelete: 'CASCADE'} )
     workTimeGroups: WorkTimeGroup[]
 
-
+    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+    public created_at: Date;
 
 
     @Column({default: false})
