@@ -20,6 +20,7 @@ import { GetHolidaysDto } from './DTO/get-holidays.dto';
 import { WorkTimeService } from '../work-time/work-time.service';
 import { HttpService } from '@nestjs/axios';
 import { Event } from './models/Event.model';
+import { Sort } from './models/sort.model';
 
 
 
@@ -62,7 +63,10 @@ export class WorkTimeSettingsService {
   }
 
   async getWorkTimeSettings() {
-    return await this.workTimeSettingRepo.find();
+    return await this.workTimeSettingRepo.find({order:{
+      created_at:'DESC'
+    }});
+ 
   }
 
   async getWorkTimeSettingByUid(uid: string, year: string) {

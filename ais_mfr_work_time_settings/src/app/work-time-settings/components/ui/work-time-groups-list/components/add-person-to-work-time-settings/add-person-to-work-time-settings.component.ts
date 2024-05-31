@@ -1,12 +1,15 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { NoopScrollStrategy } from '@angular/cdk/overlay';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import * as moment from 'moment';
 import { Observable, map, startWith, switchMap } from 'rxjs';
 import { UserApi } from 'src/app/work-time-settings/api/user.api';
 import { WorkTimeGroupsApi } from 'src/app/work-time-settings/api/work-time-groups.api';
 import { WorkTimeSettingsApi } from 'src/app/work-time-settings/api/work-time-settings.api';
+import { DeleteWorkTimeGroupComponent } from 'src/app/work-time-settings/components/modals/delete-work-time-group/delete-work-time-group..component';
 import { Division } from 'src/app/work-time-settings/models/Division.model';
 import { Person } from 'src/app/work-time-settings/models/Person.model';
 import { WorkTimeGroup } from 'src/app/work-time-settings/models/WorkTimeGroup.model';
@@ -24,9 +27,11 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   constructor(
     private UserApi: UserApi,
     private workTimeSettingsApi: WorkTimeSettingsApi,
+    private workTimeSettingStorageService: WorkTimeSettingStorageService,
     private workTimeGroupsApi: WorkTimeGroupsApi,
     private snackBar: MatSnackBar,
-    private cdr:ChangeDetectorRef
+    private cdr:ChangeDetectorRef,
+    private dialog:MatDialog
 
   ) {}
 
@@ -34,6 +39,9 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   @Input() wtg:WorkTimeGroup | null = null
   @Output() onGroupSave = new EventEmitter()
   @Output() onClose = new EventEmitter()
+  @Output() onGroupDelete = new EventEmitter<string>()
+  @Output() onGroupCopy = new EventEmitter<string>()
+  @Output() onPreviewVisible = new EventEmitter<boolean>()
   personsControl = new FormControl('');
   settingsControl = new FormControl('');
   persons: Person[] = [];
@@ -54,6 +62,10 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   divionInput = new FormControl()
   selectedDivision:null | Division = null
   settingPositions:{uid:string, position:number}[] = []
+  option = 1
+  inputValue = ''
+  previewVisible = false
+  
   ngOnInit(): void {
     this.divionInput.valueChanges.subscribe(data=>{
       console.log('dd', data);
@@ -114,12 +126,17 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
     this.cdr.markForCheck()
   }
 
+  chooseOption(option:number){
+  this.option = option
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['wtg']) {
 
       
       if (this.wtg) {
         this.checkWtg(this.wtg)
+        this.inputValue =this.wtg.title ;
       }
     }
   }
@@ -130,6 +147,11 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
    this.userIds =  new Set( [...this.userIds,...[...this.filteredPersons.filter(el=>!this.lockedUsers.find(lock=>lock.userUid === el.keycloakUid))].map(el=>el.keycloakUid)])
   
   }
+
+
+
+
+
 
 
   
@@ -192,7 +214,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
       }
       
      
-
+      this.updateWtsPostitions()
       
     }
   }
@@ -202,9 +224,9 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
     if (this.GroupSettings.find(el=>el.uid === setting.uid)) {
       this.GroupSettings = this.GroupSettings.filter(el => el.uid !== setting.uid)
     } else {
-      this.GroupSettings.push(setting)
+      this.GroupSettings = [...this.GroupSettings, setting] 
     }
-
+    this.updateWtsPostitions()
 
   }
 
@@ -269,6 +291,33 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
 
   }
 
+
+  updateWtsPostitions(){
+    this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, workTimeSettings:this.GroupSettings, settingPositions:this.settingPositions }).subscribe({next:(group)=>{
+        console.log('ggg', group);
+        
+         
+      if (this.checkedWtg) {
+    
+        
+          this.updateWtsStorage(group,String( moment().year()))
+        
+      
+      }
+  
+    this.snackBar.open(`рабочее время обновлено`, undefined,{
+      duration: 2000
+    }); 
+    this.onGroupSave.emit()
+    this.cdr.markForCheck()
+  },
+complete:()=>{
+  this.isUpdate = false
+  this.cdr.markForCheck()
+}
+})
+  }
+
   updateWorkTimeSetting() {
   this.isUpdate = true
   this.workTimeGroups = [...this.workTimeGroups.map(el=>{
@@ -283,9 +332,17 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   console.log('this.GroupSettings', this.GroupSettings);
   
    
-    this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, userIds:Array.from(this.userIds) , workTimeSettings:this.GroupSettings, settingPositions:this.settingPositions}).subscribe({next:()=>{
-            
-
+    this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, userIds:Array.from(this.userIds) , workTimeSettings:this.GroupSettings, settingPositions:this.settingPositions, title:this.inputValue }).subscribe({next:(group)=>{
+      
+         
+        if (this.checkedWtg) {
+      
+          
+            this.updateWtsStorage(group,String( moment().year()))
+          
+        
+        }
+    
       this.snackBar.open(`рабочее время обновлено`, undefined,{
         duration: 2000
       }); 
@@ -300,8 +357,77 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   }
 
   close(){
+    this.previewVisible = false
 this.onClose.emit()
   }
 
+  updateWtsStorage(checkedGroup:WorkTimeGroup, year:string){
+
+  
+  
+      this.workTimeSettingsApi
+      .getWorkTimeGroupByUid(checkedGroup.uid,year)
+      .subscribe((wts) => {
+      
+        
+      if (!wts) {
+        console.log('www', wts);
+     this.workTimeSettingStorageService.clearTimeSetting()
+     return 
+      }
+        
+        this.workTimeSettingStorageService.setWorkTimeSetting(wts)
+        //this.workTimeSetting = wts;
+
+
+     
+        this.cdr.markForCheck()
+      });
+   
+  }
+
+
+
+  copyWtg(){
+    if (!this.wtg) {
+      return
+    }
+
+    
+    this.workTimeGroupsApi.copyWorkTimeGroup(this.wtg).subscribe(data=>{
+      console.log('workkk', data);
+      
+      this.onGroupCopy.emit()
+      this.cdr.markForCheck()
+    })
+  }
+
+  deleteWtg(){
+   
+    if (!this.wtg) {
+      return
+    }
+ const thisDialog = this.dialog.open(DeleteWorkTimeGroupComponent, {
+      backdropClass: 'cdk-overlay-transparent-backdrop',
+      scrollStrategy:new NoopScrollStrategy(),
+      data: {uid:this.wtg.uid, type:'Group'},
+      width: '448px',
+    
+    });
+
+    thisDialog.afterClosed().subscribe(action=>{
+    if (action == 'delete') {
+      this.onGroupDelete.emit()
+      this.cdr.markForCheck()
+    }
+  
+    })
+
+  }
+
+  openPreview(){
+    this.previewVisible = !this.previewVisible
+    this.onPreviewVisible.emit(this.previewVisible)
+  }
 
 }

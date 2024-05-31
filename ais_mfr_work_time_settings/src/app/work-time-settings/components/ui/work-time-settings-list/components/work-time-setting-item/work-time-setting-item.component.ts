@@ -29,11 +29,12 @@ export class WorkTimeSettingItemComponent implements OnInit {
 
 
 
-
+  @Input() checkedSetting!:WorkTimeSetting | null
   @Input() wts!:WorkTimeSetting 
 
   @Output() onSettingDelete = new EventEmitter<string>()
   @Output() onSettingCopy = new EventEmitter<WorkTimeSetting>()
+  @Output() onSettingUpdate = new EventEmitter()
   inputValue:string = ''
   changedName:boolean = false
   loader:boolean = false
@@ -74,7 +75,7 @@ export class WorkTimeSettingItemComponent implements OnInit {
         if (this.wts) {
           this.wts.title = this.inputValue
         }
-      
+        this.onSettingUpdate.emit()
         this.cdr.markForCheck()
       })
     }

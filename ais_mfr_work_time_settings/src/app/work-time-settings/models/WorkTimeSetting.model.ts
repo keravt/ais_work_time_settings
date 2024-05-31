@@ -7,4 +7,5 @@ export interface WorkTimeSetting {
     isGeneral:boolean
     workTimes: WorkTimeModel[]
     userIds: string[]
+    created_at:Date
 }

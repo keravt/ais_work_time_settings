@@ -1,0 +1,1 @@
+export type Sort = 'alphabet-asc' |'alphabet-desc' | 'none'

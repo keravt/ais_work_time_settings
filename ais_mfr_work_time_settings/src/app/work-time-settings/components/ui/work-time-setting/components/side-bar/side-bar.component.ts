@@ -47,6 +47,7 @@ import { RepeatEndType } from 'src/app/work-time-settings/enums/repeat-end-type'
 import { ChangeEnum } from 'src/app/work-time-settings/enums/change.enum';
 import { DeleteWorkTimeGroupComponent } from 'src/app/work-time-settings/components/modals/delete-work-time-group/delete-work-time-group..component';
 import { SaveWorkTimeComponent } from 'src/app/work-time-settings/components/modals/save-work-time/save-work-time.component';
+import { DeleteWorkTimeComponent } from 'src/app/work-time-settings/components/modals/delete-work-time/delete-work-time.component';
 
 
 
@@ -356,7 +357,7 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
     }
   
 
-    const deleteModal = this.dialog.open(DeleteWorkTimeGroupComponent, {
+    const deleteModal = this.dialog.open(DeleteWorkTimeComponent, {
       minWidth: '448px',
       backdropClass: 'cdk-overlay-transparent-backdrop',
       scrollStrategy:new NoopScrollStrategy(),

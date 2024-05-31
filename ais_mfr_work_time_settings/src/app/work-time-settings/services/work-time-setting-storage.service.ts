@@ -21,6 +21,11 @@ export class WorkTimeSettingStorageService {
     this.workTimeSetting.next(workTimeSetting)
   }
 
+  clearTimeSetting() {
+    this.workTimeSetting.next(null)
+  }
+
+
 
 
 

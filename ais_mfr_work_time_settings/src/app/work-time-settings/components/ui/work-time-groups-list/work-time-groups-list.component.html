@@ -1,24 +1,60 @@
 <div class="groups">
-  <app-header title="Настройки групп рабочего времени" [type]="'../work-time'">
-    <button  matTooltip="Добавить группу" mat-icon-button (click)="changeGroupCreator(true)">
-      <mat-icon id="addSetting">group_add</mat-icon>
-    </button>
-  
+
+  <div class="top-pannel__block">
+    <div class="more-buttons">
+      <span class="material-symbols-outlined"  matTooltip="Добавить группу" mat-icon-button (click)="changeGroupCreator(true)"
+        style="cursor: pointer; margin-left: 5px">
+        add
+      </span>
+
+
+      <div class="filter-block">
+        <span class="resetAllFilters" class="material-symbols-outlined"
+          style="display:flex; align-items: center; margin-left: 15px; cursor: pointer;" (click)="resetFilters()">
+          filter_alt_off
+        </span>
+        <input type="text" class="form-control" (keydown)="onAllFiltrChange()"  placeholder="Искать в таблице" [(ngModel)]="allSearch">
+      </div>
+    </div>
+    <div class="rows-count">
+      Показано строк: {{this.lengthOfSortedWtg}} из {{allWorkTimeGroups.length}}
+    </div>
+  </div>
+  <mat-sidenav-container [@.disabled]="true" [hasBackdrop]='false'  class="sidenav-container">
+    <mat-sidenav-content>
+
+     
+  <app-header  (onSort)="sortGroup($event)" title="Настройки групп рабочего времени" [type]="'../work-time'">
+    <span #filtr class="filtr"  [ngClass]="{'active':filterData.filterType && filterData.filterValue}" class="material-symbols-outlined filter" (click)="openFiltrModal()"
+    style="cursor: pointer;">
+    filter_alt
+
+  </span>
+ 
   </app-header>
 
-  <mat-sidenav-container  class="sidenav-container">
+
    
-    <mat-sidenav-content>
+   
       <div class="groupList">
         <app-create-work-time-group-item *ngIf="isGroupCreator" (onGroupClose)="changeGroupCreator(false)" (onGroupCreate)="onCreateGroup()"/>
-        <app-work-time-group-item (onGroupCopy)="addCopySettings()"  (click)="checkGroup(group)" [checkedGroup]="checkedGroup" (onGroupDelete)="filtrGroups($event)" [wtg]="group" *ngFor="let group of workTimesGroups | async"/>
+        <app-work-time-group-item [opened]="opened" (onGroupUpdate)="updateItem()" (onGroupCopy)="addCopySettings()"  (click)="checkGroup(group)" [checkedGroup]="checkedGroup"  (onGroupDelete)="filtrGroups()" [wtg]="group" *ngFor="let group of workTimesGroups | async"/>
       </div>
     </mat-sidenav-content>
-    <mat-sidenav mode="side" position="end" #drawer [(opened)]="opened"     >
-      <app-add-person-to-work-time-settings [wtg] = "checkedGroup"  (onGroupSave)="onCreateGroup()" (onClose)="closeAddPerson()">
+    <mat-sidenav mode="side"  position="end" #drawer [(opened)]="opened"     >
+      <app-add-person-to-work-time-settings 
+      (onGroupDelete)="filtrGroups()" 
+      [wtg] = "checkedGroup" 
+      (onGroupCopy)="addCopySettings()"  
+      (onGroupSave)="onCreateGroup()" 
+      (onClose)="closeAddPerson()"
+      (onPreviewVisible)="changePreviewVisible($event)"
+      >
       </app-add-person-to-work-time-settings>
     </mat-sidenav>
   </mat-sidenav-container>
-  
+  <div *ngIf="previewVisible && opened" class="preview">
+    <app-work-time-group-preview [checkedGroup]="checkedGroup"/>
+  </div>
 </div>
 

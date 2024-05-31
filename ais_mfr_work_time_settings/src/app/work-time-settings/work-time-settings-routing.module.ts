@@ -11,7 +11,7 @@ import { WorkTimeSettingsComponent } from './components/ui/work-time-setting/wor
 const routes: Routes = [
   {
     path: '',
-    redirectTo: `work-time`,
+    redirectTo: `work-time-groups`,
     pathMatch: 'full',
   },
   {

@@ -1,4 +1,4 @@
-import { Column, Entity,  JoinTable,  ManyToMany,  PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity,  JoinTable,  ManyToMany,  PrimaryGeneratedColumn } from "typeorm";
 import { WorkTimeSetting } from "./WorkTimeSetting.schema";
 
 
@@ -20,6 +20,9 @@ export class WorkTimeGroup {
 
     @Column("text", {array: true, default: []})
     userIds: string[]
+
+    @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })
+    public created_at: Date;
 
 
     @Column({type:'json', default:[]})

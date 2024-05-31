@@ -19,15 +19,15 @@ export class ColorDayTemplatePipe implements PipeTransform {
     let wc = workTimes.find(wt => new Date(wt.day).getDate() == d.getDate() && new Date(wt.day).getFullYear() == d.getFullYear() && new Date(wt.day).getMonth() == d.getMonth()  )
     if (wc) {
       let color = "black"
+      let backgroundColor = wc.workTime[wc.workTime.length - 1].color
       if (wc.isHoliday) {
         color = !isDarkColor(wc.holidayColor)  ? "black" : "white"
+        backgroundColor = wc.holidayColor
       }
       return result = {
         date:wc.day,
         uid:wc.uid,
-        backgroundColor: wc.isHoliday ? wc.holidayColor : "white",
-        ['line-height']:borderVisible && !wc.isHoliday ? '1.5rem' : '1.7rem',
-        border:!wc.isHoliday && borderVisible ?" 0.5px solid rgba(3,155,229,0.4)" : "none",
+        backgroundColor,
         color,
         title: "Выходной"
       }

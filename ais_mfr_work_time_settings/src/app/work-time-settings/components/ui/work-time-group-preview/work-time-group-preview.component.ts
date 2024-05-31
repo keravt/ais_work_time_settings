@@ -1,10 +1,11 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
 import { WorkTimeSettingsApi } from 'src/app/work-time-settings/api/work-time-settings.api';
 import { Result } from 'src/app/work-time-settings/models/Result.model';
 import { WorkTimeModel } from 'src/app/work-time-settings/models/WorkTime.model';
+import { WorkTimeGroup } from 'src/app/work-time-settings/models/WorkTimeGroup.model';
 import { WorkTimeSetting } from 'src/app/work-time-settings/models/WorkTimeSetting.model';
 import { WorkTimeSettingStorageService } from 'src/app/work-time-settings/services/work-time-setting-storage.service';
 
@@ -34,16 +35,14 @@ export class WorkTimeGroupPreviewComponent implements OnInit {
   today:Date =  new Date()
   activeDate:{year:number,month:number,day:number} = {year:this.today.getFullYear(), month:this.today.getMonth() + 1,day:this.today.getDate()} 
   changedName:boolean = false
-
-
-  ngOnInit(): void {
-    this.route.params.subscribe((data)=>{
-
+  
+  @Input() checkedGroup!:WorkTimeGroup
+  updateWtsStorage(checkedGroup:WorkTimeGroup, year:string){
     this.isLoading = true
-    const { uid,year } = this.route.snapshot.params;
+  
   
       this.workTimeSettingsApi
-      .getWorkTimeGroupByUid(uid,year)
+      .getWorkTimeGroupByUid(checkedGroup.uid,year)
       .subscribe((wts) => {
       if (!wts) {
         return  this.workTimes = []
@@ -57,11 +56,21 @@ export class WorkTimeGroupPreviewComponent implements OnInit {
         this.cdr.markForCheck()
       });
       this.cdr.markForCheck()
-     })
+  }
 
+  ngOnInit(): void {
+
+
+    this.route.params.subscribe((data)=>{
+
+
+     })
+     this.updateWtsStorage(this.checkedGroup,String(this.startDate.year) )
      this.workTimeSettingStorageService.workTimeSetting$.subscribe(data=>{
       if (data) {
         this.workTimes = data.workTimes
+      }else{
+        this.workTimes = []
       }
       this.cdr.markForCheck()
      })
@@ -70,13 +79,15 @@ export class WorkTimeGroupPreviewComponent implements OnInit {
   onPrevYear(){
     const { uid } = this.route.snapshot.params;
     this.startDate = {...this.startDate, year:this.startDate.year - 1}
-    this.router.navigate(["ais_mfr_work_time_settings", "work-time-groups",uid,this.startDate.year])
+    this.updateWtsStorage(this.checkedGroup,String(this.startDate.year) )
+    //this.router.navigate(["ais_mfr_work_time_settings", "work-time-groups",uid,this.startDate.year])
 
   }
   onNextYear(){
     const { uid } = this.route.snapshot.params;
     this.startDate = {...this.startDate, year:this.startDate.year + 1}
-    this.router.navigate(["ais_mfr_work_time_settings", "work-time-groups",uid, this.startDate.year])
+    this.updateWtsStorage(this.checkedGroup,String(this.startDate.year) )
+    //this.router.navigate(["ais_mfr_work_time_settings", "work-time-groups",uid, this.startDate.year])
   }
 
   backClicked() {

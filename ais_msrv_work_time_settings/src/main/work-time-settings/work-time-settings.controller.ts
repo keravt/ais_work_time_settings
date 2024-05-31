@@ -29,6 +29,7 @@ import { WorkTimeSchema } from 'src/schemas/WorkTime.schema';
 import { UpdateTitleWorkTimeDto } from './DTO/update-title-work-time.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { GetHolidaysDto } from './DTO/get-holidays.dto';
+import { Sort } from './models/sort.model';
 
 
 @ApiBearerAuth()

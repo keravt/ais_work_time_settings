@@ -1,5 +1,5 @@
 import { NoopScrollStrategy } from '@angular/cdk/overlay';
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,9 +12,10 @@ import { WorkTimeGroup } from 'src/app/work-time-settings/models/WorkTimeGroup.m
   templateUrl: './work-time-group-item.component.html',
   styleUrls: ['./work-time-group-item.component.scss']
 })
-export class WorkTimeGroupItemComponent implements OnInit {
+export class WorkTimeGroupItemComponent implements OnInit, OnChanges {
 
   @Input() wtg!:WorkTimeGroup
+  @Input() opened!:boolean
   @Input() checkedGroup!:WorkTimeGroup | null
   changedName:boolean = false
   inputValue:string = ''
@@ -22,6 +23,7 @@ export class WorkTimeGroupItemComponent implements OnInit {
   @Output() onGroupDelete = new EventEmitter<string>()
   @Output() onClick = new EventEmitter<WorkTimeGroup>()
   @Output() onGroupCopy = new EventEmitter<WorkTimeGroup>()
+  @Output() onGroupUpdate = new EventEmitter()
 
   constructor( 
     private elementRef: ElementRef,
@@ -32,6 +34,13 @@ export class WorkTimeGroupItemComponent implements OnInit {
      private cdr:ChangeDetectorRef
 ){
  
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+   if ( changes['opened']) {
+      if (this.opened) {
+        
+      }
+   }
   }
 
   ngOnInit(): void {
@@ -93,7 +102,8 @@ export class WorkTimeGroupItemComponent implements OnInit {
         if (this.wtg) {
           this.wtg.title = this.inputValue
         }
-      
+        this.onGroupUpdate.emit()
+    
         this.cdr.markForCheck()
       })
     }
