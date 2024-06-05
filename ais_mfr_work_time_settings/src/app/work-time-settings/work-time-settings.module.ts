@@ -28,6 +28,8 @@ import { WorkTimeSettingsListComponent } from './components/ui/work-time-setting
 import { DeleteWorkTimeGroupComponent } from './components/modals/delete-work-time-group/delete-work-time-group..component';
 import { FilterDropdownComponent } from './components/ui/filter-dropdown/filter-dropdown.component';
 import { WtsOptionsComponent } from './components/ui/work-time-settings-list/components/wts-options/wts-options.component';
+import { AllSettingsComponent } from './components/ui/work-time-groups-list/components/all-settings/all-settings.component';
+import { AllUsersComponent } from './components/modals/all-users/all-users.component';
 
 
 @NgModule({
@@ -57,6 +59,8 @@ import { WtsOptionsComponent } from './components/ui/work-time-settings-list/com
     WorkTimeSettingsListComponent,
     FilterDropdownComponent,
     WtsOptionsComponent,
+    AllSettingsComponent,
+    AllUsersComponent,
   
 
 

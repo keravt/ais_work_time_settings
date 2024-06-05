@@ -1,12 +1,40 @@
 <div   class="item" [ngClass]="{'checked': checkedSetting?.uid === wts.uid}">
 
 
-   
-
+  <mat-icon   *ngIf="this.inGroup" class="check-group" (click)="addToGroup()" matListItemIcon>check_box</mat-icon>
+  <mat-icon  *ngIf="!this.inGroup" class="check-group" (click)="addToGroup()"    matListItemIcon>check_box_outline_blank</mat-icon>
     <mat-icon  class="history" matListItemIcon>manage_history</mat-icon>
   
     <div *ngIf="!changedName"  class="title">{{ wts.title }}</div>
-    
-    <input id="change"  class="input"  [ngClass]="{'changeName':changedName}" (keydown)="onKeyDown($event)" (click)="onInputClick($event)" [(ngModel)]="inputValue"   matInput  placeholder="Имя">
- 
+     <div class="changeNameActions">
+        <button *ngIf="changedName" matTooltip="отменить"    mat-icon-button color="black" (click)="closeChanged()">
+            <mat-icon>close</mat-icon>
+          </button> 
+      <button *ngIf="changedName" matTooltip="сохранить"    mat-icon-button color="black" (click)="updateTitle()">
+        <mat-icon >check</mat-icon>
+      </button>
+        <input id="change"   class="input"  [ngClass]="{'changeName':changedName}" (keydown)="onKeyDown($event)" (click)="onInputClick($event)" [(ngModel)]="inputValue"   matInput  placeholder="Имя">
+     </div>
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button (click)="changeName()" mat-menu-item >
+          <mat-icon>edit</mat-icon>
+          <span>переименовать</span>
+      </button>
+        <button (click)="copyWts()" mat-menu-item >
+          <mat-icon>content_copy</mat-icon>
+          <span>копировать</span>
+        </button>
+
+        <button [mat-dialog-close]="true" (click)="goToSetting()" mat-menu-item>
+            <mat-icon>manage_history</mat-icon>
+            <span>настроить время</span>
+        </button>
+        <button (click)="removeSetting()" mat-menu-item>
+          <mat-icon>delete</mat-icon>
+          <span>удалить</span>
+        </button>
+      </mat-menu>
 </div>

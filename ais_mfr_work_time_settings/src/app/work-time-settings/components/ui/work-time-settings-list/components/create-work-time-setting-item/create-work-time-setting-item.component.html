@@ -1,13 +1,13 @@
 
 <form   class="form">
-    <button matTooltip="отменить"   (click)="inputKeyDown()" mat-icon-button color="black">
-        <mat-icon>close</mat-icon>
-      </button> 
-  <button matTooltip="сохранить"  (click)="createSetting($event)"  mat-icon-button color="black">
-    <mat-icon >check</mat-icon>
-  </button>
 
-  <mat-icon matListItemIcon>manage_history</mat-icon>
+
     <input  id="createWorkTimeSetting"  (keydown.enter)="createSetting($event)" (keydown.esc)="inputKeyDown()" class="input" [formControl]="newSettingTitle" autofocus placeholder="Напишите название настройки" />
-  
+    <button matTooltip="отменить"   (click)="inputKeyDown()" mat-icon-button color="black">
+      <mat-icon>close</mat-icon>
+    </button> 
+<button matTooltip="сохранить"  (click)="createSetting($event)"  mat-icon-button color="black">
+  <mat-icon >check</mat-icon>
+</button>
+
 </form>

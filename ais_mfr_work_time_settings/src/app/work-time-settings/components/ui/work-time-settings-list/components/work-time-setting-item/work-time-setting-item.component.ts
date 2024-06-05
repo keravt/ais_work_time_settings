@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 
 
@@ -8,6 +8,10 @@ import { NoopScrollStrategy } from '@angular/cdk/overlay';
 import { WorkTimeSettingsApi } from 'src/app/work-time-settings/api/work-time-settings.api';
 import { WorkTimeSetting } from 'src/app/work-time-settings/models/WorkTimeSetting.model';
 import { DeleteWorkTimeSettingsComponent } from 'src/app/work-time-settings/components/modals/delete-work-time-settings/delete-work-time-settings.component';
+import { WorkTimeGroupsApi } from 'src/app/work-time-settings/api/work-time-groups.api';
+import { WorkTimeGroup } from 'src/app/work-time-settings/models/WorkTimeGroup.model';
+import * as moment from 'moment';
+import { WorkTimeSettingStorageService } from 'src/app/work-time-settings/services/work-time-setting-storage.service';
 
 
 
@@ -18,7 +22,10 @@ import { DeleteWorkTimeSettingsComponent } from 'src/app/work-time-settings/comp
 })
 export class WorkTimeSettingItemComponent implements OnInit {
 
-  constructor( private workTimeSettingsApi: WorkTimeSettingsApi,
+  constructor( 
+    private workTimeSettingsApi: WorkTimeSettingsApi,
+    private workTimeGroupsApi:WorkTimeGroupsApi,
+    private workTimeSettingStorageService:WorkTimeSettingStorageService,
     private router: Router,
      private route: ActivatedRoute,
      public dialog: MatDialog,
@@ -31,6 +38,7 @@ export class WorkTimeSettingItemComponent implements OnInit {
 
   @Input() checkedSetting!:WorkTimeSetting | null
   @Input() wts!:WorkTimeSetting 
+  @Input() wtg!:WorkTimeGroup
 
   @Output() onSettingDelete = new EventEmitter<string>()
   @Output() onSettingCopy = new EventEmitter<WorkTimeSetting>()
@@ -38,15 +46,41 @@ export class WorkTimeSettingItemComponent implements OnInit {
   inputValue:string = ''
   changedName:boolean = false
   loader:boolean = false
+  inGroup = false
 
   ngOnInit(): void {
-
- 
-      this.inputValue = this.wts.title
+    console.log('wtgg', this.wtg.workTimeSettings);
+    
+    
+  if (this.wtg.workTimeSettings.find(el=>el.uid === this.wts.uid)) {
+    this.inGroup = true
+  }
+   
+  this.inputValue = this.wts.title
     
     
  
   }
+
+  addToGroup(){
+    let settings = [...this.wtg.workTimeSettings]
+    if (settings.find(el=>el.uid === this.wts.uid)) {
+      settings = [...settings.filter(el=>el.uid !== this.wts.uid)]
+      this.inGroup = true
+    }else{
+      settings = [...settings,this.wts ]
+      this.inGroup = false
+    }
+    this.workTimeGroupsApi.updateWorkTimeGroup({...this.wtg, workTimeSettings:settings  }).subscribe({next:(group)=>{
+      this.wtg = group
+      this.onSettingUpdate.emit()
+      
+  }
+  
+  })
+  }
+
+
 
   onItemClick(uid:string){
       if (this.changedName) return
@@ -55,21 +89,19 @@ export class WorkTimeSettingItemComponent implements OnInit {
   
 }
 
-  changeName(event:MouseEvent){
-    event.preventDefault()
-    event.stopPropagation()
+  changeName(){
+
     this.changedName = true
     const elementRef = this.elementRef.nativeElement as HTMLElement
-    const change = elementRef.querySelector('input') as HTMLElement
-  
+    const change = elementRef.querySelector('#change') as HTMLElement
+     console.log('change', change);
+     
     
     change.focus()
    }
 
-   updateTitle(event:MouseEvent){
+   updateTitle(){
     if (this.wts) {
-      event.preventDefault()
-      event.stopPropagation()
       this.workTimeSettingsApi.updateTitleWorkTime({uid:this.wts.uid,title:this.inputValue,isGeneral:this.wts.isGeneral}).subscribe(data=>{
         this.changedName = false
         if (this.wts) {
@@ -82,8 +114,8 @@ export class WorkTimeSettingItemComponent implements OnInit {
   
    }
 
-   copyWts(event:MouseEvent){
-    event.stopPropagation()
+   copyWts(){
+
     if (!this.wts) {
       return
     }
@@ -105,8 +137,8 @@ export class WorkTimeSettingItemComponent implements OnInit {
     event.stopPropagation()
    }
 
-   removeSetting(event:MouseEvent){
-    event.stopPropagation()
+   removeSetting(){
+ 
     if (!this.wts) {
       return
     }
@@ -130,8 +162,8 @@ export class WorkTimeSettingItemComponent implements OnInit {
 
    }
 
-   closeChanged(event:MouseEvent){
-    event.stopPropagation()
+   closeChanged(){
+ 
     this.changedName = false
    }
 
@@ -160,6 +192,12 @@ export class WorkTimeSettingItemComponent implements OnInit {
     }
    
    }
+
+   goToSetting(){
+    this.workTimeSettingStorageService.setWorkTimeSettingId(this.wts.uid)
+   
+  }
+  
 
  
 

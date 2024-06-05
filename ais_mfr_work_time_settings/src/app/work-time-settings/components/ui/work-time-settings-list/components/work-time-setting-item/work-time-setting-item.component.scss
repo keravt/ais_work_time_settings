@@ -1,31 +1,36 @@
 .item{
 
 
-    cursor: pointer;
+
  
-    padding-left: 30px;
+
     display: flex;
     gap: 10px;
 align-items: center;
     height: 50px;
-    @media (any-hover: hover) {
-        &:hover {
-            background-color: rgba(0,0,0,0.04)
-        }
-        &.checked{
-            background-color: rgba(0,0,0,0.04)
-        }
-      }
+
 
 }
 
+
+.check-group{
+    cursor: pointer;
+}
 .title{
    
     align-self: center;
     flex: 1 1 auto;
 }
 
+.input{
+    border-bottom: 1px solid rgba(0, 0, 0, 1);
+}
 
+.changeNameActions{
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+}
 
 .history{
     color: rgba(0, 0, 0,0.4);

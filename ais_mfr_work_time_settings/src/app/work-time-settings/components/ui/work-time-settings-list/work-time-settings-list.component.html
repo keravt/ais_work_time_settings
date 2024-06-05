@@ -25,12 +25,6 @@
     <mat-sidenav-content>
   
       <app-header (onSort)="sortSetting($event)" title="Настройки  рабочего времени" [type]="'../work-time-groups'">
-        <span #filtr class="filtr"  [ngClass]="{'active':filterData.filterType && filterData.filterValue}" class="material-symbols-outlined filter" (click)="openFiltrModal()"
-        style="cursor: pointer;">
-        filter_alt
-      
-      </span>
-  
       </app-header>
       <div class="groupList">
         <app-create-work-time-setting-item *ngIf="showSettingCreator" (onSettingClose)="closeSettingCreate()" (onSettingCreate)="createWorkTimeSetting()"/>

@@ -10,10 +10,7 @@
         <div class="title">Полная информация</div>
         <div class="group-options">
 
-          <div (click)="chooseOption(1)"  [ngClass]="{'active':option === 1}"  class="group-option" >
-            <mat-icon fontIcon="edit"></mat-icon>
-          </div>
-          
+      
           
           <div  class="group-option" (click)="deleteWtg()" >
             <mat-icon fontIcon="delete"></mat-icon>
@@ -30,13 +27,11 @@
   
         </div>
       </div>
-      <div class="group-title">{{wts?.title}}</div>
+      <div class="group-title">
+        <input id="change"  class="inputTitle"  [(ngModel)]="inputValue"   matInput  placeholder="Имя">
+      </div>
       <div class="group-body">
-        <div  class="content" [ngClass]="{'active':option === 1}">
-          <div class="change-name">
-            <input id="change"  class="inputTitle"  [(ngModel)]="inputValue"   matInput  placeholder="Имя">
-          </div>
-        </div>
+
       </div>
     </div>
     <div class="buttons">

@@ -1,0 +1,45 @@
+
+.body{
+  padding: 10px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+     text-decoration: none;
+    gap: 10px;
+  }
+  .text {
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.25px;
+    line-height: 48px;
+  }
+
+  .close{
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .groupList{
+    height: 300px;
+    overflow: auto;
+  }
+
+  .add-setting{
+   
+  }
+
+  .buttons{
+    width: 100%;
+    justify-content: flex-end;
+    display: flex;
+
+  }
+
+  .filtr{
+
+  }

@@ -4,15 +4,12 @@
     <div class="more-buttons">
       <span class="material-symbols-outlined"  matTooltip="Добавить группу" mat-icon-button (click)="changeGroupCreator(true)"
         style="cursor: pointer; margin-left: 5px">
-        add
+        group_add
       </span>
 
 
       <div class="filter-block">
-        <span class="resetAllFilters" class="material-symbols-outlined"
-          style="display:flex; align-items: center; margin-left: 15px; cursor: pointer;" (click)="resetFilters()">
-          filter_alt_off
-        </span>
+
         <input type="text" class="form-control" (keydown)="onAllFiltrChange()"  placeholder="Искать в таблице" [(ngModel)]="allSearch">
       </div>
     </div>
@@ -24,12 +21,8 @@
     <mat-sidenav-content>
 
      
-  <app-header  (onSort)="sortGroup($event)" title="Настройки групп рабочего времени" [type]="'../work-time'">
-    <span #filtr class="filtr"  [ngClass]="{'active':filterData.filterType && filterData.filterValue}" class="material-symbols-outlined filter" (click)="openFiltrModal()"
-    style="cursor: pointer;">
-    filter_alt
+  <app-header  (onSort)="sortGroup($event)" title="Группы рабочего времени" [type]="'../work-time'">
 
-  </span>
  
   </app-header>
 
@@ -55,6 +48,10 @@
   </mat-sidenav-container>
   <div *ngIf="previewVisible && opened" class="preview">
     <app-work-time-group-preview [checkedGroup]="checkedGroup"/>
+  </div>
+
+  <div *ngIf="wtsId"  class="wts">
+    <app-work-time-settings   />
   </div>
 </div>
 

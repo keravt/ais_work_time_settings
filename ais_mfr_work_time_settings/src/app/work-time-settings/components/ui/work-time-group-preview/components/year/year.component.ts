@@ -64,7 +64,7 @@ export class YearComponent implements OnChanges, OnInit {
   clickout(event:MouseEvent) {
     const target = event.target as HTMLElement
     if (!target.classList.contains('day')) {
-      this.chekedDate = null
+      //this.chekedDate = null
     }
   
   }

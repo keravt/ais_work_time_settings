@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FilterDropdownComponent } from '../filter-dropdown/filter-dropdown.component';
 import { NoopScrollStrategy } from '@angular/cdk/overlay';
 import {Sort as matSort, MatSortModule} from '@angular/material/sort';
+import { WorkTimeSettingStorageService } from 'src/app/work-time-settings/services/work-time-setting-storage.service';
 @Component({
   selector: 'app-work-time-groups',
   templateUrl: './work-time-groups-list.component.html',
@@ -27,9 +28,11 @@ export class WorkTimeGroupsListComponent implements OnInit {
   lengthOfSortedWtg = 0
   allSearch = ''
   previewVisible = false
+  wtsId:string | null =  null
   @ViewChild('filtr',{read: ElementRef}) filtrIcon!:ElementRef<HTMLElement>
   constructor(
     private workTimeGroupService:WorkTimeGroupsApi,
+    private workTimeSettingStorageService:WorkTimeSettingStorageService,
     private dialog:MatDialog
     
   ) {}
@@ -37,6 +40,10 @@ export class WorkTimeGroupsListComponent implements OnInit {
     this.workTimeGroupService.getWorkTimeGroups().subscribe(data=>{
       this.allWorkTimeGroups = data
       data.length !== 0 && (this.checkedGroup = data[data.length - 1])
+    })
+
+    this.workTimeSettingStorageService.workTimeSettingId$.subscribe(data=>{
+      this.wtsId = data
     })
     
   }

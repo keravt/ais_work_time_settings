@@ -79,6 +79,8 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
   
   @Input() currentDate!: NgbDateStruct;
   @Input() result!: WorkTimeModel;
+  @Input() year!: number;
+  @Input() uid!: string | null;
   @Output() closeSideNav: EventEmitter<any> = new EventEmitter();
   @Output() onSave: EventEmitter<any> = new EventEmitter();
   @Output() onUpdate: EventEmitter<any> = new EventEmitter();
@@ -158,15 +160,14 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
     fromEvent<KeyboardEvent>(this.document, 'keydown')
     .pipe(takeUntil(this.destroy$))
     .subscribe(async (event) => {
-
-      if ((event.ctrlKey || event.metaKey) && event.code === 'KeyZ') {
-        const { uid, year} = this.route.snapshot.params;
+        
+      if ((event.ctrlKey || event.metaKey) && event.code === 'KeyZ' && this.uid) {
         if (event.shiftKey ) {
           if (!this.redoActive) {
             return
           }
       
-         await this.historyService.onRedoChange(uid,year)
+         await this.historyService.onRedoChange(this.uid,String(this.year))
           this.updateSideBar()
 
       
@@ -183,7 +184,7 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
           return
         }
 
-        await this.historyService.onUndoChange(uid,year)
+        await this.historyService.onUndoChange(this.uid,String(this.year))
         this.updateSideBar()
   
           this.snackBar.open(`изменение рабочего времени ${ChangeEnum.undo}`, undefined,{
@@ -343,12 +344,12 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   deleteWorkTime(){
-    const { uid,year } = this.route.snapshot.params;
-    if (!this.workTime) return
+  
+    if (!this.workTime || !this.uid) return
    
      
     if (!this.workTime.recurrence || this.workTime.noRepeat.noRepeat) {
-      this.sideBarService.deleteWorkTime(this.today,'all',this.workTime,uid,year).then(()=>{
+      this.sideBarService.deleteWorkTime(this.today,'all',this.workTime,this.uid,String(this.year)).then(()=>{
   
   
       })
@@ -364,8 +365,8 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
       data:{
         workTime :this.workTime,
         currentDate:this.today,
-        uid:uid,
-        year
+        uid:this.uid,
+        year:String(this.year)
       }
     })
 
@@ -378,8 +379,8 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
 
 
   async undo(){
-    const { uid, year} = this.route.snapshot.params;
-    await this.historyService.onUndoChange(uid,year)
+    if (!this.uid) return
+    await this.historyService.onUndoChange(this.uid,String(this.year))
     this.updateSideBar()
      this.snackBar.open(`изменение рабочего времени ${ChangeEnum.undo}`, undefined,{
       duration: 2000
@@ -388,8 +389,9 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
 
 
   async redo(){
-    const { uid, year} = this.route.snapshot.params;
-  await this.historyService.onRedoChange(uid,year)
+
+    if (!this.uid) return
+  await this.historyService.onRedoChange(this.uid,String(this.year))
   this.updateSideBar()
   this.snackBar.open(`изменение рабочего времени ${ChangeEnum.redo}`, undefined,{
     duration: 2000
@@ -442,14 +444,13 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
 
   addTimePeriod() {
 
-      if(this.workTime ){
+      if(this.workTime || !this.uid ){
         this.workTimes = [...this.workTimes,{id:v4(), color:'white', start:'00:00', end:'00:30'}]
         return
       }  
 
 
 
-      const { uid, year } = this.route.snapshot.params;
       this.endRepeatCount = 30;
       this.showAddTimePeriod = false;
       this.showRepeatMenu = false;
@@ -473,10 +474,12 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
           .valueOf(),
         this.startTime,
         this.endTime,
-        uid
+        this.uid
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
+        if (!this.uid) return
+        
         this.historyService.setUndoArray(data)
         this.result.uid = data[0].undo.obj.uid
         this.workTime = data[0].undo.obj;
@@ -485,7 +488,7 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
         this.historyService.redoArray$.next([]) 
         this.workTimeSettingsApi
 
-        .getWorkTimeSettingByUid(uid, year)
+        .getWorkTimeSettingByUid(this.uid, String(this.year))
         .pipe(takeUntil(this.destroy$))
         .subscribe((wts) => {
           this.workTimeSettingStorageService.setWorkTimeSetting(wts)
@@ -505,9 +508,9 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
   saveWorkTime() {
  
     
-     if (!this.workTime) return
+     if (!this.workTime || !this.uid) return
   
-    const { uid, year } = this.route.snapshot.params;
+
     if (!this.showRepeatMenu ) {
       this.sideBarService.createWorkTime(
         '',
@@ -519,8 +522,8 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
           this.currentDate.day  
         ).valueOf(),
         'noRepeat',
-        uid,
-        year,
+        this.uid,
+        String(this.year),
         this.isHoliday,
         this.holidayColor,
         this.workTimes,
@@ -559,8 +562,8 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
           this.currentDate.day  
         ).valueOf(),
         'all',
-        uid,
-        year,
+       this.uid,
+        String(this.year),
         this.isHoliday,
         this.holidayColor,
         this.workTimes,
@@ -598,8 +601,8 @@ export class SideBarComponent implements OnChanges, OnInit, OnDestroy {
             this.currentDate.day  
           ).valueOf(),
           workTime:this.workTime,
-          uid,
-          year,
+          uid:this.uid,
+          year:String(this.year),
           never:this.choosenRepeatEndType === RepeatEndType.NEVER,
           showRepeatMenu:this.showRepeatMenu
         }

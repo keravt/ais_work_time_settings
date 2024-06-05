@@ -4,5 +4,23 @@
     <mat-icon  class="supervisor" matListItemIcon>supervisor_account</mat-icon>
     <div *ngIf="!changedName" class="title">{{wtg.title}}</div>
     <input id="change"  class="input"  [ngClass]="{'changeName':changedName}" (keydown)="onKeyDown($event)" (click)="onInputClick($event)" [(ngModel)]="inputValue"   matInput  placeholder="Имя">
+     <div class="actions">
+        <button *ngIf="changedName" matTooltip="отменить"    mat-icon-button color="black" (click)="closeChanged($event)">
+            <mat-icon>close</mat-icon>
+          </button> 
+      <button *ngIf="changedName" matTooltip="сохранить"    mat-icon-button color="black" (click)="updateTitle($event)">
+        <mat-icon >check</mat-icon>
+      </button>
+      <button *ngIf="!changedName" matTooltip="переименовать"  (click)="changeName($event)" mat-icon-button >
+        <mat-icon>edit</mat-icon>
+      </button>
+        <button *ngIf="!changedName" matTooltip="удалить"   (click)="removeGroup($event)" mat-icon-button>
+            <mat-icon>delete</mat-icon>
+          </button>
 
+          <button *ngIf="!changedName" matTooltip="копировать"    (click)="copyWtg($event)" mat-icon-button >
+            <mat-icon>content_copy</mat-icon>
+          </button>
+
+     </div>
  </div>  

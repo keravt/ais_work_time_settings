@@ -52,7 +52,8 @@ export class YearComponent implements OnChanges, OnInit {
 
 
   onClick(event:MouseEvent,date:{year:number, month:number,day:number}, result:any){
-
+     console.log('dawda');
+     
     if( this.chekedDate && this.chekedDate.year === date.year && this.chekedDate.month ===  date.month && this.chekedDate.day === date.day){
       this.onDaySecondClick.emit({event,date,result})
       return
@@ -65,7 +66,7 @@ export class YearComponent implements OnChanges, OnInit {
   clickout(event:MouseEvent) {
     const target = event.target as HTMLElement
     if (!target.classList.contains('day')) {
-      this.chekedDate = null
+      //this.chekedDate = null
     }
   
   }

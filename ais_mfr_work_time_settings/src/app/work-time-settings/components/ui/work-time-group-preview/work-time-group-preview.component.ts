@@ -48,7 +48,7 @@ export class WorkTimeGroupPreviewComponent implements OnInit {
         return  this.workTimes = []
       }
         
-        this.workTimeSettingStorageService.setWorkTimeSetting(wts)
+        this.workTimeSettingStorageService.setWorkTimeGroup(wts)
         //this.workTimeSetting = wts;
 
         this.isLoading = false
@@ -66,7 +66,7 @@ export class WorkTimeGroupPreviewComponent implements OnInit {
 
      })
      this.updateWtsStorage(this.checkedGroup,String(this.startDate.year) )
-     this.workTimeSettingStorageService.workTimeSetting$.subscribe(data=>{
+     this.workTimeSettingStorageService.workTimeGroup$.subscribe(data=>{
       if (data) {
         this.workTimes = data.workTimes
       }else{
@@ -80,6 +80,7 @@ export class WorkTimeGroupPreviewComponent implements OnInit {
     const { uid } = this.route.snapshot.params;
     this.startDate = {...this.startDate, year:this.startDate.year - 1}
     this.updateWtsStorage(this.checkedGroup,String(this.startDate.year) )
+    this.workTimeSettingStorageService.setYear(this.startDate.year)
     //this.router.navigate(["ais_mfr_work_time_settings", "work-time-groups",uid,this.startDate.year])
 
   }
@@ -87,6 +88,7 @@ export class WorkTimeGroupPreviewComponent implements OnInit {
     const { uid } = this.route.snapshot.params;
     this.startDate = {...this.startDate, year:this.startDate.year + 1}
     this.updateWtsStorage(this.checkedGroup,String(this.startDate.year) )
+    this.workTimeSettingStorageService.setYear(this.startDate.year)
     //this.router.navigate(["ais_mfr_work_time_settings", "work-time-groups",uid, this.startDate.year])
   }
 

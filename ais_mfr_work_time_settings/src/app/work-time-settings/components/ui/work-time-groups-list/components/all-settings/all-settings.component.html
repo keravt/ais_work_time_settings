@@ -1,0 +1,31 @@
+<div class="body">
+
+    <div class="close">
+
+    <div matSort (matSortChange)="sortData($event)"  class="header">
+        <span [autofocus]="false" mat-sort-header="name" class="text">Настройки рабочего времени</span>
+        <button   color="basic" (click)="close()" mat-icon-button   aria-label="Example icon-button with a menu">
+            <mat-icon >close</mat-icon>
+          </button>
+      </div>
+    </div>
+    <div  class="filtr">
+        <input type="text" class="form-control" (keydown)="onAllFiltrChange()"  placeholder="Искать в таблице" [(ngModel)]="allSearch">
+    </div>
+   
+ 
+    <div class="groupList">
+        <div class="add-setting" >
+            <button matTooltip="создать рабочее время" color="basic" (click)=" showSettingCreate()" mat-icon-button   aria-label="Example icon-button with a menu">
+                <mat-icon >add</mat-icon>
+              </button>
+
+        </div>
+
+        <app-create-work-time-setting-item *ngIf="showSettingCreator" (onSettingClose)="closeSettingCreate()" (onSettingCreate)="updateItems()"/>
+        <app-work-time-setting-item [wtg]="data"    (onSettingUpdate)="updateItems()"  (onSettingCopy)="updateItems()" (onSettingDelete)="updateItems()" class="item-list" [wts]="wts"      *ngFor="let wts of workTimesSettings | async "/>
+    </div>
+    <div class="buttons">
+        <button  (click)="close()" mat-stroked-button>Отмена</button>
+      </div>
+</div>

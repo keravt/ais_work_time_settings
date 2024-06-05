@@ -32,6 +32,8 @@
         *ngIf="opened"
         [currentDate]="selectedDate"
         [result]="result"
+        [year]="startDate.year"
+        [uid]="wtsId"
         (onSave)="updateWorkTimes($event)"
         (closeSideNav)="closeSideNav()"
         (onUpdate)="onClickDate(result, selectedDate)"

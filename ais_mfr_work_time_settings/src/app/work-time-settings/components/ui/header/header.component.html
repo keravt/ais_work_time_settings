@@ -2,8 +2,5 @@
 <div matSort (matSortChange)="sortData($event)"  class="header">
     <span mat-sort-header="name" class="text">{{title}}</span>
     <ng-content></ng-content>
-    <button [routerLink]="[type]" matTooltip={{routerName}}  mat-icon-button>
-        <mat-icon>{{iconType}}</mat-icon>
-    </button>
 
 </div>

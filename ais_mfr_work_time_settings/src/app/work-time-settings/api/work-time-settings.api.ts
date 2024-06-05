@@ -5,6 +5,7 @@ import { WorkTimeSetting } from '../models/WorkTimeSetting.model';
 import { mainURL } from 'src/environments/environment';
 import { WorkTimeModel } from '../models/WorkTime.model';
 import { Sort } from '../models/sort.model';
+import { WorkTimeGroup } from '../models/WorkTimeGroup.model';
 
 @Injectable({
   providedIn: 'root'
@@ -46,6 +47,7 @@ export class WorkTimeSettingsApi {
     );
   }
 
+
   
 
   updateWorkTimeSetting(workTimeSetting: Partial<WorkTimeSetting>) {
@@ -57,7 +59,7 @@ export class WorkTimeSettingsApi {
 
   copyWorkTimeSetting(workTimeSetting: WorkTimeSetting) {
 
-    console.log('ddddddfff');
+    console.log('ddddddfff', workTimeSetting);
     
     return this.http.post<WorkTimeSetting>(
       `${mainURL}/api/work-time-settings/copyWorkTimeSetting`, 

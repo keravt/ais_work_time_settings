@@ -197,9 +197,6 @@ export class WorkTimeSettingsListComponent   {
   showSettingCreate(){
     this.showSettingCreator = true
 
-    
-
-
   }
 
   createWorkTimeSetting() {

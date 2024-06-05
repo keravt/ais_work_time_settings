@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, HostListener, Inject, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, Inject, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import * as moment from 'moment-timezone';
@@ -17,7 +17,7 @@ import { Result } from 'src/app/work-time-settings/models/Result.model';
   templateUrl: './work-time-settings.component.html',
   styleUrls: ['./work-time-settings.component.scss'],
 })
-export class WorkTimeSettingsComponent implements OnInit{
+export class WorkTimeSettingsComponent implements OnInit, OnChanges{
 
   workTimeSetting!: WorkTimeSetting;
   opened = false;
@@ -25,6 +25,7 @@ export class WorkTimeSettingsComponent implements OnInit{
   isLoading = false
   result:any = null
   inputValue:string = ''
+  wtsId:string | null = null
   today:Date =  new Date()
   activeDate:{year:number,month:number,day:number} = {year:this.today.getFullYear(), month:this.today.getMonth() + 1,day:this.today.getDate()} 
   currentDate:{year:number,month:number,day:number} = {year:this.today.getFullYear(), month:this.today.getMonth() + 1,day:this.today.getDate()} 
@@ -42,33 +43,41 @@ export class WorkTimeSettingsComponent implements OnInit{
     @Inject(DOCUMENT) private document: Document,
     private elementRef: ElementRef,
   ) {}
+  ngOnChanges(changes: SimpleChanges): void {
+   if(changes['startDate'] && this.wtsId){
+    const year = this.startDate['year']
+
+     console.log('dawdadad');
+     
+    this.workTimeSettingsApi
+    .getWorkTimeSettingByUid(this.wtsId,String(year))
+    .subscribe((wts) => {
+      this.workTimeSettingStorageService.setWorkTimeSetting(wts)
+      //this.workTimeSetting = wts;
+
+      this.inputValue = this.workTimeSetting.title
+      this.cdr.markForCheck()
+    });
+    this.cdr.markForCheck()
+   }
+  }
 
   ngOnInit(): void {
 
     this.historyService.undoArray$.next([])
     this.historyService.redoArray$.next([])
     this.isLoading = true
-    const { uid,year } = this.route.snapshot.params;
-     console.log('this.startDate', this.startDate);
-     this.startDate.year = +year
-     this.route.params.subscribe((data)=>{
-      const year = data['year']
+ 
 
-   
-      this.workTimeSettingsApi
-      .getWorkTimeSettingByUid(uid,year)
-      .subscribe((wts) => {
-        this.workTimeSettingStorageService.setWorkTimeSetting(wts)
-        //this.workTimeSetting = wts;
+    if (this.wtsId) {
 
-        this.inputValue = this.workTimeSetting.title
-        this.isLoading = false
-        this.cdr.markForCheck()
-      });
-      this.cdr.markForCheck()
-     })
+    }
+
+
 
    this.workTimeSettingStorageService.workTimeSetting$.subscribe(data=>{
+    console.log('dadwadade2222', data);
+    
     if (data) {
 
       const workTime = data.workTimes.find(el=>moment(el.day).hours(0).valueOf() === moment({...this.activeDate, month:this.activeDate.month}).valueOf())
@@ -82,8 +91,49 @@ export class WorkTimeSettingsComponent implements OnInit{
         
       
       this.workTimeSetting = data
+      this.isLoading = false
     }
+     const groupId = this.workTimeSettingStorageService.getWorkTimeGroupId()
+     const year = this.workTimeSettingStorageService.getYear()
+     if (groupId) {
+      this.workTimeSettingsApi
+      .getWorkTimeGroupByUid(groupId,String(year))
+      .subscribe((wts) => {
+      
+        
+      if (!wts) {
+        console.log('www', wts);
+     this.workTimeSettingStorageService.clearTimeGroup()
+     return 
+      }
+        
+        this.workTimeSettingStorageService.setWorkTimeGroup(wts)
+        //this.workTimeSetting = wts;
+  
+  
+     
+        this.cdr.markForCheck()
+      });
+     }
+
+ 
     this.cdr.markForCheck()
+   })
+
+   this.workTimeSettingStorageService.workTimeSettingId$.subscribe(data=>{
+    if (!data ) return
+    
+    this.wtsId = data
+
+    this.workTimeSettingsApi
+    .getWorkTimeSettingByUid(this.wtsId,String(this.startDate['year']))
+    .subscribe((wts) => {
+      this.workTimeSettingStorageService.setWorkTimeSetting(wts)
+      //this.workTimeSetting = wts;
+      this.isLoading = false
+      this.inputValue = this.workTimeSetting.title
+      this.cdr.markForCheck()
+    });
    })
 
   }
@@ -153,19 +203,37 @@ numberToNgbDate(num: number): NgbDateStruct {
   onPrevYear(){
     const { uid } = this.route.snapshot.params;
     this.startDate = {...this.startDate, year:this.startDate.year - 1}
-    this.router.navigate(["ais_mfr_work_time_settings", "work-time", uid,this.startDate.year])
+    if (!this.wtsId)  return
+    this.workTimeSettingsApi
+    .getWorkTimeSettingByUid(this.wtsId,String(this.startDate.year))
+    .subscribe((wts) => {
+      this.workTimeSettingStorageService.setWorkTimeSetting(wts)
+      //this.workTimeSetting = wts;
+
+      this.inputValue = this.workTimeSetting.title
+      this.cdr.markForCheck()
+    });
 
   }
 
   updateWorkTimes(wts: WorkTimeSetting){
     this.workTimeSettingStorageService.setWorkTimeSetting(wts)
-    //this.workTimeSetting = wts;
+
   }
   
   onNextYear(){
     const { uid } = this.route.snapshot.params;
     this.startDate = {...this.startDate, year:this.startDate.year + 1}
-    this.router.navigate(["ais_mfr_work_time_settings", "work-time", uid,this.startDate.year])
+    if (!this.wtsId)  return
+    this.workTimeSettingsApi
+    .getWorkTimeSettingByUid(this.wtsId,String(this.startDate.year))
+    .subscribe((wts) => {
+      this.workTimeSettingStorageService.setWorkTimeSetting(wts)
+      //this.workTimeSetting = wts;
+
+      this.inputValue = this.workTimeSetting.title
+      this.cdr.markForCheck()
+    });
   }
 
 
@@ -173,6 +241,6 @@ numberToNgbDate(num: number): NgbDateStruct {
 
   
   backClicked() {
-    this.router.navigate(["../../"], {relativeTo: this.route  })
+     this.workTimeSettingStorageService.clearTimeSettingId()
   }
 }

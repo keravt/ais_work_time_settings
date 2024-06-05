@@ -20,6 +20,11 @@ export class WorkTimeGroupsApi {
   }
 
   
+  getWorkTimeGroupById(id:string): Observable<WorkTimeGroup>{
+    return this.http.get<WorkTimeGroup>(
+      `${mainURL}/api/work-time-groups/${id}`,
+    );
+  }
 
 
   updateWorkTimeGroup(workTimeGroup:Partial<WorkTimeGroup>): Observable<WorkTimeGroup> {

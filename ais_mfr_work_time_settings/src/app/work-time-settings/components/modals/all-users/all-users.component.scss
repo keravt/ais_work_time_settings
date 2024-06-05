@@ -4,14 +4,10 @@
   }
   .group-options{
     display: flex;
+    width: 100%;
     gap: 20px;
     align-items: center;
-  
-  
-  
-  
-    
-  
+    justify-content: flex-end;
   }
   
   .group{
@@ -20,6 +16,31 @@
   
   }
   
+  .headers-FIO{
+    flex:  0 0 56%;
+    display: flex;
+    justify-content: center;
+  
+  }
+  
+  .open-all-setting{
+  
+  }
+  
+  .headers{
+    border-bottom: 1px solid rgba(0, 0, 0,0.2);
+    display: flex;
+    width: 100%;
+  
+  }
+  
+  
+  .headers-city{
+    display: flex;
+    justify-content: center;
+    flex: 1 1 auto;
+  
+  }
   .group-option{
     display: flex;
     align-items: center;
@@ -28,19 +49,22 @@
   
     cursor: pointer;
     &.active{
-      position: relative;
-      &::before{
-        content: '';
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: rgba(0, 0, 0, 1);
-        z-index: 2;
-      }
+      color: #8944cd;
+   
+  
    
     }
+  }
+  
+  .user{
+   flex: 0 0 60%;
+   display: flex;
+   align-items: center;
+  }
+  
+  .headers-users{
+    display: flex;
+    
   }
   
   .header{
@@ -55,10 +79,12 @@
     width: 0px;
     height: 0px;
     opacity: 0;
+    display: none;
     &.active{
   width: 100%;
   height: auto;
   opacity: 1;
+  display: block;
     }
   }
   .body{
@@ -105,18 +131,106 @@
     color: rgba(0, 0, 0,0.4);
   }
   
+  .updateName{
+    display: flex;
+    flex: 1 1 auto;
+  
+  }
+  .item-control{
+    display: flex;
+  
+  }
+  
+  .inputSetting {
+    color: #191919;
+    background: transparent;
+    padding-left: 0px;
+    padding-right: 0px;
+    height: 28px !important;
+    font-size: 14px;
+    line-height: 28px;
+    padding: 6px 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: none;
+    outline: none;
+    
+    width: 0px ;
+    pointer-events: none;
+  
+  
+  }
+  
+  .changeName{
+    flex: 1 1 auto;
+    margin-top: 10px;
+   height: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  
+    pointer-events: visible;
+  }
+  
   .persons-list{
     flex: 1 1 auto;
     max-height: 100%;
+    padding: 10px;
   }
+
+  .rows-count {
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    margin-left: 15px;
+  white-space: nowrap;
+    display: flex;
+    align-items: center;
+  }
+
+  .check{
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+
+  .close{
+
+  }
+
+.header-text{
+padding-left: 10px;
+display: flex;
+justify-content: space-between;
+}
+
+.text-text{
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.25px;
+    line-height: 48px;
+}
+
   .list{
   
-  max-height: calc(100vh - 420px);
+    
+  ::ng-deep .mat-mdc-checkbox{
+    padding-right: 5px;
+    
+       flex: 0 0 60%;
+      }
+      
+  padding-right: 5px;
+  
+  max-height: calc(100vh - 460px);
   overflow-y:auto;
   }
   
   
-  
+  .city{
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+  }
   .edit{
     color: rgba(0, 0, 0,0.7);
     &:hover{
@@ -135,12 +249,22 @@
   }
   
   .list-item{
+  
     cursor: grab;
     min-height: 48px;
+    width: 100%;
+    display: flex;
+   align-items: center;
+   justify-content: space-between;
+  }
+  
+  .item-title{
+    flex: 1 1 auto;
   }
   
   .list-item-user{
-    min-height: 48px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+   display: flex;
   }
   
   
@@ -159,11 +283,14 @@
   
    .checkAll{
     padding: 0 10px;
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
    }
   
   .divisions{
     padding: 0 10px;
-    margin-top: 20px;
+
   }
   .divisions-field{
     width: 100% ;
@@ -211,10 +338,22 @@
     word-break: normal;
   }
   
+  .check-group{
+    cursor: pointer;
+  }
+  
   .inputControll{
+    display: flex;
     width: 100%;
-    padding: 3px;
-    margin-top: 10px;
+    gap: 10px;
+    align-items: center;
+    padding-left: 18px;
+    padding-right: 20px;
+    background: #F7F7F9;
+    height: 35px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+  
   }
   
   .change-name{
@@ -243,18 +382,30 @@
     outline: none;
     border-radius: 4px;
     width: 100%;
+  
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    height: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: white;
   }
+
+  .remove{
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  
   
   .inputTitle {
     &:hover{
       border-bottom: 1px solid rgba(0, 0, 0, 0.4);
     }
-
+    cursor: pointer;
+    width: 400px;
     color: #191919;
     background: transparent;
     padding-left: 0px;
     padding-right: 0px;
-    width: 400px;
     height: 28px !important;
     font-size: 14px;
     line-height: 28px;
@@ -265,13 +416,22 @@
     border: none;
     outline: none;
     text-align: center;
-  
     text-overflow: ellipsis;
-
   
   
   
   
+  
+  }
+  
+  .checkAllButton{
+    width: 100%;
+  }
+  .usersButtons{
+    display: flex;
+  
+    gap: 5px;
+    padding: 0 10px;
   
   }
   
