@@ -366,6 +366,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
     
     const dialogRef = this.dialog.open(AllSettingsComponent, {
       minWidth: '600px',
+      maxWidth:'600px',
       autoFocus: false, 
       backdropClass: 'cdk-overlay-transparent-backdrop',
       scrollStrategy:new NoopScrollStrategy(),
@@ -400,6 +401,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
     
     const dialogRef = this.dialog.open(AllUsersComponent, {
       minWidth: '600px',
+      maxWidth:'600px',
       autoFocus: false, 
       backdropClass: 'cdk-overlay-transparent-backdrop',
       scrollStrategy:new NoopScrollStrategy(),

@@ -126,14 +126,20 @@
                     <input id="change"   class="inputSetting"  [ngClass]="{'changeName':changedName === setting.uid}" (keydown)="onKeyDown($event, setting)" [(ngModel)]="settingValue"   matInput  placeholder="Имя">
                   </div>
                   <div class="item-control">
-                    <button (click)="deleteFromGroup(setting.uid)"   mat-icon-button>
-                      <mat-icon>remove_circle_outline</mat-icon>
-                    </button>
-    
 
-                    <button *ngIf="i !== 0 || i !== GroupSettings.length - 1" mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
-                      <mat-icon>more_vert</mat-icon>
-                    </button>
+                    <div class="icon">
+                      <button (click)="deleteFromGroup(setting.uid)"   mat-icon-button>
+                        <mat-icon>remove_circle_outline</mat-icon>
+                      </button>
+                    </div>
+
+    
+                    <div class="icon" *ngIf="i !== 0 || i !== GroupSettings.length - 1" class="icon">
+                      <button  mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+                        <mat-icon>more_vert</mat-icon>
+                      </button>
+                    </div>
+
                     <mat-menu  #menu="matMenu">
                       <button  *ngIf="i !== 0"   (click)="upItem(setting)" mat-menu-item>
                         <mat-icon>arrow_upwards</mat-icon>
