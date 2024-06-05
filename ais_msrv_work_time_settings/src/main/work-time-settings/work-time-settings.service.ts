@@ -285,7 +285,7 @@ export class WorkTimeSettingsService {
       title: `${wts.title} копия`,
     });
     if (!wts.workTimes) {
-      return;
+      return newWorkTimeSetting;
     }
 
     for (const workTime of wts.workTimes) {

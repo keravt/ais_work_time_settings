@@ -49,6 +49,11 @@ export class WorkTimeGroupsController {
       return this.workTimeGroupService.getUsersUidsInWorkTimeGroups(uid);
     }
 
+    @Get('/:uid')
+    getOneWorkTimeGroup(@Param('uid') uid: string) {
+      return this.workTimeGroupService.getWorkTimeGroupById(uid);
+    }
+
     @MessagePattern('getGroupById')
     getWorkTimeGroupById(@Payload() uid: string) {
       return this.workTimeGroupService.getWorkTimeGroupById(uid);

@@ -64,6 +64,7 @@ export class WorkTimeGroupsService {
         const workTimeGroup = await this.workTimeGroupRepo
       .createQueryBuilder('workTimeGroup')
       .where('workTimeGroup.uid = :uid', { uid })
+      .leftJoinAndSelect('workTimeGroup.workTimeSettings', 'workTimeSettings')
       .getOne();
 
       return workTimeGroup
