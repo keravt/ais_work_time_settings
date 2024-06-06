@@ -30,7 +30,7 @@
             [checked]="wts | wtsInGroup : checkedWts"
             *ngFor="let wts of workTimesSettings | async "
             >
-            <app-work-time-setting-item [wtg]="data" (click)="  $event.preventDefault();"    (onSettingUpdate)="updateItems()"  (onSettingCopy)="updateItems()" (onSettingDelete)="updateItems()" class="item-list" [wts]="wts"     />
+            <app-work-time-setting-item [wtg]="data"    (onSettingUpdate)="updateItems()"  (onSettingCopy)="updateItems()" (onSettingDelete)="updateItems()" class="item-list" [wts]="wts"     />
              </mat-checkbox>
         </div>
 
