@@ -1,14 +1,13 @@
 <div   class="item" [ngClass]="{'checked': checkedSetting?.uid === wts.uid}">
 
   <div class="icon">
-    <mat-icon   *ngIf="this.inGroup" class="check-group" (click)="addToGroup()" matListItemIcon>check_box</mat-icon>
-    <mat-icon  *ngIf="!this.inGroup" class="check-group" (click)="addToGroup()"    matListItemIcon>check_box_outline_blank</mat-icon>
+   
   </div>
  
  
   
     <div *ngIf="!changedName"  class="title">{{ wts.title }}</div>
-     <div class="changeNameActions">
+     <div  class="changeNameActions">
       <div class="icon">
         <button *ngIf="changedName" matTooltip="отменить"    mat-icon-button color="black" (click)="closeChanged()">
           <mat-icon>close</mat-icon>

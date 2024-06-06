@@ -41,7 +41,7 @@
 
       <input class="input" placeholder="Искать в таблице" [formControl]="personsControl" />
       <div class="rows-count">
-        Показано строк: {{this.filteredPersons.length}} из {{persons.length}}
+        Показано строк: {{filteredPersons.length}} из {{persons.length}}
       </div>
       <div class="remove" matTooltip="добавить пользователей"  (click)="addAllUsers()" >
         <mat-icon>group_add</mat-icon>

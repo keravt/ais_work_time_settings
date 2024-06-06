@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Inject, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, map } from 'rxjs';
+import { Observable, filter, map } from 'rxjs';
 import { WorkTimeSettingsApi } from 'src/app/work-time-settings/api/work-time-settings.api';
 import { WorkTimeSetting } from 'src/app/work-time-settings/models/WorkTimeSetting.model';
 import {Sort as matSort} from '@angular/material/sort';
@@ -14,7 +14,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./all-settings.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AllSettingsComponent {
+export class AllSettingsComponent implements OnInit {
 
   constructor(
     private workTimeSettingsApi: WorkTimeSettingsApi,
@@ -27,11 +27,18 @@ export class AllSettingsComponent {
     private dialogRef: MatDialogRef<AllSettingsComponent>,
     @Inject(MAT_DIALOG_DATA) public data: WorkTimeGroup,
   ) {}
+  ngOnInit(): void {
+    this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
+      this.checkedWts = data.workTimeSettings
+   
+    })
+  }
 
   workTimesSettings:  Observable<WorkTimeSetting[]> =
   this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
   allSearch = ''
   sortDirect:matSort = {active:'', direction:''}
+  checkedWts:WorkTimeSetting[] = []
   @Output() onChange = new EventEmitter()
 
 
@@ -54,12 +61,20 @@ export class AllSettingsComponent {
   
 
     if (this.sortDirect.active = '') {
-      return filtrGroups.sort((a, b)=>a.created_at.valueOf() - b.created_at.valueOf())
+      const wts =  filtrGroups.filter(elOne=>{
+      return  !this.checkedWts.find(el=>el.uid === elOne.uid)
+      }).sort((a, b)=>a.created_at.valueOf() - b.created_at.valueOf())
+    
+     return  [...this.checkedWts, ...wts]
     }
-  return filtrGroups.sort((a, b)=>{
+    const wts =filtrGroups.filter(elOne=>{
+      return !this.checkedWts.find(el=>el.uid === elOne.uid)
+     }).sort((a, b)=>{
     const isAsc = this.sortDirect.direction === 'asc';
     return this.compare(a.title, b.title, isAsc);
   })
+
+  return  [...this.checkedWts, ...wts]
     }
 
 
@@ -74,6 +89,37 @@ export class AllSettingsComponent {
      this.updateItems()
     }
 
+    userChecked(wts: WorkTimeSetting) {
+      console.log('{{{{');
+      
+      if (this.checkedWts.find(el=>el.uid === wts.uid)) {
+        this.checkedWts = this.checkedWts.filter(el => el.uid !== wts.uid)
+      } else {
+        this.checkedWts = [...this.checkedWts,wts]
+      }
+  
+      
+    }
+
+
+    addToGroup(){
+    
+      this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
+  
+        this.workTimeGroupsApi.updateWorkTimeGroup({...data, workTimeSettings:this.checkedWts  }).subscribe({next:(group)=>{
+          this.workTimesSettings =
+          this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
+        
+          this.onChange.emit()
+          this.cdr.markForCheck()
+          
+      }
+      
+      })
+      })
+
+    }
+
 
   updateItems(){
     this.closeSettingCreate()
@@ -84,6 +130,7 @@ export class AllSettingsComponent {
         duration: 2000
       }); 
       this.data = data
+      this.cdr.markForCheck()
     })
     this.onChange.emit()
   }

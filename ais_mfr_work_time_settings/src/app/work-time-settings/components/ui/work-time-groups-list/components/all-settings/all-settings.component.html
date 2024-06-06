@@ -23,9 +23,21 @@
         </div>
 
         <app-create-work-time-setting-item *ngIf="showSettingCreator" (onSettingClose)="closeSettingCreate()" (onSettingCreate)="updateItems()"/>
-        <app-work-time-setting-item [wtg]="data"    (onSettingUpdate)="updateItems()"  (onSettingCopy)="updateItems()" (onSettingDelete)="updateItems()" class="item-list" [wts]="wts"      *ngFor="let wts of workTimesSettings | async "/>
+        <div class="settings">
+            <mat-checkbox
+            (click)="userChecked(wts)"
+            class="example-margin"
+            [checked]="wts | wtsInGroup : checkedWts"
+            *ngFor="let wts of workTimesSettings | async "
+            >
+            <app-work-time-setting-item [wtg]="data" (click)="  $event.preventDefault();"    (onSettingUpdate)="updateItems()"  (onSettingCopy)="updateItems()" (onSettingDelete)="updateItems()" class="item-list" [wts]="wts"     />
+             </mat-checkbox>
+        </div>
+
+       
     </div>
     <div class="buttons">
         <button  (click)="close()" mat-stroked-button>Отмена</button>
+        <button  (click)="addToGroup()" mat-stroked-button>Сохранить</button>
       </div>
 </div>

@@ -187,6 +187,7 @@ export class WorkTimeSettingItemComponent implements OnInit {
         this.changedName = false
         
         this.wts.title = this.inputValue
+        this.onSettingUpdate.emit()
         this.cdr.markForCheck()
       })
     }

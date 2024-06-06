@@ -30,6 +30,7 @@ import { FilterDropdownComponent } from './components/ui/filter-dropdown/filter-
 import { WtsOptionsComponent } from './components/ui/work-time-settings-list/components/wts-options/wts-options.component';
 import { AllSettingsComponent } from './components/ui/work-time-groups-list/components/all-settings/all-settings.component';
 import { AllUsersComponent } from './components/modals/all-users/all-users.component';
+import { WtsInGroupPipe } from './pipes/wts-in-group.pipe';
 
 
 @NgModule({
@@ -61,6 +62,7 @@ import { AllUsersComponent } from './components/modals/all-users/all-users.compo
     WtsOptionsComponent,
     AllSettingsComponent,
     AllUsersComponent,
+    WtsInGroupPipe,
   
 
 

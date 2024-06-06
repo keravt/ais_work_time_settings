@@ -33,7 +33,7 @@ export class AllUsersComponent implements OnInit {
 
   personsControl = new FormControl('');
   persons: Person[] = [];
-   filteredPersons!: Person[];
+   filteredPersons: Person[] = [];
     filteredPersonsByDivision: Person[] = [];
     @Output() onChange = new EventEmitter()
   divisions:Division[] = []

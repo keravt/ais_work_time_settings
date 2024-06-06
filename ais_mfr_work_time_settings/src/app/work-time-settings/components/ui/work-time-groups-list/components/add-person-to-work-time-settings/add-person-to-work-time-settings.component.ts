@@ -52,6 +52,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   @Output() onPreviewVisible = new EventEmitter<boolean>()
   personsControl = new FormControl('');
   checkedUsers:Person[] = []
+  checkedSettings:WorkTimeSetting[] = []
   settingsControl = new FormControl('');
   persons: Person[] = [];
   allPersons: Person[] = [];
@@ -83,6 +84,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   sortCity = {active: 'city', direction: ''}
   sortType = 'name'
   allChecked = false
+  allSettingChecked = false
 
   ngOnInit(): void {
 
@@ -142,6 +144,16 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   uncheckAllUsers(){
     this.checkedUsers = []
     this.allChecked = false
+  }
+
+  checkAllSettings(){
+    this.checkedSettings = Array.from(new Set([...this.checkedSettings, ...this.GroupSettings]))
+    this.allSettingChecked = true
+  }
+
+  uncheckAllSettnigs(){
+    this.checkedSettings = []
+    this.allSettingChecked = false
   }
 
   changeName(wts:WorkTimeSetting){
@@ -387,6 +399,8 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
         this.settingPositions.push({uid:element.uid, position:i})
         
       }
+
+      this.updateWtsPostitions()
       this.onGroupSave.emit()
       this.cdr.markForCheck()
 
@@ -537,12 +551,12 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   }
 
   settingChecked(setting: WorkTimeSetting) {
-    if (this.GroupSettings.find(el=>el.uid === setting.uid)) {
-      this.GroupSettings = this.GroupSettings.filter(el => el.uid !== setting.uid)
+    if (this.checkedSettings.find(el=>el.uid === setting.uid)) {
+      this.checkedSettings = this.checkedSettings.filter(el => el.uid !== setting.uid)
     } else {
-      this.GroupSettings = [...this.GroupSettings, setting] 
+      this.checkedSettings = [...this.checkedSettings, setting] 
     }
-    this.updateWtsPostitions()
+    
 
   }
 
@@ -650,19 +664,13 @@ complete:()=>{
 })
   }
 
-  deleteFromGroup(uid:string){
-    this.GroupSettings = this.GroupSettings.filter(el => el.uid !== uid)
+  deleteFromGroup(){
+    this.GroupSettings = this.GroupSettings.filter(el => !this.checkedSettings.find(checked=>checked.uid === el.uid))
 
-    this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, workTimeSettings:this.GroupSettings, }).subscribe({next:(group)=>{
-      
+    this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, workTimeSettings:this.GroupSettings }).subscribe({next:(group)=>{
+      this.checkedSettings = []
          
-      if (this.checkedWtg) {
-    
-        this.wtg && (this.wtg.workTimeSettings = [...this.GroupSettings])
-          this.updateWtsStorage(group,String( moment().year()))
-        
-      
-      }
+      this.updateWtsStorage(group,String( moment().year()))
   
     this.snackBar.open(`рабочее время обновлено`, undefined,{
       duration: 2000

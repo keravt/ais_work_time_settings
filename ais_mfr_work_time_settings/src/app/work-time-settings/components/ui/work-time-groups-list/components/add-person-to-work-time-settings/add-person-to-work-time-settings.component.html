@@ -7,7 +7,7 @@
    
     <div class="header">
       <div class="group-options">
-        <div matTooltip="добавить сотрудников" (click)="chooseOption(1)" [ngClass]="{'active':option === 1}" class="group-option">
+        <div  matTooltip="добавить сотрудников" (click)="chooseOption(1)" [ngClass]="{'active':option === 1}" class="group-option">
           <mat-icon   fontIcon="group_add"></mat-icon>
         </div>
         <div matTooltip="настроить рабочее время" (click)="chooseOption(2)"  [ngClass]="{'active':option === 2}"  class="group-option" >
@@ -27,7 +27,7 @@
     <div class="group-body">
       <div  class="content" [ngClass]="{'active':option === 1}">
         <div class="persons">
-          <div class="open-all-setting">
+          <div class="open-all-users">
             <button matTooltip="добавить сотрудников"  color="basic" (click)="openAllUsers()" mat-icon-button   aria-label="Example icon-button with a menu">
               <mat-icon >group_add</mat-icon>
             </button>
@@ -108,30 +108,31 @@
           <div class="persons-list">
             <mat-spinner class="loaderSettings"  *ngIf="isLoadingSettings"></mat-spinner>
             <div class="open-all-setting">
-              <button color="basic" (click)="openAllSettings()" mat-icon-button   aria-label="Example icon-button with a menu">
-                <mat-icon >settings</mat-icon>
-              </button>
+              <mat-icon matTooltip="добавить" class="icon"  (click)="openAllSettings()" >add</mat-icon>
+              <div class="check">
+                <mat-icon matTooltip="выделить все" *ngIf="!allSettingChecked" (click)="checkAllSettings()" >check_box_outline_blank</mat-icon>
+                <mat-icon matTooltip="отменить все" *ngIf="allSettingChecked" (click)="uncheckAllSettnigs()" >check_box</mat-icon>
+              </div>
+              <mat-icon matTooltip="удалить" class="icon"  (click)="deleteFromGroup()">remove_circle_outline</mat-icon>
+
+
+
             </div>
-            <div  cdkDropList class="list"  *ngIf="!isLoadingSettings" (cdkDropListDropped)="drop($event)">
+            <div  cdkDropList class="setting-list"  *ngIf="!isLoadingSettings" (cdkDropListDropped)="drop($event)">
             <div *ngIf="GroupSettings.length === 0" >Список рабочего времени пуст</div>     
             <div  class="list-item"    *ngFor="let setting of GroupSettings, let i = index">
-                  <div cdkDrag *ngIf="changedName == ''" class="item-title">{{ setting.title }}</div>
-                  <div class="updateName">
-                    <button *ngIf="changedName !==''" matTooltip="отменить"    mat-icon-button color="black" (click)="closeChanged()">
-                      <mat-icon>close</mat-icon>
-                    </button> 
-                <button *ngIf="changedName !==''" matTooltip="сохранить"    mat-icon-button color="black" (click)="updateTitle(setting)">
-                  <mat-icon >check</mat-icon>
-                </button>
-                    <input id="change"   class="inputSetting"  [ngClass]="{'changeName':changedName === setting.uid}" (keydown)="onKeyDown($event, setting)" [(ngModel)]="settingValue"   matInput  placeholder="Имя">
-                  </div>
+              <mat-checkbox
+              cdkDrag
+              (change)="settingChecked(setting)"
+              class="example-margin"
+              [checked]="setting | wtsInGroup : checkedSettings"
+
+              >  <div  *ngIf="changedName == ''" class="item-title">{{ setting.title }}</div>
+               </mat-checkbox>
+                
+
                   <div class="item-control">
 
-                    <div class="icon">
-                      <button (click)="deleteFromGroup(setting.uid)"   mat-icon-button>
-                        <mat-icon>remove_circle_outline</mat-icon>
-                      </button>
-                    </div>
 
     
                     <div class="icon" *ngIf="i !== 0 || i !== GroupSettings.length - 1" class="icon">
