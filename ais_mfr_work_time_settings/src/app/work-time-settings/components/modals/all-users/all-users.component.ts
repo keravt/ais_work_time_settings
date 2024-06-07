@@ -198,6 +198,7 @@ export class AllUsersComponent implements OnInit {
             duration: 2000
           }); 
           this.onChange.emit()
+          this.allChecked = false
           this.onDivisionChange(this.selectedDivision)
       }
       

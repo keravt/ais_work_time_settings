@@ -1,9 +1,10 @@
 <div  class="group-create">
-    <button matTooltip="отменить"    mat-icon-button color="black" (click)="closeGroupCreator()">
-        <mat-icon>close</mat-icon>
-      </button> 
-  <button matTooltip="сохранить"    mat-icon-button color="black" (click)="createGroup($event)">
-    <mat-icon >check</mat-icon>
-  </button>
-  <input  id="createGroup" (keydown.enter)="createGroup($event)"  (keydown.escape)="closeGroupCreator()"  class="input" [(ngModel)]="newGroupTitle" autofocus placeholder="Напишите название группы" />
+
+  <input   id="createGroup" (keydown.enter)="createGroup($event)"  (keydown.escape)="closeGroupCreator()"  class="input" [(ngModel)]="newGroupTitle" autofocus placeholder="Напишите название группы" />
+  <button matTooltip="отменить"    mat-icon-button color="black" (click)="closeGroupCreator()">
+    <mat-icon>close</mat-icon>
+  </button> 
+<button matTooltip="сохранить"    mat-icon-button color="black" (click)="createGroup($event)">
+<mat-icon >check</mat-icon>
+</button>
 </div> 
