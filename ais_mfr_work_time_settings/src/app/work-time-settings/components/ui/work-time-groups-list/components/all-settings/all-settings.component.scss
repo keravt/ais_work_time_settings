@@ -47,8 +47,16 @@
     overflow: auto;
   }
 
+  .check{
+    display: flex;
+    align-items: center;
+  }
   .add-setting{
-   
+    margin-top: 10px;
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   padding-left: 9px;
   }
 
   .buttons{

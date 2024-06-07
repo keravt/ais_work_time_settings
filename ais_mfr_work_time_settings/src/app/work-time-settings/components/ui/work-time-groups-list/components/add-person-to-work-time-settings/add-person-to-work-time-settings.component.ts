@@ -542,6 +542,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
       this.workTimeGroupsApi.updateWorkTimeGroup({...this.wtg, userIds:newUsers }).subscribe({next:(group)=>{
         this.onGroupSave.emit()
         this.onDivisionChange(this.selectedDivision)
+        this.allChecked = false
         
     this.cdr.markForCheck()
     }})
@@ -671,7 +672,7 @@ complete:()=>{
       this.checkedSettings = []
          
       this.updateWtsStorage(group,String( moment().year()))
-  
+      this.allSettingChecked = false
     this.snackBar.open(`рабочее время обновлено`, undefined,{
       duration: 2000
     }); 
@@ -793,12 +794,9 @@ this.onClose.emit()
     for (let i = 0; i < this.GroupSettings.length; i++) {
       const element = this.GroupSettings[i];
       this.settingPositions.push({uid:element.uid, position:i})
-      
     }
-    
-   
+
     this.updateWtsPostitions()
-    
   }
   }
 

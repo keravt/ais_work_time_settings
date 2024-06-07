@@ -32,6 +32,10 @@ export class AllSettingsComponent implements OnInit {
       this.checkedWts = data.workTimeSettings
    
     })
+
+    this.workTimeSettingsApi.getWorkTimeSettings().subscribe(data=>{
+  this.allSettings = data
+    })
   }
 
   workTimesSettings:  Observable<WorkTimeSetting[]> =
@@ -39,6 +43,8 @@ export class AllSettingsComponent implements OnInit {
   allSearch = ''
   sortDirect:matSort = {active:'', direction:''}
   checkedWts:WorkTimeSetting[] = []
+  allSettingChecked = false
+  allSettings:WorkTimeSetting[] = []
   @Output() onChange = new EventEmitter()
 
 
@@ -51,6 +57,17 @@ export class AllSettingsComponent implements OnInit {
   close(){
     this.dialogRef.close()
   }
+
+  checkAllSettings(){
+    this.checkedWts = [...this.allSettings]
+    this.allSettingChecked = true
+  }
+
+  uncheckAllSettnigs(){
+    this.checkedWts = []
+    this.allSettingChecked = false
+  }
+
 
   sortWorkTimesSettings(groups:WorkTimeSetting[]){
 

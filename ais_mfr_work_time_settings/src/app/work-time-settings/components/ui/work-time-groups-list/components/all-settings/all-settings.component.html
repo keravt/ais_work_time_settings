@@ -16,9 +16,12 @@
  
     <div class="groupList">
         <div class="add-setting" >
-            <button matTooltip="создать рабочее время" color="basic" (click)=" showSettingCreate()" mat-icon-button   aria-label="Example icon-button with a menu">
-                <mat-icon >add</mat-icon>
-              </button>
+            <div class="check">
+                <mat-icon matTooltip="выделить все" *ngIf="!allSettingChecked" (click)="checkAllSettings()" >check_box_outline_blank</mat-icon>
+                <mat-icon matTooltip="отменить все" *ngIf="allSettingChecked" (click)="uncheckAllSettnigs()" >check_box</mat-icon>
+              </div>
+            <mat-icon color="basic" matTooltip="создать рабочее время" (click)=" showSettingCreate()" >add</mat-icon>
+
 
         </div>
 

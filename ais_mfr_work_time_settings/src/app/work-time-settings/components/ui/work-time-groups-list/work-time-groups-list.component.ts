@@ -65,7 +65,11 @@ export class WorkTimeGroupsListComponent implements OnInit {
 
   let filtrGroups = this.filterGroups(this.filterData,groups)
   if(this.allSearch !== ''){
-    filtrGroups = [...filtrGroups.filter(group=>group.title.includes(this.allSearch))]
+    const search = this.allSearch.toLowerCase()
+    filtrGroups = [...filtrGroups.filter(group=>{
+      const title = group.title.toLowerCase()
+      return title.includes(search)
+    })]
   }
 
   this.lengthOfSortedWtg = filtrGroups.length
