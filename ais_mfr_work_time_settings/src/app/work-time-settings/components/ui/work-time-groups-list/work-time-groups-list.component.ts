@@ -8,6 +8,8 @@ import { FilterDropdownComponent } from '../filter-dropdown/filter-dropdown.comp
 import { NoopScrollStrategy } from '@angular/cdk/overlay';
 import {Sort as matSort, MatSortModule} from '@angular/material/sort';
 import { WorkTimeSettingStorageService } from 'src/app/work-time-settings/services/work-time-setting-storage.service';
+import { UserApi } from 'src/app/work-time-settings/api/user.api';
+import { Person } from 'src/app/work-time-settings/models/Person.model';
 @Component({
   selector: 'app-work-time-groups',
   templateUrl: './work-time-groups-list.component.html',
@@ -28,11 +30,13 @@ export class WorkTimeGroupsListComponent implements OnInit {
   lengthOfSortedWtg = 0
   allSearch = ''
   previewVisible = false
+  allPersons:Person[] = []
   wtsId:string | null =  null
   @ViewChild('filtr',{read: ElementRef}) filtrIcon!:ElementRef<HTMLElement>
   constructor(
     private workTimeGroupService:WorkTimeGroupsApi,
     private workTimeSettingStorageService:WorkTimeSettingStorageService,
+    private userApi:UserApi,
     private dialog:MatDialog
     
   ) {}
@@ -45,6 +49,14 @@ export class WorkTimeGroupsListComponent implements OnInit {
     this.workTimeSettingStorageService.workTimeSettingId$.subscribe(data=>{
       this.wtsId = data
     })
+
+    this.userApi.fetch().subscribe( async data => {
+
+      this.allPersons = data.filter(el=>el.keycloakUid)
+
+      
+
+      });
     
   }
 
@@ -69,7 +81,9 @@ export class WorkTimeGroupsListComponent implements OnInit {
     const search = this.allSearch.toLowerCase()
     filtrGroups = [...filtrGroups.filter(group=>{
       const title = group.title.toLowerCase()
-      return title.includes(search)
+      const persons = [...this.allPersons.filter(person=>group.userIds.find(uid=>person.keycloakUid === uid))]
+      const isPersonInGroup = persons.find(person=>person.name?.toLowerCase()?.includes(search) ?? false)
+      return title.includes(search) || isPersonInGroup
     })]
   }
 
