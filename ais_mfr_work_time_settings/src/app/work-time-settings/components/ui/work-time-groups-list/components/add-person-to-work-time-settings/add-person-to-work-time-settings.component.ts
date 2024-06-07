@@ -697,8 +697,7 @@ complete:()=>{
    
     
   })]
-  console.log('this.GroupSettings', this.GroupSettings);
-  
+  console.log('this.GroupSettings', this.GroupSettings);  
    
     this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, userIds:Array.from(this.persons.map(el=>el.keycloakUid)) , workTimeSettings:this.GroupSettings, settingPositions:this.settingPositions, title:this.inputValue }).subscribe({next:(group)=>{
       
@@ -760,6 +759,22 @@ this.onClose.emit()
       [this.GroupSettings[id], this.GroupSettings[id - 1]] =
       [this.GroupSettings[id- 1], this.GroupSettings[id]];
     }
+    if (this.wtg) {
+      this.settingPositions = []
+      console.log('tttt', this.settings);
+      
+      for (let i = 0; i < this.GroupSettings.length; i++) {
+        const element = this.GroupSettings[i];
+        this.settingPositions.push({uid:element.uid, position:i})
+        
+      }
+      
+     
+      this.updateWtsPostitions()
+      
+    }
+
+
 
   }
 
@@ -768,6 +783,21 @@ this.onClose.emit()
     if (id < this.GroupSettings.length - 1) {
       [this.GroupSettings[id], this.GroupSettings[id + 1]] =
       [this.GroupSettings[id+ 1], this.GroupSettings[id]];
+    
+  }
+
+  if (this.wtg) {
+    this.settingPositions = []
+    console.log('tttt', this.settings);
+    
+    for (let i = 0; i < this.GroupSettings.length; i++) {
+      const element = this.GroupSettings[i];
+      this.settingPositions.push({uid:element.uid, position:i})
+      
+    }
+    
+   
+    this.updateWtsPostitions()
     
   }
   }
