@@ -64,6 +64,7 @@ export class WorkTimeGroupsListComponent implements OnInit {
   sortWorkTimesGroups(groups:WorkTimeGroup[]){
 
   let filtrGroups = this.filterGroups(this.filterData,groups)
+  
   if(this.allSearch !== ''){
     const search = this.allSearch.toLowerCase()
     filtrGroups = [...filtrGroups.filter(group=>{
