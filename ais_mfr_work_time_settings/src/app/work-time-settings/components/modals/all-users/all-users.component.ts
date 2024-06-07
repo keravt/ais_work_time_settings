@@ -85,8 +85,8 @@ export class AllUsersComponent implements OnInit {
        
         this.UserApi.fetch().subscribe( async data => {
 
-          this.allPersons = data.filter(el=>el.keycloakUid)
-          this.persons = data.filter(el=>el.keycloakUid && !this.allUsersInGroups.includes(el.keycloakUid))
+          this.allPersons = data.filter(el=>el.keycloakUid && el.status === 'Работает')
+          this.persons = data.filter(el=>el.keycloakUid && !this.allUsersInGroups.includes(el.keycloakUid) && el.status === 'Работает')
   
           
             this.filteredPersonsByDivision = [...this.persons]
