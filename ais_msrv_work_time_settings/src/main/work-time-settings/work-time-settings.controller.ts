@@ -254,5 +254,11 @@ export class WorkTimeSettingsController {
   }
 
 
+
+  @MessagePattern('get-holidays')
+  getHolidaysByUserUids(@Payload() getHolidaysDto: GetHolidaysDto) {
+    return this.workTimeSettingService.getHolidaysByUserUids(getHolidaysDto)
+  }
+  
  
 }
