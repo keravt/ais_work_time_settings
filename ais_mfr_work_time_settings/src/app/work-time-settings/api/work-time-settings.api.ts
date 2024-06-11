@@ -6,6 +6,7 @@ import { mainURL } from 'src/environments/environment';
 import { WorkTimeModel } from '../models/WorkTime.model';
 import { Sort } from '../models/sort.model';
 import { WorkTimeGroup } from '../models/WorkTimeGroup.model';
+import { GroupChange } from '../models/GroupChange.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +15,8 @@ export class WorkTimeSettingsApi {
 
   constructor(private http: HttpClient) {}
 
-  createWorkTimeSettings(title: string, isGeneral:boolean): Observable<WorkTimeSetting> {
-    return this.http.post<WorkTimeSetting>(`${mainURL}/api/work-time-settings`, {title, isGeneral})
+  createWorkTimeSettings(title: string, isGeneral:boolean): Observable<GroupChange[]> {
+    return this.http.post<GroupChange[]>(`${mainURL}/api/work-time-settings`, {title, isGeneral})
   }
 
   getWorkTimeSettings(): Observable<WorkTimeSetting[]> {
@@ -24,8 +25,8 @@ export class WorkTimeSettingsApi {
     );
   }
 
-  deleteWorkTimeSetting(uid:string) {
-    return this.http.delete(`${mainURL}/api/work-time-settings/deleteWorkTimeSetting/${uid}`);
+  deleteWorkTimeSetting(uid:string): Observable<GroupChange[]> {
+    return this.http.delete<GroupChange[]>(`${mainURL}/api/work-time-settings/deleteWorkTimeSetting/${uid}`);
   }
   
 
@@ -50,18 +51,18 @@ export class WorkTimeSettingsApi {
 
   
 
-  updateWorkTimeSetting(workTimeSetting: Partial<WorkTimeSetting>) {
-    return this.http.patch(
+  updateWorkTimeSetting(workTimeSetting: Partial<WorkTimeSetting>): Observable<GroupChange[]> {
+    return this.http.patch<GroupChange[]>(
       `${mainURL}/api/work-time-settings`, 
       workTimeSetting
     );
   }
 
-  copyWorkTimeSetting(workTimeSetting: WorkTimeSetting) {
+  copyWorkTimeSetting(workTimeSetting: WorkTimeSetting): Observable<GroupChange[]> {
 
     console.log('ddddddfff', workTimeSetting);
     
-    return this.http.post<WorkTimeSetting>(
+    return this.http.post<GroupChange[]>(
       `${mainURL}/api/work-time-settings/copyWorkTimeSetting`, 
       workTimeSetting
     );
@@ -73,7 +74,7 @@ export class WorkTimeSettingsApi {
     );
   }
 
-  updateTitleWorkTime(body:{uid:string,title:string,isGeneral:boolean}): Observable<WorkTimeModel> {
-    return this.http.patch<WorkTimeModel>(`${mainURL}/api/work-time-settings/updateSettingTitle`, body);
+  updateTitleWorkTime(body:{uid:string,title:string,isGeneral:boolean}): Observable<GroupChange[]> {
+    return this.http.patch<GroupChange[]>(`${mainURL}/api/work-time-settings/updateSettingTitle`, body);
   }
 }

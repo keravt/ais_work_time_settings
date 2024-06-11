@@ -1,5 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { Observable, Subject, fromEvent, map, takeUntil } from 'rxjs';
 import { WorkTimeGroupsApi } from '../../../api/work-time-groups.api';
 import { WorkTimeGroup } from '../../../models/WorkTimeGroup.model';
 import { Sort } from 'src/app/work-time-settings/models/sort.model';
@@ -10,6 +10,13 @@ import {Sort as matSort, MatSortModule} from '@angular/material/sort';
 import { WorkTimeSettingStorageService } from 'src/app/work-time-settings/services/work-time-setting-storage.service';
 import { UserApi } from 'src/app/work-time-settings/api/user.api';
 import { Person } from 'src/app/work-time-settings/models/Person.model';
+import { DOCUMENT } from '@angular/common';
+import { HistoryGroupService } from 'src/app/work-time-settings/services/history-group.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { CheckedGroupStorageService } from 'src/app/work-time-settings/services/checked-group-storage.service';
+import { isSetting } from 'src/app/work-time-settings/guards/isSetting';
+import { AllSettingsStorageService } from 'src/app/work-time-settings/services/all-settings-storage.service';
+import { AllGroupsStorageService } from 'src/app/work-time-settings/services/all-groups-storage.service';
 @Component({
   selector: 'app-work-time-groups',
   templateUrl: './work-time-groups-list.component.html',
@@ -32,14 +39,34 @@ export class WorkTimeGroupsListComponent implements OnInit {
   previewVisible = false
   allPersons:Person[] = []
   wtsId:string | null =  null
+  undoActive:boolean = false
+  redoActive:boolean = false
+
   @ViewChild('filtr',{read: ElementRef}) filtrIcon!:ElementRef<HTMLElement>
   constructor(
     private workTimeGroupService:WorkTimeGroupsApi,
     private workTimeSettingStorageService:WorkTimeSettingStorageService,
     private userApi:UserApi,
-    private dialog:MatDialog
+    private historyGroupService:HistoryGroupService,
+    private allGroupsStorageService:AllGroupsStorageService,
+    private dialog:MatDialog,
+    private snackBar: MatSnackBar,
+    private cdr:ChangeDetectorRef,
+    private checkedGroupStorageService:CheckedGroupStorageService,
+    private allSettingsStorageService:AllSettingsStorageService,
+
+    @Inject(DOCUMENT) private document: Document,
     
   ) {}
+
+  private destroy$ = new Subject<void>();
+
+  ngOnDestroy(): void {
+     this.destroy$.next();
+     this.destroy$.complete();
+   }
+
+
   ngOnInit(): void {
     this.workTimeGroupService.getWorkTimeGroups().subscribe(data=>{
       this.allWorkTimeGroups = data
@@ -57,8 +84,118 @@ export class WorkTimeGroupsListComponent implements OnInit {
       
 
       });
+
+      fromEvent<KeyboardEvent>(this.document, 'keydown')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(async (event) => {
+          
+        if ((event.ctrlKey || event.metaKey) && event.code === 'KeyZ') {
+          if (event.shiftKey ) {
+            if (!this.redoActive) {
+              return
+            }
+        
+          const data =  await this.historyGroupService.onRedoChange()
+    
+           this.workTimesGroups =
+           this.workTimeGroupService.getWorkTimeGroups().pipe(map(groups => this.sortWorkTimesGroups(groups)));
+           if (!isSetting(data[0].obj)) {
+            this.checkedGroupStorageService.setCheckedGroup(data[0].obj)
+           }else{
+            this.allSettingsStorageService.setAllSettings(data[0].obj)
+           }
+         
+              this.snackBar.open(`изменение группы`, undefined,{
+                duration: 2000
+              }); 
+             
+  
+            return
+          }
+      
+           
+          if (!this.undoActive) {
+            return
+          }
+  
+          const data = await this.historyGroupService.onUndoChange()
+
+          this.workTimesGroups =
+          this.workTimeGroupService.getWorkTimeGroups().pipe(map(groups => this.sortWorkTimesGroups(groups)));
+          if (!isSetting(data[0].obj)) {
+            this.checkedGroupStorageService.setCheckedGroup(data[0].obj)
+          }else{
+            this.allSettingsStorageService.setAllSettings(data[0].obj)
+           }
+
+            this.snackBar.open(`изменение группы `, undefined,{
+              duration: 2000
+            }); 
+  
+  
+  
+        }
+        this.cdr.markForCheck()
+      });
+
+
+      this.historyGroupService.undoArray$.pipe(takeUntil(this.destroy$)).subscribe(data=>{
+ 
+        
+        this.undoActive = data.length === 0 ? false : true
+        this.cdr.markForCheck()
+      })
+  
+  
+      this.historyGroupService.redoArray$.pipe(takeUntil(this.destroy$)).subscribe(data=>{
+        this.redoActive = data.length === 0 ? false : true
+        this.cdr.markForCheck()
+      })
+
+      this.allGroupsStorageService.AllGroups$.subscribe(group=>{
+        this.workTimesGroups =
+        this.workTimeGroupService.getWorkTimeGroups().pipe(map(groups => this.sortWorkTimesGroups(groups)));
+      })
     
   }
+
+  async undo(){
+
+    const data = await this.historyGroupService.onUndoChange()
+    console.log('data[0].obj', data[0].obj);
+    
+    this.workTimesGroups =
+    this.workTimeGroupService.getWorkTimeGroups().pipe(map(groups => this.sortWorkTimesGroups(groups)));
+    if (!isSetting(data[0].obj)) {
+      this.checkedGroupStorageService.setCheckedGroup(data[0].obj)
+    }else{
+      this.allSettingsStorageService.setAllSettings(data[0].obj)
+     }
+  
+     this.snackBar.open(`изменение группы `, undefined,{
+      duration: 2000
+    }); 
+  }
+
+
+  async redo(){
+
+
+    const data =  await this.historyGroupService.onRedoChange()
+  this.workTimesGroups =
+  this.workTimeGroupService.getWorkTimeGroups().pipe(map(groups => this.sortWorkTimesGroups(groups)));
+  if (!isSetting(data[0].obj)) {
+    this.checkedGroupStorageService.setCheckedGroup(data[0].obj)
+  }else{
+    this.allSettingsStorageService.setAllSettings(data[0].obj)
+   }
+
+  this.snackBar.open(`изменение группы `, undefined,{
+    duration: 2000
+  }); 
+  }
+
+
 
   sortGroup(sort:matSort){
     console.log('dadawd', sort);
@@ -113,6 +250,7 @@ return filtrGroups.sort((a, b)=>{
   }
 
   checkGroup(wtg:WorkTimeGroup){
+    this.checkedGroupStorageService.setCheckedGroup(wtg)
     this.checkedGroup = wtg
     this.opened = true
   }

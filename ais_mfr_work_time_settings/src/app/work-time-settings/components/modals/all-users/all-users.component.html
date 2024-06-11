@@ -2,6 +2,14 @@
  
       <div  class="header-text">
         <span  class="text-text">Добавить сотрудников</span>
+        <div class="changeActions">
+          <button (click)="undo()"  class="change" [ngClass]="{'changeActive':undoActive}" matTooltip="отменить"   mat-icon-button color="black">
+            <mat-icon>undo</mat-icon>
+          </button> 
+          <button (click)="redo()" class="change"  [ngClass]="{'changeActive':redoActive}"  matTooltip="вернуть"   mat-icon-button color="black">
+            <mat-icon>redo</mat-icon>
+          </button> 
+        </div>
         <div class="close">
             <button   color="basic" (click)="close()" mat-icon-button   aria-label="Example icon-button with a menu">
       <mat-icon >close</mat-icon>
@@ -41,9 +49,9 @@
 
       <input class="input" placeholder="Искать в таблице" [formControl]="personsControl" />
       <div class="rows-count">
-        Показано строк: {{filteredPersons.length}} из {{persons.length}}
+        Найдено: {{filteredPersons.length}} из {{persons.length}}
       </div>
-      <div class="remove" matTooltip="добавить пользователей"  (click)="addAllUsers()" >
+      <div class="remove" matTooltip="добавить сотрудников"  (click)="addAllUsers()" >
         <mat-icon>group_add</mat-icon>
 
       </div>
@@ -61,12 +69,12 @@
                 (change)="userChecked(person)"
                 class="example-margin"
                 [checked]="person.keycloakUid | isUserInWorkTimeSetting : checkedUsers"
-  
-                >{{ person.name }}
+                appTrimOnCopy
+                ><div>{{ person.name }}</div>
                  </mat-checkbox>
 
       
-                <div class="city">{{person.city}}</div>
+                <div  class="city">{{person.city}}</div>
             </div>
 
 
