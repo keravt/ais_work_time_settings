@@ -699,29 +699,9 @@ export class WorkTimeSettingsService {
       .where(':userUids && workTimeGroup.userIds', { userUids })
       .getMany()
 
-    // const workTimeSetting = await this.workTimeSettingRepo
-    //   .createQueryBuilder('workTimeSetting')
-    //   .select([
-    //     'workTimeSetting.uid',
-    //     'workTimeSetting.userIds',
-    //     'workTimeSetting.title',
-    //     'workTimes.day',
-    //     'workTimes.holidayColor',
-    //     'workTimes.recurrence',
-    //     'workTimes.name',
-    //   ])
-    //   .leftJoin(
-    //     'workTimeSetting.workTimes',
-    //     'workTimes',
-    //     'workTimes.isHoliday = true',
-    //   )
-    //   .where(':userUids && workTimeSetting.userIds', { userUids })
-    //   .getMany();
-
-    console.log("GROUPS ", workTimeSettingsGroups)
     let workTimeSettings: WorkTimeSetting[] = []
     workTimeSettingsGroups.forEach((workTimeSettingsGroup) => {
-      workTimeSettings = workTimeSettingsGroup.workTimeSettings.map((wts) => {
+      let updatedWorkTimeSettings = workTimeSettingsGroup.workTimeSettings.map((wts) => {
         const holidaysWithRecurrence = [];
         wts.workTimes.forEach((event) => {
           if (event.recurrence) {
@@ -754,6 +734,7 @@ export class WorkTimeSettingsService {
         );
         return wts
       });
+      workTimeSettings.push(...updatedWorkTimeSettings)
     });
 
     return workTimeSettings;
