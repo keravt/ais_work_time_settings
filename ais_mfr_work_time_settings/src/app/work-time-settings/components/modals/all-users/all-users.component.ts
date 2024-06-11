@@ -111,7 +111,8 @@ export class AllUsersComponent implements OnInit {
 
           this.allPersons = data.filter(el=>el.keycloakUid && el.status !== 'Уволен')
           this.persons = data.filter(el=>el.keycloakUid && !this.allUsersInGroups.includes(el.keycloakUid) && el.status !== 'Уволен')
-  
+           console.log('dddd', this.persons.filter(el=>el.name?.includes('фара')));
+           
           
             this.filteredPersonsByDivision = [...this.persons]
             this.isLoading = false
@@ -131,15 +132,13 @@ export class AllUsersComponent implements OnInit {
           for(const el of data){
             this.allUsersInGroups = [...this.allUsersInGroups, ...el.userIds]
           }
-         
+          
           this.UserApi.fetch().subscribe( async data => {
   
-            this.allPersons = data.filter(el=>el.keycloakUid && el.status !== 'Уволен')
-            console.log('this.allUsersInGroups', this.allUsersInGroups);
-            
-            this.persons = data.filter(el=>el.keycloakUid && !this.allUsersInGroups.includes(el.keycloakUid) && el.status !== 'Уволен')
+            this.allPersons = data.filter(el=>el.keycloakUid && el.status !== 'Уволен' && el.status !== 'Увольнение' )
+            this.persons = data.filter(el=>el.keycloakUid && !this.allUsersInGroups.includes(el.keycloakUid) && el.status !== 'Уволен' && el.status !== 'Увольнение')
     
-            
+    
               this.filteredPersonsByDivision = [...this.persons]
               this.isLoading = false
          
