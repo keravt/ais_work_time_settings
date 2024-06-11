@@ -12,6 +12,7 @@ import { WorkTimeGroupsApi } from 'src/app/work-time-settings/api/work-time-grou
 import { WorkTimeGroup } from 'src/app/work-time-settings/models/WorkTimeGroup.model';
 import * as moment from 'moment';
 import { WorkTimeSettingStorageService } from 'src/app/work-time-settings/services/work-time-setting-storage.service';
+import { HistoryGroupService } from 'src/app/work-time-settings/services/history-group.service';
 
 
 
@@ -26,6 +27,8 @@ export class WorkTimeSettingItemComponent implements OnInit {
     private workTimeSettingsApi: WorkTimeSettingsApi,
     private workTimeGroupsApi:WorkTimeGroupsApi,
     private workTimeSettingStorageService:WorkTimeSettingStorageService,
+
+    private historyGroupService:HistoryGroupService,
     private router: Router,
      private route: ActivatedRoute,
      public dialog: MatDialog,
@@ -72,7 +75,7 @@ export class WorkTimeSettingItemComponent implements OnInit {
       this.inGroup = false
     }
     this.workTimeGroupsApi.updateWorkTimeGroup({...this.wtg, workTimeSettings:settings  }).subscribe({next:(group)=>{
-      this.wtg = group
+      this.wtg = group[0].redo.obj  as WorkTimeGroup
       this.onSettingUpdate.emit()
       
   }
@@ -102,7 +105,11 @@ export class WorkTimeSettingItemComponent implements OnInit {
 
    updateTitle(){
     if (this.wts) {
-      this.workTimeSettingsApi.updateTitleWorkTime({uid:this.wts.uid,title:this.inputValue,isGeneral:this.wts.isGeneral}).subscribe(data=>{
+      this.workTimeSettingsApi.updateTitleWorkTime({uid:this.wts.uid,title:this.inputValue,isGeneral:this.wts.isGeneral}).subscribe(group=>{
+          console.log('d$$$$', group);
+          
+        this.historyGroupService.setUndoArray(group)
+        this.historyGroupService.redoArray$.next([])
         this.changedName = false
         if (this.wts) {
           this.wts.title = this.inputValue
@@ -121,10 +128,11 @@ export class WorkTimeSettingItemComponent implements OnInit {
     }
     console.log();
     
-    this.workTimeSettingsApi.copyWorkTimeSetting(this.wts).subscribe(data=>{
-      console.log('workkk', data);
+    this.workTimeSettingsApi.copyWorkTimeSetting(this.wts).subscribe(group=>{
+      this.historyGroupService.setUndoArray(group)
+      this.historyGroupService.redoArray$.next([])
       
-      this.onSettingCopy.emit(data)
+      this.onSettingCopy.emit(group[0].undo.obj  as WorkTimeSetting)
       this.cdr.markForCheck()
     })
    }
@@ -151,10 +159,13 @@ export class WorkTimeSettingItemComponent implements OnInit {
     });
 
     thisDialog.afterClosed().subscribe(action=>{
+ 
+      
       if (!this.wts) {
         return
       }
       if (action === 'delete') {
+     
         this.onSettingDelete.emit(this.wts.uid)
       }
       this.cdr.markForCheck()
@@ -180,13 +191,15 @@ export class WorkTimeSettingItemComponent implements OnInit {
     if (event.key === 'Enter') {
       
       
-      this.workTimeSettingsApi.updateTitleWorkTime({uid:this.wts.uid,title:this.inputValue,isGeneral:this.wts.isGeneral}).subscribe(data=>{
+      this.workTimeSettingsApi.updateTitleWorkTime({uid:this.wts.uid,title:this.inputValue,isGeneral:this.wts.isGeneral}).subscribe(group=>{
         if (!this.wts) {
           return
         }
         this.changedName = false
         
         this.wts.title = this.inputValue
+        this.historyGroupService.setUndoArray(group)
+        this.historyGroupService.redoArray$.next([])
         this.onSettingUpdate.emit()
         this.cdr.markForCheck()
       })

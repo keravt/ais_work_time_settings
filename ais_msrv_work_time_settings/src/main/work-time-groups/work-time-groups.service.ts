@@ -7,6 +7,8 @@ import { updateWorkTimeGroupDto } from './DTO/update-work-time-group.dto';
 
 import { updateSettingPosition } from './DTO/update-setting-position.dto';
 import { Sort } from '../work-time-settings/models/sort.model';
+import { GroupChange, GroupChangeObj } from 'src/interfaces/group-change';
+import { WorkTimeSetting } from 'src/schemas/WorkTimeSetting.schema';
 
 @Injectable()
 export class WorkTimeGroupsService {
@@ -15,12 +17,19 @@ export class WorkTimeGroupsService {
   
         @InjectRepository(WorkTimeGroup)
         private workTimeGroupRepo: Repository<WorkTimeGroup>,
+        @InjectRepository(WorkTimeSetting)
+        private workTimeSettingRepo: Repository<WorkTimeSetting>,
 
 
       ) {}
 
-    async createWorkTimeGroup(dto: createWorkTimeGroupDto) {
-        return await this.workTimeGroupRepo.save(dto);
+    async createWorkTimeGroup(dto: createWorkTimeGroupDto):Promise<GroupChange[]> {
+        const group  = await this.workTimeGroupRepo.save(dto);
+
+        return [{
+          undo:{method:'create', schema:'group', obj:group},
+          redo:{method:'delete', schema:'group', obj:group}
+        }]
       }
 
       async getWorkTimeGroups() {
@@ -30,32 +39,50 @@ export class WorkTimeGroupsService {
  
       }
 
-      async updateWorkTimeGroup(dto: updateWorkTimeGroupDto) {
+      async updateWorkTimeGroup(dto: updateWorkTimeGroupDto):Promise<GroupChange[]> {
+
+        const prevGroup = await this.workTimeGroupRepo.findOne({where:{uid:dto.uid}, relations:{workTimeSettings:true}})
   
-        return await this.workTimeGroupRepo.save(dto);
+        const group = await this.workTimeGroupRepo.save(dto);
+
+        return [{
+          undo:{method:'update', schema:'group',obj:prevGroup},
+          redo:{method:'update', schema:'group',obj:group}
+        }]
   
       }
 
+
       async updateSettingPosition(dto: updateSettingPosition[]){
+
         return await this.workTimeGroupRepo.save(dto);
       }
 
       
 
-      async copyWorkTimeGroup(wtg: WorkTimeGroup) {
+      async copyWorkTimeGroup(wtg: WorkTimeGroup):Promise<GroupChange[]>  {
 
         const thisWth = wtg
         delete thisWth.uid
         thisWth.userIds = []
         thisWth.title = `${thisWth.title} копия`
-        return await this.workTimeGroupRepo.save(thisWth);
+
+        const group = await this.workTimeGroupRepo.save(thisWth);
+
+        return [{
+          undo:{method:'create', schema:'group',obj:group},
+          redo:{method:'delete', schema:'group',obj:group}
+        }]
       
       }
 
-      async deleteWorkTimeGroup(uid: string) {
-
-        const group =  await this.workTimeGroupRepo.delete({ uid });
-        console.log('group', group, uid);
+      async deleteWorkTimeGroup(uid: string):Promise<GroupChange[]> {
+        const group = await this.workTimeGroupRepo.findOne({where:{uid:uid}, relations:{workTimeSettings:true}})
+        await this.workTimeGroupRepo.delete({ uid });
+        return [{
+          undo:{method:'delete', schema:'group',obj:group},
+          redo:{method:'create', schema:'group',obj:group}
+        }]
         
       }
 
@@ -82,5 +109,48 @@ export class WorkTimeGroupsService {
     
         return userUids;
       }
+
+
+      async chooseChangeMethod(changeGroup:GroupChangeObj){
+             console.log('changeGroup', changeGroup);
+             
+
+
+
+
+
+
+        const groupMethods = {
+          update:()=>this.workTimeGroupRepo.save(changeGroup.obj),
+          create:()=> this.workTimeGroupRepo.delete(changeGroup.obj.uid),
+          delete:()=>this.workTimeGroupRepo.save(changeGroup.obj)
+        }
+
+        const settingMethods = {
+          update:()=> this.workTimeSettingRepo.save(changeGroup.obj),
+          create:()=> this.workTimeSettingRepo.delete(changeGroup.obj.uid),
+          delete:()=> this.workTimeSettingRepo.save(changeGroup.obj)
+        }
+
+   
+
+        switch (changeGroup.schema) {
+          case 'group':  await groupMethods[changeGroup.method]();
+          break;
+          case 'setting':  await settingMethods [changeGroup.method](); 
+          break;
+   
+         
+        }
+       }
+
+
+
+       async changeGroup(GroupChanges:GroupChangeObj[]){
+                for (const changeGroup of GroupChanges){
+                 await this.chooseChangeMethod(changeGroup)
+                }       
+       }
+
 
 }

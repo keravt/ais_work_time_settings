@@ -93,7 +93,10 @@ export class WorkTimeSettingsListComponent   {
   }
 
   filtrSettings(){
+    console.log('$$$$', this.workTimesSettings);
     this.workTimesSettings = this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
+ 
+    
   }
 
   addCopySettings(){

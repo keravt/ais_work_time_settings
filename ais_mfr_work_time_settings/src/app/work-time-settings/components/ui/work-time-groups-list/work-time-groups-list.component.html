@@ -14,7 +14,7 @@
       </div>
     </div>
     <div class="rows-count">
-      Показано строк: {{this.lengthOfSortedWtg}} из {{allWorkTimeGroups.length}}
+      Найдено: {{this.lengthOfSortedWtg}} из {{allWorkTimeGroups.length}}
     </div>
   </div>
   <mat-sidenav-container [@.disabled]="true" [hasBackdrop]='false'  class="sidenav-container">
@@ -22,7 +22,14 @@
 
      
   <app-header  (onSort)="sortGroup($event)" title="Группы рабочего времени" [type]="'../work-time'">
-
+    <div class="changeActions">
+      <button (click)="undo()"  class="change" [ngClass]="{'changeActive':undoActive}" matTooltip="отменить"   mat-icon-button color="black">
+        <mat-icon>undo</mat-icon>
+      </button> 
+      <button (click)="redo()" class="change"  [ngClass]="{'changeActive':redoActive}"  matTooltip="вернуть"   mat-icon-button color="black">
+        <mat-icon>redo</mat-icon>
+      </button> 
+    </div>
  
   </app-header>
 
@@ -36,8 +43,7 @@
     </mat-sidenav-content>
     <mat-sidenav mode="side"  position="end" #drawer [(opened)]="opened"     >
       <app-add-person-to-work-time-settings 
-      (onGroupDelete)="filtrGroups()" 
-      [wtg] = "checkedGroup" 
+      (onGroupDelete)="filtrGroups()"  
       (onGroupCopy)="addCopySettings()"  
       (onGroupSave)="onCreateGroup()" 
       (onClose)="closeAddPerson()"

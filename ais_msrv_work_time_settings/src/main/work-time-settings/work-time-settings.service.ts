@@ -21,6 +21,7 @@ import { WorkTimeService } from '../work-time/work-time.service';
 import { HttpService } from '@nestjs/axios';
 import { Event } from './models/Event.model';
 import { Sort } from './models/sort.model';
+import { GroupChange } from 'src/interfaces/group-change';
 
 
 
@@ -42,24 +43,46 @@ export class WorkTimeSettingsService {
     private http:HttpService,
   ) {}
 
-  async createWorkTimeSetting(dto: createWorkTimeSettingDto) {
-    return await this.workTimeSettingRepo.save(dto);
+  async createWorkTimeSetting(dto: createWorkTimeSettingDto):Promise<GroupChange[]>  {
+    const wts =  await this.workTimeSettingRepo.save(dto);
+
+    return [{
+      undo:{method:'create', schema:'setting',obj:wts},
+      redo:{method:'delete', schema:'setting',obj:wts}
+    }]
   }
 
-  async deleteWorkTimeSetting(uid: string) {
+  async deleteWorkTimeSetting(uid: string):Promise<GroupChange[]> {
     console.log('uid', uid);
-    
-    return await this.workTimeSettingRepo.delete({ uid });
+    const setting = await this.workTimeSettingRepo.findOne({where:{uid:uid}, relations:{workTimeGroups:true}})
+    await this.workTimeSettingRepo.delete({ uid });
+
+    return [{
+      undo:{method:'delete', schema:'setting',obj:setting},
+      redo:{method:'create', schema:'setting',obj:setting}
+    }]
   }
 
-  async updateSettingTitle(dto: UpdateTitleWorkTimeDto) {
-    return await this.workTimeSettingRepo.save(dto);
+  async updateSettingTitle(dto: UpdateTitleWorkTimeDto):Promise<GroupChange[]>  {
+    const prevWts = await this.workTimeSettingRepo.findOne({where:{uid:dto.uid}, relations:{workTimeGroups:true}})
+    const wts =  await this.workTimeSettingRepo.save(dto);
+
+    return [{
+      undo:{method:'update', schema:'setting',obj:prevWts},
+      redo:{method:'update', schema:'setting',obj:wts}
+    }]
   }
 
-  async updateWorkTimeSetting(userUid: string, wts: WorkTimeSetting) {
-    return await this.workTimeSettingRepo.update(wts.uid, {
+  async updateWorkTimeSetting(userUid: string, wts: WorkTimeSetting):Promise<GroupChange[]>  {
+    const prevWts = await this.workTimeSettingRepo.findOne({where:{uid:wts.uid}, relations:{workTimeGroups:true}})
+    const  setting =  await this.workTimeSettingRepo.save({
+      uid:wts.uid,
       userIds: wts.userIds,
     });
+    return [{
+      undo:{method:'update', schema:'setting',obj:prevWts},
+      redo:{method:'update', schema:'setting',obj:setting}
+    }]
   }
 
   async getWorkTimeSettings() {
@@ -280,12 +303,17 @@ export class WorkTimeSettingsService {
     return workTimeSettings[0];
   }
 
-  async copyWorkTimeSetting(wts: WorkTimeSetting) {
+  async copyWorkTimeSetting(wts: WorkTimeSetting):Promise<GroupChange[]>  {
     const newWorkTimeSetting = await this.workTimeSettingRepo.save({
       title: `${wts.title} копия`,
     });
     if (!wts.workTimes) {
-      return newWorkTimeSetting;
+  
+      return [{
+        undo:{method:'create', schema:'setting',obj:newWorkTimeSetting},
+        redo:{method:'delete', schema:'setting',obj:newWorkTimeSetting}
+      }]
+      
     }
 
     for (const workTime of wts.workTimes) {
@@ -318,7 +346,11 @@ export class WorkTimeSettingsService {
         }
       }
     }
-    return newWorkTimeSetting;
+ 
+    return [{
+      undo:{method:'create', schema:'setting',obj:newWorkTimeSetting},
+      redo:{method:'delete', schema:'setting',obj:newWorkTimeSetting}
+    }]
   }
 
   async getAllUserWorkTime(userUid: string, query: any) {

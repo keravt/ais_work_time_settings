@@ -4,6 +4,14 @@
 
     <div matSort (matSortChange)="sortData($event)"  class="header">
         <span [autofocus]="false" mat-sort-header="name" class="text">Настройки рабочего времени</span>
+        <div class="changeActions">
+            <button (click)="undo()"  class="change" [ngClass]="{'changeActive':undoActive}" matTooltip="отменить"   mat-icon-button color="black">
+              <mat-icon>undo</mat-icon>
+            </button> 
+            <button (click)="redo()" class="change"  [ngClass]="{'changeActive':redoActive}"  matTooltip="вернуть"   mat-icon-button color="black">
+              <mat-icon>redo</mat-icon>
+            </button> 
+          </div>
         <button   color="basic" (click)="close()" mat-icon-button   aria-label="Example icon-button with a menu">
             <mat-icon >close</mat-icon>
           </button>
@@ -32,8 +40,9 @@
             class="example-margin"
             [checked]="wts | wtsInGroup : checkedWts"
             *ngFor="let wts of workTimesSettings | async "
+            appTrimOnCopy
             >
-            <app-work-time-setting-item [wtg]="data"    (onSettingUpdate)="updateItems()"  (onSettingCopy)="updateItems()" (onSettingDelete)="updateItems()" class="item-list" [wts]="wts"     />
+            <app-work-time-setting-item [wtg]="data"    (onSettingUpdate)="updateItems()"  (onSettingCopy)="updateItems()" (onSettingDelete)="deleteItems($event)" class="item-list" [wts]="wts"     />
              </mat-checkbox>
         </div>
 

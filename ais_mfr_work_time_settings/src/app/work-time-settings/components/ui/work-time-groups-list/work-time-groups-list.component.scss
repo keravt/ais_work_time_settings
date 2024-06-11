@@ -138,6 +138,29 @@ table {
 
 }
 
+
+.changeActions{
+  flex: 1 1 auto;
+  display: flex;
+  
+}
+
+
+
+.change{
+    cursor: auto;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.changeActive{
+    cursor: pointer;
+    pointer-events: visible;
+    opacity: 1;
+
+}
+
+
 :host ::ng-deep  .mat-mdc-tab-labels  {
   height: 65px !important;
 

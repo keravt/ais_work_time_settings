@@ -7,6 +7,7 @@ import * as moment from 'moment';
 import { WorkTimeGroupsApi } from 'src/app/work-time-settings/api/work-time-groups.api';
 import { DeleteWorkTimeGroupComponent } from 'src/app/work-time-settings/components/modals/delete-work-time-group/delete-work-time-group..component';
 import { WorkTimeGroup } from 'src/app/work-time-settings/models/WorkTimeGroup.model';
+import { HistoryGroupService } from 'src/app/work-time-settings/services/history-group.service';
 
 @Component({
   selector: 'app-work-time-group-item',
@@ -30,6 +31,7 @@ export class WorkTimeGroupItemComponent implements OnInit, OnChanges {
     private elementRef: ElementRef,
      public dialog: MatDialog,
      private workTimeGroupApi:WorkTimeGroupsApi,
+     private historyGroupService:HistoryGroupService,
      private router: Router,
      private route: ActivatedRoute,
      private cdr:ChangeDetectorRef
@@ -99,7 +101,9 @@ export class WorkTimeGroupItemComponent implements OnInit, OnChanges {
     if (this.wtg) {
       event.preventDefault()
       event.stopPropagation()
-      this.workTimeGroupApi.updateWorkTimeGroup({...this.wtg, title:this.inputValue}).subscribe(data=>{
+      this.workTimeGroupApi.updateWorkTimeGroup({...this.wtg, title:this.inputValue}).subscribe(group=>{
+        this.historyGroupService.setUndoArray(group)
+        this.historyGroupService.redoArray$.next([])
         this.changedName = false
         if (this.wtg) {
           this.wtg.title = this.inputValue
@@ -120,10 +124,10 @@ export class WorkTimeGroupItemComponent implements OnInit, OnChanges {
     }
 
     
-    this.workTimeGroupApi.copyWorkTimeGroup(this.wtg).subscribe(data=>{
-      console.log('workkk', data);
-      
-      this.onGroupCopy.emit(data)
+    this.workTimeGroupApi.copyWorkTimeGroup(this.wtg).subscribe(group=>{
+      this.historyGroupService.setUndoArray(group)
+      this.historyGroupService.redoArray$.next([])
+      this.onGroupCopy.emit(group[0].redo.obj  as WorkTimeGroup)
       this.cdr.markForCheck()
     })
    }
@@ -147,7 +151,9 @@ export class WorkTimeGroupItemComponent implements OnInit, OnChanges {
     if (event.key === 'Enter') {
       
       
-      this.workTimeGroupApi.updateWorkTimeGroup({...this.wtg, title:this.inputValue}).subscribe(data=>{
+      this.workTimeGroupApi.updateWorkTimeGroup({...this.wtg, title:this.inputValue}).subscribe(group=>{
+        this.historyGroupService.setUndoArray(group)
+        this.historyGroupService.redoArray$.next([])
         if (!this.wtg) {
           return
         }

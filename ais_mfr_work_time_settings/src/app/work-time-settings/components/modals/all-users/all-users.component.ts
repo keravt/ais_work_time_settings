@@ -8,6 +8,12 @@ import { AllSettingsComponent } from '../../ui/work-time-groups-list/components/
 import { WorkTimeGroup } from 'src/app/work-time-settings/models/WorkTimeGroup.model';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CheckedGroupStorageService } from 'src/app/work-time-settings/services/checked-group-storage.service';
+import { HistoryGroupService } from 'src/app/work-time-settings/services/history-group.service';
+import { Subject, takeUntil } from 'rxjs';
+import { isSetting } from 'src/app/work-time-settings/guards/isSetting';
+import { AllGroupsStorageService } from 'src/app/work-time-settings/services/all-groups-storage.service';
+import { AllSettingsStorageService } from 'src/app/work-time-settings/services/all-settings-storage.service';
 
 @Component({
   selector: 'app-all-users',
@@ -22,12 +28,13 @@ export class AllUsersComponent implements OnInit {
     private UserApi: UserApi,
     private workTimeGroupsApi:WorkTimeGroupsApi,
     private cdr:ChangeDetectorRef,
+    private checkedGroupStorageService: CheckedGroupStorageService,
+    private historyGroupService:     HistoryGroupService,
+    private allGroupsStorageService: AllGroupsStorageService,
+    private allSettingsStorageService: AllSettingsStorageService,
     private snackBar: MatSnackBar,
     private dialogRef: MatDialogRef<AllUsersComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: WorkTimeGroup,
-
-
-
+    @Inject(MAT_DIALOG_DATA) public wtg: WorkTimeGroup,
   ) {}
   
 
@@ -36,7 +43,7 @@ export class AllUsersComponent implements OnInit {
    filteredPersons: Person[] = [];
     filteredPersonsByDivision: Person[] = [];
     @Output() onChange = new EventEmitter()
-  divisions:Division[] = []
+    divisions:Division[] = []
     fiteredDivisions:Division[] = []
     divionInput = new FormControl()
     selectedDivision:null | Division = null
@@ -49,6 +56,21 @@ export class AllUsersComponent implements OnInit {
     checkedUsers:Person[] = []
     allPersons:Person[]= []
     allChecked = false
+    undoActive:boolean = false
+    redoActive:boolean = false
+
+    private destroy$ = new Subject<void>();
+
+    ngOnDestroy(): void {
+       this.destroy$.next();
+       this.destroy$.complete();
+     }
+  
+  
+
+
+      
+
     ngOnInit(): void {
       this.divionInput.valueChanges.subscribe(data=>{
         console.log('dd', data);
@@ -58,6 +80,8 @@ export class AllUsersComponent implements OnInit {
       })
 
 
+
+      
 
 
       this.UserApi.getAllDivisions().subscribe(data=>{
@@ -85,8 +109,8 @@ export class AllUsersComponent implements OnInit {
        
         this.UserApi.fetch().subscribe( async data => {
 
-          this.allPersons = data.filter(el=>el.keycloakUid && el.status === 'Работает')
-          this.persons = data.filter(el=>el.keycloakUid && !this.allUsersInGroups.includes(el.keycloakUid) && el.status === 'Работает')
+          this.allPersons = data.filter(el=>el.keycloakUid && el.status !== 'Уволен')
+          this.persons = data.filter(el=>el.keycloakUid && !this.allUsersInGroups.includes(el.keycloakUid) && el.status !== 'Уволен')
   
           
             this.filteredPersonsByDivision = [...this.persons]
@@ -101,9 +125,88 @@ export class AllUsersComponent implements OnInit {
           });
       })
 
+      this.checkedGroupStorageService.checkedGroup$.subscribe(group=>{
+        this.allUsersInGroups = []
+        this.workTimeGroupsApi.getWorkTimeGroups().subscribe(data=>{
+          for(const el of data){
+            this.allUsersInGroups = [...this.allUsersInGroups, ...el.userIds]
+          }
+         
+          this.UserApi.fetch().subscribe( async data => {
+  
+            this.allPersons = data.filter(el=>el.keycloakUid && el.status !== 'Уволен')
+            console.log('this.allUsersInGroups', this.allUsersInGroups);
+            
+            this.persons = data.filter(el=>el.keycloakUid && !this.allUsersInGroups.includes(el.keycloakUid) && el.status !== 'Уволен')
+    
+            
+              this.filteredPersonsByDivision = [...this.persons]
+              this.isLoading = false
+         
+              this.filteredPersons = [...this.persons]
+              this.personsControl.valueChanges.subscribe((value)=>{
+                this.filteredPersons = this._filter(value || '')
+               });
+                this.onDivisionChange(this.selectedDivision)
+                this.cdr.markForCheck()
+            });
+        })
+        this.cdr.markForCheck()
+ 
+      })
 
+
+      this.historyGroupService.undoArray$.pipe(takeUntil(this.destroy$)).subscribe(data=>{
+   
+          
+        this.undoActive = data.length === 0 ? false : true
+        this.cdr.markForCheck()
+      })
+  
+  
+      this.historyGroupService.redoArray$.pipe(takeUntil(this.destroy$)).subscribe(data=>{
+        this.redoActive = data.length === 0 ? false : true
+        this.cdr.markForCheck()
+      })
 
     }
+
+    async undo(){
+
+      const data = await this.historyGroupService.onUndoChange()
+      console.log('data[0].obj', data[0].obj);
+
+   
+     
+      if (!isSetting(data[0].obj)) {
+        this.checkedGroupStorageService.setCheckedGroup(data[0].obj)
+        this.allGroupsStorageService.setAllGroups(data[0].obj)
+      }else{
+        this.allSettingsStorageService.setAllSettings(data[0].obj)
+       }
+    
+       this.snackBar.open(`изменение группы `, undefined,{
+        duration: 2000
+      }); 
+    }
+  
+  
+    async redo(){
+  
+  
+      const data =  await this.historyGroupService.onRedoChange()
+    if (!isSetting(data[0].obj)) {
+      this.checkedGroupStorageService.setCheckedGroup(data[0].obj)
+      this.allGroupsStorageService.setAllGroups(data[0].obj)
+    }else{
+      this.allSettingsStorageService.setAllSettings(data[0].obj)
+     }
+  
+    this.snackBar.open(`изменение группы `, undefined,{
+      duration: 2000
+    }); 
+    }
+
 
     checkAllUsers(){
       this.checkedUsers = Array.from(new Set([...this.checkedUsers, ...this.filteredPersons]))
@@ -130,7 +233,7 @@ export class AllUsersComponent implements OnInit {
     checkUser(uid:string){
       this.persons = [...this.persons.filter(el=>el.keycloakUid !== uid)]
       this.onDivisionChange(this.selectedDivision)
-      this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
+      this.workTimeGroupsApi.getWorkTimeGroupById(this.wtg.uid).subscribe(data=>{
         this.workTimeGroupsApi.updateWorkTimeGroup({...data, userIds:[...data.userIds,uid ] }).subscribe({next:(group)=>{
           this.snackBar.open(`рабочее время обновлено`, undefined,{
             duration: 2000
@@ -191,8 +294,11 @@ export class AllUsersComponent implements OnInit {
       this.persons = [...this.persons.filter(elOne=>!this.checkedUsers.find(elTwo=>elTwo.keycloakUid == elOne.keycloakUid))]
  
 
-      this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
+      this.workTimeGroupsApi.getWorkTimeGroupById(this.wtg.uid).subscribe(data=>{
         this.workTimeGroupsApi.updateWorkTimeGroup({...data, userIds:[...data.userIds, ...this.checkedUsers.map(el=>el.keycloakUid) ] }).subscribe({next:(group)=>{
+
+          this.historyGroupService.setUndoArray(group)
+          this.historyGroupService.redoArray$.next([])
           this.checkedUsers = []
           this.snackBar.open(`группа обновлена`, undefined,{
             duration: 2000

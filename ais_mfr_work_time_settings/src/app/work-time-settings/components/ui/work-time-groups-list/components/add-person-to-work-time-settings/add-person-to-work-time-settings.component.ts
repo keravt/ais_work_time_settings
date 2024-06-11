@@ -21,6 +21,8 @@ import { DeleteWorkTimeSettingsComponent } from 'src/app/work-time-settings/comp
 import { Sort } from 'src/app/work-time-settings/models/sort.model';
 import { MatSort } from '@angular/material/sort';
 import { AllUsersComponent } from 'src/app/work-time-settings/components/modals/all-users/all-users.component';
+import { CheckedGroupStorageService } from 'src/app/work-time-settings/services/checked-group-storage.service';
+import { HistoryGroupService } from 'src/app/work-time-settings/services/history-group.service';
 
 
 @Component({
@@ -29,22 +31,26 @@ import { AllUsersComponent } from 'src/app/work-time-settings/components/modals/
   styleUrls: ['./add-person-to-work-time-settings.component.scss'],
   changeDetection:ChangeDetectionStrategy.OnPush
 })
-export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit {
+export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
   constructor(
     private UserApi: UserApi,
     private workTimeSettingsApi: WorkTimeSettingsApi,
     private workTimeSettingStorageService: WorkTimeSettingStorageService,
     private workTimeGroupsApi: WorkTimeGroupsApi,
+    private checkedGroupStorageService: CheckedGroupStorageService,
+    private historyGroupService:     HistoryGroupService,
+
     private snackBar: MatSnackBar,
     private cdr:ChangeDetectorRef,
     private dialog:MatDialog,
     private router:Router,
+    
 
 
   ) {}
 
 
-  @Input() wtg:WorkTimeGroup | null = null
+  wtg:WorkTimeGroup | null = null
   @Output() onGroupSave = new EventEmitter()
   @Output() onClose = new EventEmitter()
   @Output() onGroupDelete = new EventEmitter<string>()
@@ -122,6 +128,16 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
       this.cdr.markForCheck()
         
       });
+
+      this.checkedGroupStorageService.checkedGroup$.subscribe(group=>{
+
+        this.cdr.markForCheck()
+        this.wtg = group
+        if (this.wtg) {
+          this.checkWtg(this.wtg)
+        }
+        console.log('kmomji', this.wtg );
+      })
   }
 
 
@@ -269,16 +285,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   this.option = option
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['wtg']) {
 
-      
-      if (this.wtg) {
-        this.checkWtg(this.wtg)
-        this.inputValue =this.wtg.title ;
-      }
-    }
-  }
 
   onKeyDown(event:KeyboardEventInit, wts:WorkTimeSetting){
  
@@ -320,28 +327,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   
   }
 
-  copyWts(wts:WorkTimeSetting){
-
-  
-    console.log();
-    console.log('dataaasdasda', wts);
-    this.workTimeSettingsApi.copyWorkTimeSetting(wts).subscribe(data=>{
-      console.log('dataa', data);
-      
-      if (!this.wtg) return
-      const settings = [data, ...this.GroupSettings]
-      this.workTimeGroupsApi.updateWorkTimeGroup({...this.wtg, workTimeSettings:settings}).subscribe(group=>{
-        console.log('grr', group);
-        this.onGroupSave.emit()
-        this.GroupSettings = [...settings]
-    
-        this.cdr.markForCheck()
-      })
  
-      this.cdr.markForCheck()
-    })
-   }
-
 
    removeSetting(wts:WorkTimeSetting){
  
@@ -540,6 +526,9 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
     
       this.checkedUsers = []
       this.workTimeGroupsApi.updateWorkTimeGroup({...this.wtg, userIds:newUsers }).subscribe({next:(group)=>{
+        this.checkedGroupStorageService.setCheckedGroup(group[0].redo.obj  as WorkTimeGroup)
+        this.historyGroupService.setUndoArray(group)
+        this.historyGroupService.redoArray$.next([])
         this.onGroupSave.emit()
         this.onDivisionChange(this.selectedDivision)
         this.allChecked = false
@@ -562,7 +551,7 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   }
 
   checkWtg(wtg:WorkTimeGroup){
-   this.chooseOption(1)
+   //this.chooseOption(1)
    this.workTimeSettingStorageService.setWorkTimeGroupId(wtg.uid)
     this.GroupSettings = [...wtg.workTimeSettings].sort((a,b)=>{
       const first = wtg.settingPositions.find(el=>el.uid === a.uid)
@@ -576,8 +565,8 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
 
     this.checkedWtg = wtg
     this.settingPositions = wtg.settingPositions
-
-
+    this.persons = [...this.persons.filter(elOne=>!this.checkedUsers.find(elTwo=>elTwo.keycloakUid == elOne.keycloakUid))]
+    this.updateWtsStorage(wtg,String(this.year))
     this.isLoading = true
     this.isLoadingSettings = true
    
@@ -639,15 +628,17 @@ export class AddPersonToWorkTimeSettingsComponent implements  OnChanges, OnInit 
   }
 
 
-  updateWtsPostitions(){
+  updateWtsPostitions(){  
     this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, workTimeSettings:this.GroupSettings, settingPositions:this.settingPositions }).subscribe({next:(group)=>{
         console.log('ggg', group);
-        
+        this.checkedGroupStorageService.setCheckedGroup(group[0].redo.obj  as WorkTimeGroup )
+        this.historyGroupService.setUndoArray(group)
+        this.historyGroupService.redoArray$.next([])
          
       if (this.checkedWtg) {
     
         
-          this.updateWtsStorage(group,String(this.year))
+          this.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String(this.year))
         
       
       }
@@ -670,8 +661,10 @@ complete:()=>{
 
     this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, workTimeSettings:this.GroupSettings }).subscribe({next:(group)=>{
       this.checkedSettings = []
-         
-      this.updateWtsStorage(group,String( moment().year()))
+      this.checkedGroupStorageService.setCheckedGroup(group[0].redo.obj  as WorkTimeGroup )
+      this.historyGroupService.setUndoArray(group)
+      this.historyGroupService.redoArray$.next([])
+      this.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String( moment().year()))
       this.allSettingChecked = false
     this.snackBar.open(`рабочее время обновлено`, undefined,{
       duration: 2000
@@ -706,7 +699,7 @@ complete:()=>{
         if (this.checkedWtg) {
       
           
-            this.updateWtsStorage(group,String( moment().year()))
+            this.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String( moment().year()))
           
         
         }

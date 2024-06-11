@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Output } from '@angular/core';
 import { WorkTimeGroupsApi } from 'src/app/work-time-settings/api/work-time-groups.api';
+import { HistoryGroupService } from 'src/app/work-time-settings/services/history-group.service';
 
 
 @Component({
@@ -17,6 +18,7 @@ export class CreateWorkTimeGroupItemComponent {
   constructor(
     private cdr:ChangeDetectorRef,
     private workTimeGroupApi:WorkTimeGroupsApi,
+    private historyGroupService:HistoryGroupService,
 
   ) {}
 
@@ -31,7 +33,9 @@ export class CreateWorkTimeGroupItemComponent {
           
         if (this.newGroupTitle !== '') {
           this.workTimeGroupApi.createWorkTimeGroup(this.newGroupTitle).
-          subscribe(newWorkTimeGroup => {
+          subscribe(group => {
+            this.historyGroupService.setUndoArray(group)
+            this.historyGroupService.redoArray$.next([])
             this.newGroupTitle = ''
             this.onGroupCreate.emit()
            this.cdr.markForCheck()

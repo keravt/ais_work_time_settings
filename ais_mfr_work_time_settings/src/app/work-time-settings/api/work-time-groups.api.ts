@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { mainURL } from 'src/environments/environment';
 import { WorkTimeGroup } from '../models/WorkTimeGroup.model';
 import { Sort } from '../models/sort.model';
+import { GroupChange, GroupChangeObj } from '../models/GroupChange.model';
+import { WorkTimeChange } from '../models/workTimeChange.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,8 +13,8 @@ import { Sort } from '../models/sort.model';
 export class WorkTimeGroupsApi {
   constructor(private http: HttpClient) {}
 
-  createWorkTimeGroup(title: string): Observable<WorkTimeGroup> {
-    return this.http.post<WorkTimeGroup>(`${mainURL}/api/work-time-groups/create`, {title})
+  createWorkTimeGroup(title: string): Observable<GroupChange[]> {
+    return this.http.post<GroupChange[]>(`${mainURL}/api/work-time-groups/create`, {title})
   }
 
   getWorkTimeGroups(): Observable<WorkTimeGroup[]> {
@@ -27,15 +29,15 @@ export class WorkTimeGroupsApi {
   }
 
 
-  updateWorkTimeGroup(workTimeGroup:Partial<WorkTimeGroup>): Observable<WorkTimeGroup> {
+  updateWorkTimeGroup(workTimeGroup:Partial<WorkTimeGroup>): Observable<GroupChange[]> {
     console.log('workTimeGroup', workTimeGroup);
     
-    return this.http.patch<WorkTimeGroup>(`${mainURL}/api/work-time-groups/update`, workTimeGroup)
+    return this.http.patch<GroupChange[]>(`${mainURL}/api/work-time-groups/update`, workTimeGroup)
   }
 
-  copyWorkTimeGroup(workTimeGroup: WorkTimeGroup){
+  copyWorkTimeGroup(workTimeGroup: WorkTimeGroup): Observable<GroupChange[]> {
 
-    return this.http.post<WorkTimeGroup>(
+    return this.http.post<GroupChange[]>(
       `${mainURL}/api/work-time-groups/copyWorkTimeGroup`, 
       workTimeGroup
     );
@@ -44,8 +46,8 @@ export class WorkTimeGroupsApi {
 
 
 
-  deleteWorkTimeGroup(uid:string){
-    return this.http.delete(`${mainURL}/api/work-time-groups/delete/${uid}`)
+  deleteWorkTimeGroup(uid:string): Observable<GroupChange[]>{
+    return this.http.delete<GroupChange[]>(`${mainURL}/api/work-time-groups/delete/${uid}`)
   }
  
 
@@ -55,6 +57,12 @@ export class WorkTimeGroupsApi {
     return this.http.get<string[]>(
       `${mainURL}/api/work-time-groups/user-uids/${uid}`
     );
+  }
+
+  changeGroup(GroupChanges:GroupChangeObj[]): Observable<GroupChange[]>{
+    return this.http.post<GroupChange[]>(`${mainURL}/api/work-time-groups/change`,GroupChanges);
+
+
   }
 
 
