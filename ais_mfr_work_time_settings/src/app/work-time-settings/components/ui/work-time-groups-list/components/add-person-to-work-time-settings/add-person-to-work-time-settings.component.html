@@ -67,7 +67,7 @@
             </div>
             <input class="input" placeholder="Искать в таблице" [formControl]="personsControl" />
             <div  class="rows-count">
-              Показано строк: {{this.filteredPersons.length}} из {{persons.length}}
+              Найдено: {{this.filteredPersons.length}} из {{persons.length}}
             </div>
             <div class="remove">
               <mat-icon matTooltip="удалить сотрудников"  color="basic" (click)="removeAllUsers()" >group_remove</mat-icon>
@@ -88,12 +88,9 @@
                     (change)="userChecked(person)"
                     class="example-margin"
                     [checked]="person.keycloakUid | isUserInWorkTimeSetting : checkedUsers"
-      
-                    >{{ person.name }}
-                     </mat-checkbox>
-
-          
-                    <div class="city">{{person.city}}</div>
+                    appTrimOnCopy
+                    ><div>{{person.name}}</div></mat-checkbox>
+                    <div appTrimOnCopy class="city">{{person.city}}</div>
 
                   </div>
       
@@ -127,8 +124,8 @@
               (change)="settingChecked(setting)"
               class="example-margin"
               [checked]="setting | wtsInGroup : checkedSettings"
-
-              >  <div  *ngIf="changedName == ''" class="item-title">{{ setting.title }}</div>
+              appTrimOnCopy
+              >  <div   *ngIf="changedName == ''" class="item-title">{{ setting.title }}</div>
                </mat-checkbox>
                 
 

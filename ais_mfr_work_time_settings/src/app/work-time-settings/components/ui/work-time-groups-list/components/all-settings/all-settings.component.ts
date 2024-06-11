@@ -1,13 +1,18 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, filter, map } from 'rxjs';
+import { Observable, Subject, filter, map, takeUntil } from 'rxjs';
 import { WorkTimeSettingsApi } from 'src/app/work-time-settings/api/work-time-settings.api';
 import { WorkTimeSetting } from 'src/app/work-time-settings/models/WorkTimeSetting.model';
 import {Sort as matSort} from '@angular/material/sort';
 import { WorkTimeGroup } from 'src/app/work-time-settings/models/WorkTimeGroup.model';
 import { WorkTimeGroupsApi } from 'src/app/work-time-settings/api/work-time-groups.api';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CheckedGroupStorageService } from 'src/app/work-time-settings/services/checked-group-storage.service';
+import { HistoryGroupService } from 'src/app/work-time-settings/services/history-group.service';
+import { AllSettingsStorageService } from 'src/app/work-time-settings/services/all-settings-storage.service';
+import { isSetting } from 'src/app/work-time-settings/guards/isSetting';
+import { AllGroupsStorageService } from 'src/app/work-time-settings/services/all-groups-storage.service';
 @Component({
   selector: 'app-all-settings',
   templateUrl: './all-settings.component.html',
@@ -25,17 +30,63 @@ export class AllSettingsComponent implements OnInit {
     private snackBar: MatSnackBar,
     private cdr:ChangeDetectorRef,
     private dialogRef: MatDialogRef<AllSettingsComponent>,
+    private checkedGroupStorageService: CheckedGroupStorageService,
+    private allSettingsStorageService: AllSettingsStorageService,
+    private allGroupsStorageService: AllGroupsStorageService,
+    private historyGroupService:     HistoryGroupService,
     @Inject(MAT_DIALOG_DATA) public data: WorkTimeGroup,
   ) {}
+
+  private destroy$ = new Subject<void>();
+
+  ngOnDestroy(): void {
+     this.destroy$.next();
+     this.destroy$.complete();
+   }
+
+
+
+
   ngOnInit(): void {
     this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
       this.checkedWts = data.workTimeSettings
+      this.cdr.markForCheck()
    
     })
 
     this.workTimeSettingsApi.getWorkTimeSettings().subscribe(data=>{
   this.allSettings = data
+  this.cdr.markForCheck()
     })
+
+    this.checkedGroupStorageService.checkedGroup$.subscribe(group=>{
+      if (group) {
+        this.checkedWts = group.workTimeSettings
+      }
+      this.cdr.markForCheck()
+    })
+
+    this.allSettingsStorageService.AllSettings$.subscribe(data=>{
+      this.workTimesSettings =
+      this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
+      this.cdr.markForCheck()
+    })
+
+
+    this.historyGroupService.undoArray$.pipe(takeUntil(this.destroy$)).subscribe(data=>{
+ 
+        
+      this.undoActive = data.length === 0 ? false : true
+      this.cdr.markForCheck()
+    })
+
+
+    this.historyGroupService.redoArray$.pipe(takeUntil(this.destroy$)).subscribe(data=>{
+      this.redoActive = data.length === 0 ? false : true
+      this.cdr.markForCheck()
+    })
+
+
   }
 
   workTimesSettings:  Observable<WorkTimeSetting[]> =
@@ -45,6 +96,8 @@ export class AllSettingsComponent implements OnInit {
   checkedWts:WorkTimeSetting[] = []
   allSettingChecked = false
   allSettings:WorkTimeSetting[] = []
+  undoActive:boolean = false
+  redoActive:boolean = false
   @Output() onChange = new EventEmitter()
 
 
@@ -126,7 +179,9 @@ export class AllSettingsComponent implements OnInit {
         this.workTimeGroupsApi.updateWorkTimeGroup({...data, workTimeSettings:this.checkedWts  }).subscribe({next:(group)=>{
           this.workTimesSettings =
           this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
-        
+    
+          this.historyGroupService.setUndoArray(group)
+          this.historyGroupService.redoArray$.next([])
           this.onChange.emit()
           this.cdr.markForCheck()
           
@@ -136,6 +191,44 @@ export class AllSettingsComponent implements OnInit {
       })
 
     }
+
+
+    async undo(){
+
+      const data = await this.historyGroupService.onUndoChange()
+      console.log('data[0].obj', data[0].obj);
+
+   
+     
+      if (!isSetting(data[0].obj)) {
+        this.checkedGroupStorageService.setCheckedGroup(data[0].obj)
+        this.allGroupsStorageService.setAllGroups(data[0].obj)
+      }else{
+        this.allSettingsStorageService.setAllSettings(data[0].obj)
+       }
+    
+       this.snackBar.open(`изменение группы `, undefined,{
+        duration: 2000
+      }); 
+    }
+  
+  
+    async redo(){
+  
+  
+      const data =  await this.historyGroupService.onRedoChange()
+    if (!isSetting(data[0].obj)) {
+      this.checkedGroupStorageService.setCheckedGroup(data[0].obj)
+      this.allGroupsStorageService.setAllGroups(data[0].obj)
+    }else{
+      this.allSettingsStorageService.setAllSettings(data[0].obj)
+     }
+  
+    this.snackBar.open(`изменение группы `, undefined,{
+      duration: 2000
+    }); 
+    }
+
 
 
   updateItems(){
@@ -150,6 +243,28 @@ export class AllSettingsComponent implements OnInit {
       this.cdr.markForCheck()
     })
     this.onChange.emit()
+  }
+
+  deleteItems(uid:string){
+    if (this.checkedWts.find(el=>el.uid === uid)) {
+      this.checkedWts = [...this.checkedWts.filter(el=>el.uid !== uid)] 
+    }
+
+    console.log('^^^',this.workTimesSettings );
+    
+
+    this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
+
+    this.workTimesSettings =
+    this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
+      this.snackBar.open(`группа обновлена`, undefined,{
+        duration: 2000
+      }); 
+      console.log('data!!!', data);
+      
+      this.data = data
+      this.cdr.markForCheck()
+    })
   }
 
   showSettingCreate(){

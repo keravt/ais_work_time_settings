@@ -6,6 +6,7 @@ import { updateWorkTimeGroupDto } from './DTO/update-work-time-group.dto';
 import { updateSettingPosition } from './DTO/update-setting-position.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Sort } from '../work-time-settings/models/sort.model';
+import { GroupChangeObj } from 'src/interfaces/group-change';
 
 @Controller('work-time-groups')
 export class WorkTimeGroupsController {
@@ -59,6 +60,15 @@ export class WorkTimeGroupsController {
       return this.workTimeGroupService.getWorkTimeGroupById(uid);
     }
 
+
+    @Post('/change')
+    change_workTime_deleteWorkTime(
+  
+      @Body() dto: GroupChangeObj[],
+    ) {
+      return this.workTimeGroupService.changeGroup(dto);
+    }
+  
     
 
 }
