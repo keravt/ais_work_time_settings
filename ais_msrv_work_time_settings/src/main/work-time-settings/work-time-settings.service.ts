@@ -740,7 +740,7 @@ export class WorkTimeSettingsService {
             const rule = rrulestr(event.recurrence);
             rule.options.dtstart =
               rule.origOptions.until || rule.origOptions.count
-                ? new Date(event.day + 10800000)
+                ? new Date(event.day)
                 : new Date(startDate);
             const recurringDates = rule.between(
               new Date(startDate),
@@ -748,9 +748,11 @@ export class WorkTimeSettingsService {
               true,
             );
 
+            console.log(recurringDates);
+
             recurringDates.forEach((date) => {
               holidaysWithRecurrence.push({
-                day: date.getTime(),
+                day: date.setHours(0, 0, 0, 0),
                 holidayColor: event.holidayColor,
                 name: event.name,
               });
