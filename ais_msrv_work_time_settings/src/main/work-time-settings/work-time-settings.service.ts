@@ -940,7 +940,7 @@ export class WorkTimeSettingsService {
             workTime: dayClone.workTime,
             uid: workTime.uid,
             name: dayClone.name,
-            day: new Date(instanceDate).valueOf(),
+            day: new Date(instanceDate).setHours(0, 0, 0, 0),
           });
           continue;
         }
@@ -948,7 +948,7 @@ export class WorkTimeSettingsService {
         recurringInstances.push({
           ...workTime,
           uid: workTime.uid,
-          day: new Date(instanceDate).valueOf(),
+          day: new Date(instanceDate).setHours(0, 0, 0, 0),
         });
       }
 
