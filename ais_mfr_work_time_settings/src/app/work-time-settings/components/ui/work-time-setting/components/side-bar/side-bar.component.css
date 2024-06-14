@@ -85,6 +85,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    flex:  1 1  auto;
 }
 
 .period-choose {
@@ -118,6 +119,7 @@
     justify-content: flex-end;
     margin-right: 5px;
     margin-top: 5px;
+    margin-bottom: 20px;
 }
 
 .repeate-menu {
