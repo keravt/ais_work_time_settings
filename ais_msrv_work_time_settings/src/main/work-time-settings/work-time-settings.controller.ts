@@ -259,6 +259,12 @@ export class WorkTimeSettingsController {
   getHolidaysByUserUids(@Payload() getHolidaysDto: GetHolidaysDto) {
     return this.workTimeSettingService.getHolidaysByUserUids(getHolidaysDto)
   }
+
+
+  //@Get('get-holidays')
+  //getHolidaysByUserUids(@Query() getHolidaysDto: GetHolidaysDto) {
+  //  return this.workTimeSettingService.getHolidaysByUserUids(getHolidaysDto)
+  //}
   
  
 }
