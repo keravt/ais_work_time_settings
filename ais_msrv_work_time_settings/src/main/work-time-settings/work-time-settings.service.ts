@@ -22,6 +22,7 @@ import { HttpService } from '@nestjs/axios';
 import { Event } from './models/Event.model';
 import { Sort } from './models/sort.model';
 import { GroupChange } from 'src/interfaces/group-change';
+import { WorkTimeGroupsService } from '../work-time-groups/work-time-groups.service';
 
 
 
@@ -40,6 +41,7 @@ export class WorkTimeSettingsService {
     @InjectRepository(WorkTimeGroup)
     private workTimeGroupRepo: Repository<WorkTimeGroup>,
     private workTimeService: WorkTimeService,
+    private workTimeGroupService: WorkTimeGroupsService,
     private http:HttpService,
   ) {}
 
@@ -704,7 +706,7 @@ export class WorkTimeSettingsService {
 
 
 
-  async getHolidaysByUserUids({
+  async getHolidaysByUserUidsTwo({
     userUids,
     startDate,
     endDate,
@@ -773,4 +775,244 @@ export class WorkTimeSettingsService {
 
     return workTimeSettings;
   }
+
+
+  async getAllUserWorkTimeForGant(userUid: string, query: any) {
+    let tasks = [];
+    let workTimes: WorkTimeSchema[] = [];
+    let recurringInstances: WorkTimeSchema[] = [];
+    const startDate = new Date(query.startDate)
+    const endDate =  new Date(query.endDate)
+
+    
+    let events:Event[] = []
+
+    // try {
+      // const response = await firstValueFrom(this.http.get(`https://api.calendar.k-portal.ru/api/events/event/${userUid}`, {params:query}))
+      // events = response.data as unknown as Event[];
+      // 
+ 
+    // } catch (error) {
+      // 
+    // }
+ 
+    
+    const sortedEvents = [
+      ...events.filter(
+        (event) =>
+          moment(event.startDate) >= moment(startDate).subtract(1, 'days') &&
+          moment(event.endDate) <= moment(endDate).add(1, 'days'),
+      ),
+    ];
+
+    const workTimeGroups = await this.workTimeGroupRepo
+      .createQueryBuilder('workTimeGroup')
+      .where(':userUid  = ANY(workTimeGroup.userIds)', { userUid })
+      .leftJoinAndSelect('workTimeGroup.workTimeSettings', 'workTimeSettings')
+      .leftJoinAndSelect('workTimeSettings.workTimes', 'workTimes')
+      .leftJoinAndSelect('workTimes.workTimeDayClones', 'workTimeDayClones')
+      .leftJoinAndSelect('workTimes.workTimeDaysClones', 'workTimeDaysClones')
+      .getMany();
+
+    const GeneralsWorkTimeSetting = await this.workTimeSettingRepo
+      .createQueryBuilder('workTimeSetting')
+      .where('workTimeSetting.isGeneral = :isGeneral', { isGeneral: true })
+      .leftJoinAndSelect('workTimeSetting.workTimes', 'workTimes')
+      .leftJoinAndSelect('workTimes.workTimeDayClones', 'workTimeDayClones')
+      .leftJoinAndSelect('workTimes.workTimeDaysClones', 'workTimeDaysClones')
+      .getMany();
+ 
+
+      let workTimeSettings:WorkTimeSetting[] = []
+
+      
+      console.log('dadwadada', workTimeGroups);
+      workTimeGroups.forEach(el=>{
+          const settings = el.workTimeSettings
+        el.settingPositions.forEach(sett => {
+          const setting = el.workTimeSettings.find(el=>el.uid === sett.uid)
+          const index = el.workTimeSettings.findIndex(el=>el.uid === sett.uid)
+          if (setting) {
+            if (sett.position > el.settingPositions.length) {
+              settings.splice(index,1)
+              settings.push(setting)
+            }else{
+              settings.splice(index,1)
+              settings.splice(sett.position,0,setting)
+            }
+  
+          }
+      });
+
+        workTimeSettings = [...workTimeSettings, ...settings]
+      })
+
+    if (workTimeSettings) {
+      for (const el of workTimeSettings) {
+        if (el.workTimes) {
+          workTimes = [...workTimes, ...el.workTimes];
+        }
+      }
+    }
+
+    /*
+    if (GeneralsWorkTimeSetting) {
+        if (!workTimeSetting) {
+          GeneralsWorkTimeSetting.forEach(el=>{
+            if(el.workTimes) workTimes = [...workTimes, ...el.workTimes]
+           
+          })
+        }else{
+          !workTimeSetting.isGeneral && GeneralsWorkTimeSetting.forEach(el=>{
+            if(el.workTimes) workTimes = [...workTimes, ...el.workTimes]
+           
+          })
+        }
+
+    }
+*/
+    
+    
+    if (workTimes.length === 0) {
+      return {
+        workTimes: [],
+        tasks,
+        events: sortedEvents,
+        holidays: [],
+      };
+    }
+
+    workTimes  = workTimes.filter(el=>el.isHoliday)
+
+
+    for (const workTime of workTimes) {
+      if (!workTime.recurrence) {
+        if (
+          moment(startDate).subtract(1, 'day').valueOf() <= workTime.day &&
+          endDate.valueOf() >= workTime.day
+        ) {
+          recurringInstances.push(workTime);
+        }
+
+        continue;
+      }
+
+      const instances: Date[] = this.createInstancess(
+        workTime,
+        startDate,
+        endDate,
+      );
+
+ 
+      
+      const dateEnd: null | Date = await this.createEndDateForDaysClones(
+        workTime,
+        instances,
+      );
+
+      if (workTime.workTimeDaysClones.length > 1 && dateEnd) {
+        recurringInstances = this.passageThroughDaysClones(
+          workTime,
+          recurringInstances,
+          dateEnd,
+          startDate,
+        );
+
+        continue;
+      }
+     
+      
+
+      for (const instanceDate of instances) {
+        const dayClone = workTime.workTimeDayClones.find((el) => {
+          let dayPlusOne = moment(el.day).add(1, 'day');
+          const dayPlusOneUTCFalse = dayPlusOne.hour(0).utc(false).valueOf();
+          return (
+            dayPlusOneUTCFalse === new Date(instanceDate).setHours(0, 0, 0, 0)
+          );
+        });
+
+        if (dayClone) {
+          recurringInstances.push({
+            ...workTime,
+            holidayColor: dayClone.holidayColor,
+            isHoliday: dayClone.isHoliday,
+            workTime: dayClone.workTime,
+            uid: workTime.uid,
+            name: dayClone.name,
+            day: new Date(instanceDate).valueOf(),
+          });
+          continue;
+        }
+
+        recurringInstances.push({
+          ...workTime,
+          uid: workTime.uid,
+          day: new Date(instanceDate).valueOf(),
+        });
+      }
+
+
+   
+      
+    }
+    const recurringInstancesFiltered:WorkTimeSchema[] = []
+   
+    
+    for(const recurringInstance of recurringInstances){
+      if (!recurringInstancesFiltered.find(el=>el.day === recurringInstance.day)) {
+        recurringInstancesFiltered.push(recurringInstance)
+      }
+    }
+    
+    return {
+      workTimes: recurringInstancesFiltered,
+      tasks,
+      events: sortedEvents,
+      holidays: [],
+    };
+  }
+
+
+
+  async getHolidaysByUserUids({
+    userUids,
+    startDate,
+    endDate,
+  }: GetHolidaysDto){
+    const groups = await this.workTimeGroupService.getWorkTimeGroups()
+    const arrayGroupData = []
+   
+    for(const userUid of  userUids){
+      const group = groups.find(el=>el.userIds.includes(userUid))
+      if (group) {
+
+        
+       const findedGroup =  groups.find(el=>el.userIds.includes(userUid) && arrayGroupData.find(data=>data.uid === el.uid))
+       console.log('group', arrayGroupData, group);
+       let index = -1 
+       if (findedGroup) {
+
+       index =  arrayGroupData.findIndex(el=>el.uid === findedGroup.uid)
+       }
+      
+        if (index !== -1) {
+          console.log('arrayGroupData[index]', arrayGroupData[index]);
+          
+          arrayGroupData[index].userUids.push(userUid)
+        }else{
+          const workTimes  =await this.getAllUserWorkTimeForGant(userUid,{startDate,endDate})
+          const groupData = {
+            uid:group.uid,
+            userUids:[userUid],
+            workTimes:workTimes.workTimes
+          }
+          arrayGroupData.push(groupData )
+
+        }
+
+      }
+    }
+    return arrayGroupData 
+  } 
 }
