@@ -798,7 +798,8 @@ export class WorkTimeSettingsService {
     let tasks = [];
     let workTimes: WorkTimeSchema[] = [];
     let recurringInstances: WorkTimeSchema[] = [];
-
+    //const startDate = moment({year:2024, month:0, date:1}).toDate()
+    //const endDate = moment({year:2024, month:1, date:1}).toDate()
     const startDate = new Date(query.startDate)
     const endDate =  new Date(query.endDate)
 
@@ -902,13 +903,17 @@ export class WorkTimeSettingsService {
 
 
 
+console.log('___', workTimes);
 
     for (const workTime of workTimes) {
+  
+      
       if (!workTime.recurrence) {
         if (
           moment(startDate).subtract(1, 'day').valueOf() <= workTime.day &&
           endDate.valueOf() >= workTime.day
         ) {
+          console.log('%%%', workTime);
           recurringInstances.push(workTime);
         }
 
@@ -958,7 +963,7 @@ export class WorkTimeSettingsService {
             workTime: dayClone.workTime,
             uid: workTime.uid,
             name: dayClone.name,
-            day: new Date(instanceDate).setHours(0, 0, 0, 0),
+            day: moment(instanceDate).hour(0).utc(false).valueOf(),
           });
           continue;
         }
@@ -966,7 +971,7 @@ export class WorkTimeSettingsService {
         recurringInstances.push({
           ...workTime,
           uid: workTime.uid,
-          day: new Date(instanceDate).setHours(0, 0, 0, 0),
+          day: moment(instanceDate).hour(0).utc(false).valueOf(),
         });
       }
 
@@ -978,11 +983,28 @@ export class WorkTimeSettingsService {
    
     
     for(const recurringInstance of recurringInstances){
-      if (!recurringInstancesFiltered.find(el=>el.day === recurringInstance.day)) {
+      if (!recurringInstancesFiltered.find(el=>{
+        let firstDate = el.day
+        let secondDate = recurringInstance.day
+        if (!el.recurrence) {
+          firstDate  = el.day + 86400000
+        }
+
+        if (!recurringInstance.recurrence) {
+          secondDate = recurringInstance.day + 86400000
+        }
+        console.log('++++++',new Date(firstDate).setHours(0,0,0,0),  new Date(secondDate).setHours(0,0,0,0));
+        
+       return new Date(firstDate).setHours(0,0,0,0) ===  new Date(secondDate).setHours(0,0,0,0)
+      })) {
+         console.log('da5555', new Date(), recurringInstances);
+         
         recurringInstancesFiltered.push(recurringInstance)
       }
     }
 
+    console.log('recurringInstancesFiltered',recurringInstancesFiltered.length, recurringInstances.length);
+    
     recurringInstancesFiltered = recurringInstancesFiltered.filter(el=>el.isHoliday)
     
     return {
@@ -1004,7 +1026,7 @@ export class WorkTimeSettingsService {
     const arrayGroupData = []
     console.log('dddd', startDate);
     
-    
+  
     for(const userUid of  userUids){
       const group = groups.find(el=>el.userIds.includes(userUid))
       if (group) {
