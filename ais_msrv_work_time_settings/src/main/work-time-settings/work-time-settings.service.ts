@@ -989,7 +989,7 @@ export class WorkTimeSettingsService {
 
         
        const findedGroup =  groups.find(el=>el.userIds.includes(userUid) && arrayGroupData.find(data=>data.uid === el.uid))
-       console.log('group', arrayGroupData, group);
+    
        let index = -1 
        if (findedGroup) {
 
@@ -999,12 +999,12 @@ export class WorkTimeSettingsService {
         if (index !== -1) {
           console.log('arrayGroupData[index]', arrayGroupData[index]);
           
-          arrayGroupData[index].userUids.push(userUid)
+          arrayGroupData[index].userIds.push(userUid)
         }else{
           const workTimes  =await this.getAllUserWorkTimeForGant(userUid,{startDate,endDate})
           const groupData = {
             uid:group.uid,
-            userUids:[userUid],
+            userIds:[userUid],
             workTimes:workTimes.workTimes
           }
           arrayGroupData.push(groupData )
