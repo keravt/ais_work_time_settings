@@ -82,6 +82,7 @@
                    <div matSort  (matSortChange)="sortData($event)"  class="headers">
                     <div mat-sort-header="name" class="headers-FIO">ФИО</div>
                     <div  mat-sort-header="city" class="headers-city">город</div>
+                    <div (click)="openInfo()"><mat-icon>info</mat-icon></div>
                    </div>
                   <div class="list-item-user"    *ngFor="let person of filteredPersons">
                     <mat-checkbox

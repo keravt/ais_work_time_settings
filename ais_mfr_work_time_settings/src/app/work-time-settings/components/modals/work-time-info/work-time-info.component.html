@@ -1,0 +1,37 @@
+<body>
+    <div class="header">
+        <div class="title">Информация по рабочему времени</div>
+        <div class="close">
+            <button   color="basic" (click)="close()" mat-icon-button   aria-label="Example icon-button with a menu">
+      <mat-icon >close</mat-icon>
+    </button>
+        </div>
+    </div>
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Период</th>
+            <th>Календарных</th>
+            <th>Рабочих</th>
+            <th>Выходных</th>
+            <th>Рабочих часов</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let month of months">
+            <td>{{month.monthName}}</td>
+            <td>{{month.calendarDays}}</td>
+            <td>{{month.workDays}}</td>
+            <td>{{month.hollidays}}</td>
+            <td>{{month.workHours}}</td>
+        </tr>
+
+    </tbody>
+</table>
+<div class="buttons">
+    <button  (click)="close()" mat-stroked-button>Отмена</button>
+    
+  </div>
+</body>
