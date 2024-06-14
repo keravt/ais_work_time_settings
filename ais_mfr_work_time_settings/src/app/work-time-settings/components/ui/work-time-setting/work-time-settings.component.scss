@@ -18,7 +18,7 @@ ngb-datepicker {
 .wrapper {
   margin-top: 5px;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   flex-direction: column;
   height: calc(100vh - 114px);
   overflow: auto;
@@ -98,6 +98,7 @@ ngb-datepicker {
   font-weight: 400;
   letter-spacing: 0.25px;
   line-height: 48px;
+  flex: 1 1 auto;
   cursor: pointer;
 
   
@@ -114,6 +115,14 @@ ngb-datepicker {
 .skip-buttons {
   display: flex;
   align-items: center;
+}
+
+.buttons{
+  display: flex;
+  justify-content: flex-end;
+  align-self: flex-end;
+  margin-bottom: 20px;
+  margin-right: 20px;
 }
 
 .skip-button {

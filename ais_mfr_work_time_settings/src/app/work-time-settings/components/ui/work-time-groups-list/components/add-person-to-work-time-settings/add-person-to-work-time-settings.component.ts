@@ -23,6 +23,7 @@ import { MatSort } from '@angular/material/sort';
 import { AllUsersComponent } from 'src/app/work-time-settings/components/modals/all-users/all-users.component';
 import { CheckedGroupStorageService } from 'src/app/work-time-settings/services/checked-group-storage.service';
 import { HistoryGroupService } from 'src/app/work-time-settings/services/history-group.service';
+import { WorkTimeInfoComponent } from 'src/app/work-time-settings/components/modals/work-time-info/work-time-info.component';
 
 
 @Component({
@@ -378,10 +379,10 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
      this.workTimeGroupsApi.getWorkTimeGroupById(this.wtg.uid).subscribe((data)=>{
       this.GroupSettings = data.workTimeSettings
       this.settingPositions = []
-      console.log('tttt', this.settings);
+    
       
-      for (let i = 0; i < this.GroupSettings.length; i++) {
-        const element = this.GroupSettings[i];
+      for (let i = 0; i < data.settingPositions.length; i++) {
+        const element = this.settingPositions[i];
         this.settingPositions.push({uid:element.uid, position:i})
         
       }
@@ -428,7 +429,16 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
 
 
 
-
+  openInfo(){
+    const dialogRef = this.dialog.open(WorkTimeInfoComponent, {
+      minWidth: '600px',
+      maxWidth:'600px',
+      autoFocus: false, 
+      backdropClass: 'cdk-overlay-transparent-backdrop',
+      scrollStrategy:new NoopScrollStrategy(),
+      data:this.wtg
+    });
+  }
 
 
   
