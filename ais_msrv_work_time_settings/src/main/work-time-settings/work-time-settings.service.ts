@@ -798,6 +798,7 @@ export class WorkTimeSettingsService {
     let tasks = [];
     let workTimes: WorkTimeSchema[] = [];
     let recurringInstances: WorkTimeSchema[] = [];
+
     const startDate = new Date(query.startDate)
     const endDate =  new Date(query.endDate)
 
@@ -899,7 +900,7 @@ export class WorkTimeSettingsService {
       };
     }
 
-    workTimes  = workTimes.filter(el=>el.isHoliday)
+
 
 
     for (const workTime of workTimes) {
@@ -973,7 +974,7 @@ export class WorkTimeSettingsService {
    
       
     }
-    const recurringInstancesFiltered:WorkTimeSchema[] = []
+    let recurringInstancesFiltered:WorkTimeSchema[] = []
    
     
     for(const recurringInstance of recurringInstances){
@@ -981,6 +982,8 @@ export class WorkTimeSettingsService {
         recurringInstancesFiltered.push(recurringInstance)
       }
     }
+
+    recurringInstancesFiltered = recurringInstancesFiltered.filter(el=>el.isHoliday)
     
     return {
       workTimes: recurringInstancesFiltered,
@@ -993,13 +996,15 @@ export class WorkTimeSettingsService {
 
 
   async getHolidaysByUserUids({
-    userUids,
     startDate,
     endDate,
+    userUids,
   }: GetHolidaysDto){
     const groups = await this.workTimeGroupService.getWorkTimeGroups()
     const arrayGroupData = []
-   
+    console.log('dddd', startDate);
+    
+    
     for(const userUid of  userUids){
       const group = groups.find(el=>el.userIds.includes(userUid))
       if (group) {
