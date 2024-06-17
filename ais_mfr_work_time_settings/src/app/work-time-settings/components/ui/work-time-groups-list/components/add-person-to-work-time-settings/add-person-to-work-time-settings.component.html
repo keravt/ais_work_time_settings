@@ -84,16 +84,19 @@
                     <div  mat-sort-header="city" class="headers-city">город</div>
                     <div (click)="openInfo()"><mat-icon>info</mat-icon></div>
                    </div>
-                  <div class="list-item-user"    *ngFor="let person of filteredPersons">
-                    <mat-checkbox
-                    (change)="userChecked(person)"
-                    class="example-margin"
-                    [checked]="person.keycloakUid | isUserInWorkTimeSetting : checkedUsers"
-                    appTrimOnCopy
-                    ><div>{{person.name}}</div></mat-checkbox>
-                    <div appTrimOnCopy class="city">{{person.city}}</div>
+                   <div class="list-user">
+                    <div class="list-item-user"    *ngFor="let person of filteredPersons">
+                      <mat-checkbox
+                      (change)="userChecked(person)"
+                      class="example-margin"
+                      [checked]="person.keycloakUid | isUserInWorkTimeSetting : checkedUsers"
+                      appTrimOnCopy
+                      ><div>{{person.name}}</div></mat-checkbox>
+                      <div appTrimOnCopy class="city">{{person.city}}</div>
+  
+                    </div>
+                   </div>
 
-                  </div>
       
       
               </div>

@@ -64,7 +64,9 @@
               <div mat-sort-header="name" class="headers-FIO">ФИО</div>
               <div  mat-sort-header="city" class="headers-city">город</div>
              </div>
-            <div class="list-item-user"    *ngFor="let person of filteredPersons">
+
+             <div class="list-user">
+              <div class="list-item-user"    *ngFor="let person of filteredPersons">
                 <mat-checkbox
                 (change)="userChecked(person)"
                 class="example-margin"
@@ -75,7 +77,9 @@
 
       
                 <div  class="city">{{person.city}}</div>
-            </div>
+              </div>
+             </div>
+
 
 
         </div>
