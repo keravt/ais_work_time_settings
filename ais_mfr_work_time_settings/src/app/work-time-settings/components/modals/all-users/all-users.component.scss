@@ -201,6 +201,11 @@
 
   }
 
+  .list-user{
+    overflow-y:auto;
+    max-height: calc(100vh - 500px);
+  }
+
 .header-text{
 padding-left: 10px;
 display: flex;
@@ -225,8 +230,7 @@ justify-content: space-between;
       
   padding-right: 5px;
   
-  max-height: calc(100vh - 460px);
-  overflow-y:auto;
+
   }
   
   
