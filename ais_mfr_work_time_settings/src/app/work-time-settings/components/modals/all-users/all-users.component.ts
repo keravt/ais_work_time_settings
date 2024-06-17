@@ -173,9 +173,7 @@ export class AllUsersComponent implements OnInit {
     async undo(){
 
       const data = await this.historyGroupService.onUndoChange()
-      console.log('data[0].obj', data[0].obj);
 
-   
      
       if (!isSetting(data[0].obj)) {
         this.checkedGroupStorageService.setCheckedGroup(data[0].obj)

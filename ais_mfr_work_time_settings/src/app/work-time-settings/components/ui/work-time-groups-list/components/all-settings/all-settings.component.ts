@@ -60,7 +60,10 @@ export class AllSettingsComponent implements OnInit {
     })
 
     this.checkedGroupStorageService.checkedGroup$.subscribe(group=>{
+      console.log('###', group);
       if (group) {
+    
+        
         this.checkedWts = group.workTimeSettings
       }
       this.cdr.markForCheck()
@@ -69,13 +72,18 @@ export class AllSettingsComponent implements OnInit {
     this.allSettingsStorageService.AllSettings$.subscribe(data=>{
       this.workTimesSettings =
       this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
+     this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(group=>{
+      this.checkedWts = group.workTimeSettings
+      this.cdr.markForCheck()
+     })
       this.cdr.markForCheck()
     })
 
 
     this.historyGroupService.undoArray$.pipe(takeUntil(this.destroy$)).subscribe(data=>{
  
-        
+      this.workTimesSettings =
+      this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
       this.undoActive = data.length === 0 ? false : true
       this.cdr.markForCheck()
     })
@@ -122,9 +130,18 @@ export class AllSettingsComponent implements OnInit {
   }
 
 
-  sortWorkTimesSettings(groups:WorkTimeSetting[]){
+  sortWorkTimesSettings(groups:WorkTimeSetting[], onHistroy:boolean = false){
 
     let filtrGroups = [...groups]
+    const checkedWtsForSort:WorkTimeSetting[] = []
+    groups.forEach(el=>{
+      const item = this.checkedWts.find(item=>item.uid === el.uid)
+      item  && checkedWtsForSort.push(item)
+    })
+ 
+    this.checkedWts = [...checkedWtsForSort]
+
+   
     if(this.allSearch !== ''){
       filtrGroups = [...filtrGroups.filter(group=>group.title.includes(this.allSearch))]
     }
@@ -172,11 +189,15 @@ export class AllSettingsComponent implements OnInit {
     }
 
 
+
+
     addToGroup(){
     
       this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
   
         this.workTimeGroupsApi.updateWorkTimeGroup({...data, workTimeSettings:this.checkedWts  }).subscribe({next:(group)=>{
+          console.log('___', group);
+          
           this.workTimesSettings =
           this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
     
@@ -232,7 +253,10 @@ export class AllSettingsComponent implements OnInit {
 
 
   updateItems(){
+    console.log('delete2');
+    console.log('__@$', ); 
     this.closeSettingCreate()
+    console.log('__@'); 
     this.workTimesSettings =
     this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
     this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
@@ -245,27 +269,7 @@ export class AllSettingsComponent implements OnInit {
     this.onChange.emit()
   }
 
-  deleteItems(uid:string){
-    if (this.checkedWts.find(el=>el.uid === uid)) {
-      this.checkedWts = [...this.checkedWts.filter(el=>el.uid !== uid)] 
-    }
 
-    console.log('^^^',this.workTimesSettings );
-    
-
-    this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
-
-    this.workTimesSettings =
-    this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
-      this.snackBar.open(`группа обновлена`, undefined,{
-        duration: 2000
-      }); 
-      console.log('data!!!', data);
-      
-      this.data = data
-      this.cdr.markForCheck()
-    })
-  }
 
   showSettingCreate(){
     this.showSettingCreator = true

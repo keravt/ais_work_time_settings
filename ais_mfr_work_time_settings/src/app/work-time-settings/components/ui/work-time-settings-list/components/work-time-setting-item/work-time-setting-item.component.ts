@@ -157,19 +157,19 @@ export class WorkTimeSettingItemComponent implements OnInit {
       width: '448px',
     
     });
-
-    thisDialog.afterClosed().subscribe(action=>{
- 
+    thisDialog.beforeClosed().subscribe(action=>{
       
-      if (!this.wts) {
-        return
-      }
       if (action === 'delete') {
-     
-        this.onSettingDelete.emit(this.wts.uid)
+
+        this.onSettingUpdate.emit()
+    
+        this.cdr.detectChanges()
       }
-      this.cdr.markForCheck()
+      this.cdr.detectChanges()
+
     })
+
+
 
    }
 

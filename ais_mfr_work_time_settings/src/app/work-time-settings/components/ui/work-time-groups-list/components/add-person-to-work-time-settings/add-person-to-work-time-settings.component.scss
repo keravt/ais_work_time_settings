@@ -284,6 +284,10 @@ padding-right: 5px;
   max-height: calc(100vh - 500px);
 }
 
+.list-settings{
+  overflow-y:auto;
+  max-height: calc(100vh - 400px);
+}
 
 
 ::-webkit-scrollbar {

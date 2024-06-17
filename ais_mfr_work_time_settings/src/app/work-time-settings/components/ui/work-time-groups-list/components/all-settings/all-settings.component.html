@@ -42,7 +42,7 @@
             *ngFor="let wts of workTimesSettings | async "
             appTrimOnCopy
             >
-            <app-work-time-setting-item [wtg]="data"    (onSettingUpdate)="updateItems()"  (onSettingCopy)="updateItems()" (onSettingDelete)="deleteItems($event)" class="item-list" [wts]="wts"     />
+            <app-work-time-setting-item [wtg]="data"    (onSettingUpdate)="updateItems()"  (onSettingCopy)="updateItems()" class="item-list" [wts]="wts"     />
              </mat-checkbox>
         </div>
 
