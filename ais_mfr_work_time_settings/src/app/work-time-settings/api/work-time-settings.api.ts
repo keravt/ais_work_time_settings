@@ -77,4 +77,17 @@ export class WorkTimeSettingsApi {
   updateTitleWorkTime(body:{uid:string,title:string,isGeneral:boolean}): Observable<GroupChange[]> {
     return this.http.patch<GroupChange[]>(`${mainURL}/api/work-time-settings/updateSettingTitle`, body);
   }
+
+
+
+  
+  getHolidays(startDate:number, endDate:number,userIds:string[]) {
+    let params = new HttpParams();
+    params = params.append('startDate', startDate);
+    params = params.append('endDate', endDate);
+    params = params.append('userUids', JSON.stringify(userIds));
+    return this.http.get<WorkTimeSetting>(
+      `${mainURL}/api/work-time-settings/get-holidays`, {params}
+    );
+  }
 }

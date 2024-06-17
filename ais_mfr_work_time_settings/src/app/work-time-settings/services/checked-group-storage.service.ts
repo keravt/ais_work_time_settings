@@ -26,6 +26,10 @@ export class CheckedGroupStorageService {
     this.checkedGroup.next(checkedGroup)
   }
 
+  getCheckedGroup() {
+   return this.checkedGroup.value
+  }
+
 
  
   clearGroup() {

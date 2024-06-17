@@ -5,7 +5,7 @@ import { FormControl } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as moment from 'moment';
-import { Observable, map, startWith, switchMap } from 'rxjs';
+import { Observable, firstValueFrom, map, startWith, switchMap } from 'rxjs';
 import { UserApi } from 'src/app/work-time-settings/api/user.api';
 import { WorkTimeGroupsApi } from 'src/app/work-time-settings/api/work-time-groups.api';
 import { WorkTimeSettingsApi } from 'src/app/work-time-settings/api/work-time-settings.api';
@@ -24,6 +24,7 @@ import { AllUsersComponent } from 'src/app/work-time-settings/components/modals/
 import { CheckedGroupStorageService } from 'src/app/work-time-settings/services/checked-group-storage.service';
 import { HistoryGroupService } from 'src/app/work-time-settings/services/history-group.service';
 import { WorkTimeInfoComponent } from 'src/app/work-time-settings/components/modals/work-time-info/work-time-info.component';
+import { GroupService } from 'src/app/work-time-settings/services/group.service';
 
 
 @Component({
@@ -40,6 +41,7 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
     private workTimeGroupsApi: WorkTimeGroupsApi,
     private checkedGroupStorageService: CheckedGroupStorageService,
     private historyGroupService:     HistoryGroupService,
+    private groupService:GroupService,
 
     private snackBar: MatSnackBar,
     private cdr:ChangeDetectorRef,
@@ -102,7 +104,7 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
     this.divionInput.valueChanges.subscribe(data=>{
       console.log('dd', data);
       
-      this._filterDivisions(data)
+      this.fiteredDivisions  = this.groupService._filterDivisions(data, this.divisions)
       this.cdr.markForCheck()
     })
     this.UserApi.getAllDivisions().subscribe(data=>{
@@ -221,44 +223,13 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
   }
 
 
-   this.filteredPersons = this.sortUsers(this.filteredPersons)
+   this.filteredPersons = this.groupService.sortUsers(this.filteredPersons, this.checkedUsers, this.sortType, this.sortCity, this.sortName)
 
   }
 
-  sortUsers(persons:Person[]){
-    if (this.sortType === 'name') {
-      persons.sort((a,b)=>{
-        const isAsc = this.sortName.direction === 'asc';
-        return this.compare(a.name, b.name, isAsc);
-      })
-
-      return Array.from(new Set([...this.checkedUsers,...persons]))
-    }
-
-    if (this.sortType === 'city') {
-      persons.sort((a,b)=>{
-        const isAsc = this.sortCity.direction === 'asc';
-        return this.compare(a.city, b.city, isAsc);
-      })
-
-      return Array.from(new Set([...this.checkedUsers,...persons]))
-    }
-
-    persons.sort((a,b)=>{
-      const isAsc = this.sortName.direction === 'asc';
-      return this.compare(a.name, b.name, isAsc);
-    })
 
 
-      console.log('dd##', Array.from(new Set([...this.checkedUsers,...persons])));
-      
-    return Array.from(new Set([...this.checkedUsers,...persons]))
-
-  }
-
-  compare(a: any, b: any, isAsc: boolean) {
-    return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
-  }
+ 
 
   onDivisionChange(division:Division | null){
     console.log('ddd', division);
@@ -267,7 +238,7 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
     this.divionInput.setValue(division?.name ?? '')
     this.filteredPersonsByDivision = []
     this.passageByDivisionTree(division)
-    this.filteredPersons = this._filter(this.personsControl.value ?? '')
+    this.filteredPersons = this.groupService._filter(this.personsControl.value ?? '', this.filteredPersonsByDivision,  this.checkedUsers, this.sortType, this.sortCity, this.sortName)
     this.cdr.markForCheck()
   }
 
@@ -286,80 +257,6 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
   this.option = option
   }
 
-
-
-  onKeyDown(event:KeyboardEventInit, wts:WorkTimeSetting){
- 
-    
- 
-    if (event.key === 'Escape') {
-      this.changedName = ''
-    }
-    if (event.key === 'Enter') {
-      
-      
-      this.workTimeSettingsApi.updateTitleWorkTime({uid:wts.uid,title:this.settingValue,isGeneral:wts.isGeneral}).subscribe(data=>{
- 
-        this.changedName = ''
-        const settingId = this.GroupSettings.findIndex(el=>el.uid === wts.uid)
-        this.GroupSettings[settingId].title =  this.settingValue
-        this.onGroupSave.emit()
-        this.cdr.markForCheck()
-      })
-    }
-   
-   }
-
-   updateTitle(wts:WorkTimeSetting){
-    this.workTimeSettingsApi.updateTitleWorkTime({uid:wts.uid,title:this.settingValue,isGeneral:wts.isGeneral}).subscribe(data=>{
- 
-      this.changedName = ''
-      const settingId = this.GroupSettings.findIndex(el=>el.uid === wts.uid)
-      this.GroupSettings[settingId].title =  this.settingValue
-      this.onGroupSave.emit()
-      this.cdr.markForCheck()
-    })
-   }
-
-  checkAll(){
-  
-    this.checkActive = true
-   
-  
-  }
-
- 
-
-   removeSetting(wts:WorkTimeSetting){
- 
-   
- const thisDialog = this.dialog.open(DeleteWorkTimeSettingsComponent, {
-      backdropClass: 'cdk-overlay-transparent-backdrop',
-      scrollStrategy:new NoopScrollStrategy(),
-      data: {uid:wts.uid, type:'Setting'},
-      width: '448px',
-    
-    });
-
-    thisDialog.afterClosed().subscribe(action=>{
-  
-      if (action === 'delete') {
-        this.GroupSettings = [...this.GroupSettings.filter(el=>el.uid !== wts.uid)]
-        this.onGroupSave.emit()
-   
-
-      }
-      this.cdr.markForCheck()
-    })
-
-   }
-
-
-
-
-  copySetting(){
-
-  }
 
   openAllSettings(){
     
@@ -427,7 +324,14 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
   
   }
 
-
+  gunt(){
+    const startDate = moment({year:2024, month:0, date:1}).valueOf()
+    const endDate = moment({year:2024, month:1, date:1}).valueOf()
+    this.workTimeSettingsApi.getHolidays(startDate,endDate,["8fb28591-ad86-4102-8a02-8d834e2ffef9","921107b0-66e7-4e98-83db-1458effdc908"]).subscribe(data=>{
+      console.log('data', data);
+      
+    })
+  }
 
   openInfo(){
     const dialogRef = this.dialog.open(WorkTimeInfoComponent, {
@@ -439,50 +343,6 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
       data:this.wtg
     });
   }
-
-
-  
-  private _filter(value: string): Person[] {
-    console.log('{{{[');
-    
-    const filterValue = value.toLowerCase();
-    let persons = [...this.filteredPersonsByDivision]
-    if (value !== '') {
-      persons = this.filteredPersonsByDivision.filter((option) =>
-      option.name?.toLowerCase().includes(filterValue) ||
-      option.city?.toLowerCase().includes(filterValue)
-    )
-    }
-
-
-
-  persons = this.sortUsers(persons)
-  
-
-
-
-  return  persons
-
-      
-  }
-
-    
-  private _filterDivisions(value: string) {
-    console.log('{{{[', value);
-    
-
-    if (value !== '') {
-      const filterValue = value.toLowerCase();
-     return  this.fiteredDivisions = [...this.divisions.filter((option) =>
-      option.name?.toLowerCase().includes(filterValue))]
-    }
-
-
-  
-    this.fiteredDivisions = [...this.divisions]
-      
-  }
-
 
 
   drop(event: CdkDragDrop<string[]>) {
@@ -505,25 +365,6 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
       this.updateWtsPostitions()
       
     }
-  }
-
-
-  deleteUserFromGroup(uid:string){
-    if (!this.wtg)  return
-    this.persons =  [...this.persons.filter(el=>el.keycloakUid !== uid)]
-    this.workTimeGroupsApi.getWorkTimeGroupById(this.wtg.uid).subscribe(data=>{
-      const newUsers = data.userIds.filter(el=>el !== uid )
-      this.workTimeGroupsApi.updateWorkTimeGroup({...this.wtg, userIds:newUsers }).subscribe({next:(group)=>{
-        this.onGroupSave.emit()
-        this.onDivisionChange(this.selectedDivision)
-        
-    this.cdr.markForCheck()
-    }})
-    })
- 
-
-  
-
   }
 
 
@@ -560,7 +401,7 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
 
   }
 
-  checkWtg(wtg:WorkTimeGroup){
+ async checkWtg(wtg:WorkTimeGroup){
    //this.chooseOption(1)
    this.workTimeSettingStorageService.setWorkTimeGroupId(wtg.uid)
     this.GroupSettings = [...wtg.workTimeSettings].sort((a,b)=>{
@@ -576,7 +417,7 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
     this.checkedWtg = wtg
     this.settingPositions = wtg.settingPositions
     this.persons = [...this.persons.filter(elOne=>!this.checkedUsers.find(elTwo=>elTwo.keycloakUid == elOne.keycloakUid))]
-    this.updateWtsStorage(wtg,String(this.year))
+    await this.groupService.updateWtsStorage(wtg,String(this.year))
     this.isLoading = true
     this.isLoadingSettings = true
    
@@ -591,7 +432,7 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
  
       this.filteredPersons = [...this.persons]
       this.personsControl.valueChanges.subscribe((value)=>{
-        this.filteredPersons = this._filter(value || '')
+        this.filteredPersons = this.groupService._filter(value || '',this.filteredPersonsByDivision,  this.checkedUsers, this.sortType, this.sortCity, this.sortName)
        });
         this.onDivisionChange(this.selectedDivision)
         this.cdr.markForCheck()
@@ -633,64 +474,34 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
 
   }
 
-  goToSetting(uid:string){
-    this.router.navigate([`ais_mfr_work_time_settings/work-time/${uid}/${moment().year()}`])
-  }
 
 
-  updateWtsPostitions(){  
-    this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, workTimeSettings:this.GroupSettings, settingPositions:this.settingPositions }).subscribe({next:(group)=>{
-        console.log('ggg', group);
-        this.checkedGroupStorageService.setCheckedGroup(group[0].redo.obj  as WorkTimeGroup )
-        this.historyGroupService.setUndoArray(group)
-        this.historyGroupService.redoArray$.next([])
-         
-      if (this.checkedWtg) {
-    
-        
-          this.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String(this.year))
-        
-      
-      }
-  
+ async updateWtsPostitions(){ 
+ await  this.groupService.updateWtsPostitions(this.checkedWtg,this.GroupSettings,this.settingPositions,this.year) 
+
     this.snackBar.open(`рабочее время обновлено`, undefined,{
       duration: 2000
     }); 
     this.onGroupSave.emit()
+    this.isUpdate = false
     this.cdr.markForCheck()
-  },
-complete:()=>{
-  this.isUpdate = false
-  this.cdr.markForCheck()
-}
-})
   }
 
-  deleteFromGroup(){
+  async deleteFromGroup(){
     this.GroupSettings = this.GroupSettings.filter(el => !this.checkedSettings.find(checked=>checked.uid === el.uid))
-
-    this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, workTimeSettings:this.GroupSettings }).subscribe({next:(group)=>{
-      this.checkedSettings = []
-      this.checkedGroupStorageService.setCheckedGroup(group[0].redo.obj  as WorkTimeGroup )
-      this.historyGroupService.setUndoArray(group)
-      this.historyGroupService.redoArray$.next([])
-      this.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String( moment().year()))
-      this.allSettingChecked = false
+    await this.groupService.updateGroup(this.checkedWtg, this.GroupSettings)
+    this.checkedSettings = []
+    this.allSettingChecked = false
     this.snackBar.open(`рабочее время обновлено`, undefined,{
       duration: 2000
     }); 
     this.onGroupSave.emit()
     this.cdr.markForCheck()
-  },
-complete:()=>{
-  this.isUpdate = false
-  this.cdr.markForCheck()
-}
-})
-
   }
 
-  updateWorkTimeSetting() {
+
+
+async  updateWorkTimeSetting() {
   this.isUpdate = true
   this.workTimeGroups = [...this.workTimeGroups.map(el=>{
     if (this.checkedWtg && this.checkedWtg.uid !== el.uid) {
@@ -698,33 +509,16 @@ complete:()=>{
     }else{
       return {...el, userIds :Array.from(this.persons.map(el=>el.keycloakUid)) }
     }
-   
-    
+
   })]
-  console.log('this.GroupSettings', this.GroupSettings);  
-   
-    this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, userIds:Array.from(this.persons.map(el=>el.keycloakUid)) , workTimeSettings:this.GroupSettings, settingPositions:this.settingPositions, title:this.inputValue }).subscribe({next:(group)=>{
-      
-         
-        if (this.checkedWtg) {
-      
-          
-            this.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String( moment().year()))
-          
-        
-        }
+ 
+   const group =await  firstValueFrom(this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, userIds:Array.from(this.persons.map(el=>el.keycloakUid)) , workTimeSettings:this.GroupSettings, settingPositions:this.settingPositions, title:this.inputValue }))
+   if (this.checkedWtg) await   this.groupService.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String( moment().year()))
     
-      this.snackBar.open(`рабочее время обновлено`, undefined,{
-        duration: 2000
-      }); 
-      this.onGroupSave.emit()
-      this.cdr.markForCheck()
-    },
-  complete:()=>{
-    this.isUpdate = false
-    this.cdr.markForCheck()
-  }
-})
+  this.snackBar.open(`рабочее время обновлено`, undefined,{duration: 2000}); 
+  this.onGroupSave.emit()
+  this.isUpdate = false
+  this.cdr.markForCheck()
   }
 
   close(){
@@ -732,30 +526,7 @@ complete:()=>{
 this.onClose.emit()
   }
 
-  updateWtsStorage(checkedGroup:WorkTimeGroup, year:string){
 
-  
-  
-      this.workTimeSettingsApi
-      .getWorkTimeGroupByUid(checkedGroup.uid,year)
-      .subscribe((wts) => {
-      
-        
-      if (!wts) {
-        console.log('www', wts);
-     this.workTimeSettingStorageService.clearTimeGroup()
-     return 
-      }
-        
-        this.workTimeSettingStorageService.setWorkTimeGroup(wts)
-        //this.workTimeSetting = wts;
-
-
-     
-        this.cdr.markForCheck()
-      });
-   
-  }
 
   upItem(wts:WorkTimeSetting){
     const id = this.GroupSettings.findIndex(el=>el.uid === wts.uid)
@@ -803,42 +574,6 @@ this.onClose.emit()
   }
   }
 
-  copyWtg(){
-    if (!this.wtg) {
-      return
-    }
-
-    
-    this.workTimeGroupsApi.copyWorkTimeGroup(this.wtg).subscribe(data=>{
-      console.log('workkk', data);
-      
-      this.onGroupCopy.emit()
-      this.cdr.markForCheck()
-    })
-  }
-
-  deleteWtg(){
-   
-    if (!this.wtg) {
-      return
-    }
- const thisDialog = this.dialog.open(DeleteWorkTimeGroupComponent, {
-      backdropClass: 'cdk-overlay-transparent-backdrop',
-      scrollStrategy:new NoopScrollStrategy(),
-      data: {uid:this.wtg.uid, type:'Group'},
-      width: '448px',
-    
-    });
-
-    thisDialog.afterClosed().subscribe(action=>{
-    if (action == 'delete') {
-      this.onGroupDelete.emit()
-      this.cdr.markForCheck()
-    }
-  
-    })
-
-  }
 
 
 
