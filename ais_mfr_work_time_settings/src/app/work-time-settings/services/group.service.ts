@@ -114,7 +114,9 @@ export class GroupService {
 
   async updateWtsStorage(checkedGroup:WorkTimeGroup, year:string){
     const wts = await firstValueFrom(this.workTimeSettingsApi.getWorkTimeGroupByUid(checkedGroup.uid,year))
+    console.log('checkedGroup', checkedGroup,  wts );
       if (!wts) {
+   
       
      this.workTimeSettingStorageService.clearTimeGroup()
      return 
@@ -122,17 +124,52 @@ export class GroupService {
       this.workTimeSettingStorageService.setWorkTimeGroup(wts)
   }
 
-  async updateWtsPostitions(checkedWtg:WorkTimeGroup | null, GroupSettings:WorkTimeSetting[], settingPositions:{uid:string, position:number}[], year:number ){  
-    const group = await firstValueFrom(this.workTimeGroupsApi.updateWorkTimeGroup({...checkedWtg, workTimeSettings:GroupSettings, settingPositions:settingPositions }))
-
-
-        this.checkedGroupStorageService.setCheckedGroup(group[0].redo.obj  as WorkTimeGroup )
-        this.historyGroupService.setUndoArray(group)
-        this.historyGroupService.redoArray$.next([])
-         
-      if (checkedWtg) this.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String(year))
+  async updateWtsPostitions(checkedWtg:WorkTimeGroup, groupSettings:WorkTimeSetting[], settingPositions:{uid:string, position:number}[], year:number, isUpdatebyApi:boolean ):
+  Promise<
+  {
+     groupSettings:WorkTimeSetting[],
+     settingPositions:{uid:string, position:number}[]}>
+  {  
   
+  
+    let checkedGroup = checkedWtg
+    settingPositions = []
 
+
+    for (let i = 0; i < groupSettings.length; i++) {
+      const element = groupSettings[i];
+     settingPositions.push({uid:element.uid, position:i})
+      
+}
+if (isUpdatebyApi) {
+
+  
+  checkedGroup = await firstValueFrom(this.workTimeGroupsApi.getWorkTimeGroupById(checkedWtg.uid))
+  const settingsForSort = [...groupSettings]
+  groupSettings = []
+  checkedGroup.settingPositions.forEach(pos=>{
+    const item = checkedGroup.workTimeSettings.find(el=>el.uid === pos.uid)
+    item && groupSettings.push(item)
+
+  })
+
+  groupSettings = checkedGroup.workTimeSettings
+    this.updateWtsStorage(checkedGroup  as WorkTimeGroup,String(year))
+    this.checkedGroupStorageService.setCheckedGroup(checkedGroup  as WorkTimeGroup )
+
+
+}else{
+  const group = await firstValueFrom(this.workTimeGroupsApi.updateWorkTimeGroup({...checkedWtg, workTimeSettings:groupSettings, settingPositions:settingPositions }))
+  this.historyGroupService.setUndoArray(group)
+  this.historyGroupService.redoArray$.next([])
+  if (checkedWtg) this.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String(year))
+    this.checkedGroupStorageService.setCheckedGroup(group[0].redo.obj  as WorkTimeGroup )
+}
+   
+
+
+
+   return {groupSettings, settingPositions}
   }
 
   async updateGroup(checkedWtg:WorkTimeGroup | null, GroupSettings:WorkTimeSetting[],){
@@ -144,6 +181,28 @@ export class GroupService {
     this.historyGroupService.redoArray$.next([])
 
     this.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String( moment().year()))
+  }
+
+
+  passageByDivisionTree(division:Division | null, filteredPersonsByDivision:Person[],persons:Person[], divisions:Division[]){
+    if (division === null) {
+      return persons
+
+      
+       
+     }
+ 
+     filteredPersonsByDivision = Array.from(new Set([...filteredPersonsByDivision,...persons.filter(el=>el.treeDivisionId === division.id)])) 
+ 
+     
+ for (let i = 0; i < divisions.length; i++) {
+  const el = divisions[i];
+  if (el.parentDivisionId === division.id) {
+    filteredPersonsByDivision =  this.passageByDivisionTree(el, filteredPersonsByDivision, persons, divisions)
+   }
+ }
+   
+ return filteredPersonsByDivision
   }
 
  

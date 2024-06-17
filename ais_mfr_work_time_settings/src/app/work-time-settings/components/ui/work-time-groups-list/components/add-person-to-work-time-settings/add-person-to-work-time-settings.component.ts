@@ -25,6 +25,7 @@ import { CheckedGroupStorageService } from 'src/app/work-time-settings/services/
 import { HistoryGroupService } from 'src/app/work-time-settings/services/history-group.service';
 import { WorkTimeInfoComponent } from 'src/app/work-time-settings/components/modals/work-time-info/work-time-info.component';
 import { GroupService } from 'src/app/work-time-settings/services/group.service';
+import { AllSettingsStorageService } from 'src/app/work-time-settings/services/all-settings-storage.service';
 
 
 @Component({
@@ -40,6 +41,7 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
     private workTimeSettingStorageService: WorkTimeSettingStorageService,
     private workTimeGroupsApi: WorkTimeGroupsApi,
     private checkedGroupStorageService: CheckedGroupStorageService,
+    private allSettingsStorageService: AllSettingsStorageService,
     private historyGroupService:     HistoryGroupService,
     private groupService:GroupService,
 
@@ -102,8 +104,6 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
       this.year = data
     })
     this.divionInput.valueChanges.subscribe(data=>{
-      console.log('dd', data);
-      
       this.fiteredDivisions  = this.groupService._filterDivisions(data, this.divisions)
       this.cdr.markForCheck()
     })
@@ -133,14 +133,28 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
       });
 
       this.checkedGroupStorageService.checkedGroup$.subscribe(group=>{
-
-        this.cdr.markForCheck()
+          console.log('@@@', group);
+          
         this.wtg = group
         if (this.wtg) {
           this.checkWtg(this.wtg)
         }
-        console.log('kmomji', this.wtg );
+  
+        this.cdr.markForCheck()
       })
+
+      this.allSettingsStorageService.AllSettings$.subscribe(data=>{
+        if (!this.wtg) return
+        this.workTimeGroupsApi.getWorkTimeGroupById(this.wtg.uid).subscribe(group=>{
+          this.wtg = group
+       
+            this.checkWtg(this.wtg)
+    
+    
+          this.cdr.markForCheck()
+        })
+      })
+      
   }
 
 
@@ -177,9 +191,7 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
 
   changeName(wts:WorkTimeSetting){
     this.changedName = wts.uid
-    this.settingValue = wts.title
-    console.log('this.settingValue', this.settingValue, this.changedName);
-    
+    this.settingValue = wts.title 
   }
 
   closeChanged(){
@@ -187,29 +199,7 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
     this.settingValue = ''
   }
 
-  passageByDivisionTree(division:Division | null){
-    console.log('ff', division);
- 
 
-    if (division === null) {
-      this.filteredPersonsByDivision = [...this.persons]
-
-      return
-       
-     }
- 
-     this.filteredPersonsByDivision = Array.from(new Set([...this.filteredPersonsByDivision,...this.persons.filter(el=>el.treeDivisionId === division.id)])) 
- 
-     
- for (let i = 0; i < this.divisions.length; i++) {
-  const el = this.divisions[i];
-  if (el.parentDivisionId === division.id) {
-    this.passageByDivisionTree(el)
-   }
- }
-   
- 
-  }
 
   sortData(sort:any){
    if (sort.active === 'name') {
@@ -237,17 +227,14 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
     this.selectedDivision = division
     this.divionInput.setValue(division?.name ?? '')
     this.filteredPersonsByDivision = []
-    this.passageByDivisionTree(division)
+    this.filteredPersonsByDivision =  this.groupService.passageByDivisionTree(division, this.filteredPersonsByDivision, this.persons,  this.divisions)
     this.filteredPersons = this.groupService._filter(this.personsControl.value ?? '', this.filteredPersonsByDivision,  this.checkedUsers, this.sortType, this.sortCity, this.sortName)
     this.cdr.markForCheck()
   }
 
   chooseOption(option:number){
     if (option === 1) {
-     
-      
       this.previewVisible = false
-      console.log('dawda', this.previewVisible);
       this.onPreviewVisible.emit(false)
     }else{
       this.previewVisible = true
@@ -271,24 +258,13 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
 
     dialogRef.componentInstance.onChange.subscribe(()=>{
 
-      
+      console.log('__@'); 
       if (!this.wtg) return
-     this.workTimeGroupsApi.getWorkTimeGroupById(this.wtg.uid).subscribe((data)=>{
-      this.GroupSettings = data.workTimeSettings
-      this.settingPositions = []
-    
-      
-      for (let i = 0; i < data.settingPositions.length; i++) {
-        const element = this.settingPositions[i];
-        this.settingPositions.push({uid:element.uid, position:i})
-        
-      }
-
-      this.updateWtsPostitions()
+      this.updateWtsPostitions(true)
       this.onGroupSave.emit()
       this.cdr.markForCheck()
 
-     })
+   
     })
   }
 
@@ -352,17 +328,8 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
     
     
     if (this.wtg) {
-      this.settingPositions = []
-      console.log('tttt', this.settings);
-      
-      for (let i = 0; i < this.GroupSettings.length; i++) {
-        const element = this.GroupSettings[i];
-        this.settingPositions.push({uid:element.uid, position:i})
-        
-      }
-      
-     
-      this.updateWtsPostitions()
+  this.updateWtsPostitions(false)
+    
       
     }
   }
@@ -476,8 +443,14 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
 
 
 
- async updateWtsPostitions(){ 
- await  this.groupService.updateWtsPostitions(this.checkedWtg,this.GroupSettings,this.settingPositions,this.year) 
+ async updateWtsPostitions(isUpdatebyApi:boolean){
+
+    if(!this.checkedWtg) return
+    let {groupSettings, settingPositions} = await  this.groupService.updateWtsPostitions(this.checkedWtg,this.GroupSettings,this.settingPositions,this.year, isUpdatebyApi) 
+
+
+    this.GroupSettings = groupSettings
+    this.settingPositions = settingPositions
 
     this.snackBar.open(`рабочее время обновлено`, undefined,{
       duration: 2000
@@ -535,17 +508,9 @@ this.onClose.emit()
       [this.GroupSettings[id- 1], this.GroupSettings[id]];
     }
     if (this.wtg) {
-      this.settingPositions = []
-      console.log('tttt', this.settings);
-      
-      for (let i = 0; i < this.GroupSettings.length; i++) {
-        const element = this.GroupSettings[i];
-        this.settingPositions.push({uid:element.uid, position:i})
-        
-      }
-      
+
      
-      this.updateWtsPostitions()
+      this.updateWtsPostitions(false)
       
     }
 
@@ -562,15 +527,9 @@ this.onClose.emit()
   }
 
   if (this.wtg) {
-    this.settingPositions = []
-    console.log('tttt', this.settings);
-    
-    for (let i = 0; i < this.GroupSettings.length; i++) {
-      const element = this.GroupSettings[i];
-      this.settingPositions.push({uid:element.uid, position:i})
-    }
 
-    this.updateWtsPostitions()
+
+    this.updateWtsPostitions(false)
   }
   }
 
