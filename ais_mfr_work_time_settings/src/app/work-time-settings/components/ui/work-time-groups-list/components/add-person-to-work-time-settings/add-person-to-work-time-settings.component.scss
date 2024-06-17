@@ -218,8 +218,8 @@ padding-right: 5px;
    flex: 0 0 60%;
   }
 
-max-height: calc(100vh - 460px);
-overflow-y:auto;
+
+
 }
 
 .setting-list{
@@ -276,6 +276,12 @@ overflow-y:auto;
 .list-item-user{
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
  display: flex;
+
+}
+
+.list-user{
+  overflow-y:auto;
+  max-height: calc(100vh - 500px);
 }
 
 
