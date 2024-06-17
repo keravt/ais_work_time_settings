@@ -14,17 +14,22 @@ import { firstValueFrom } from 'rxjs';
 import { HistoryService } from './history.service';
 import { WorkTimeSettingsApi } from '../api/work-time-settings.api';
 import { WorkTimeSettingStorageService } from './work-time-setting-storage.service';
+import { WorkTimeGroupsApi } from '../api/work-time-groups.api';
+import { CheckedGroupStorageService } from './checked-group-storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SideBarService {
-
+  
   constructor(
     private workTimeApi:WorkTimeApi,
     private historyService:HistoryService,
     private workTimeSettingsApi:WorkTimeSettingsApi,
+    private workTimeGroupsApi:WorkTimeGroupsApi,
+    
     private workTimeSettingStorageService:WorkTimeSettingStorageService,
+    private checkedGroupStorageService:CheckedGroupStorageService,
   ) { }
 
   passageThroughWorkTimeDaysClones(currentDate:NgbDateStruct, workTime:WorkTimeModel){
@@ -96,6 +101,10 @@ export class SideBarService {
     const data = await firstValueFrom(this.workTimeApi.deleteWorkTime(today,type, workTime))
     this.historyService.setUndoArray(data)
     this.historyService.redoArray$.next([])
+    const group = this.checkedGroupStorageService.getCheckedGroup()
+    group && this.workTimeGroupsApi.getWorkTimeGroupById(group.uid).subscribe(data=>{
+      this.checkedGroupStorageService.setCheckedGroup(data)
+    })
     const wts = await firstValueFrom(this.workTimeSettingsApi.getWorkTimeSettingByUid(uid, year))
     this.workTimeSettingStorageService.setWorkTimeSetting(wts)
         
@@ -117,14 +126,24 @@ export class SideBarService {
     never:boolean,
     noRepeat:{noRepeat:boolean, date:number}
     ){
+
+      console.log('currentDate', currentDate);
+      
       const data = await firstValueFrom(this.workTimeApi
         .saveWorkTime(beforeReccurence,changeReccurence,currentDate, type, workTime, uid, isHoliday,holidayColor, workTimes, workTimeName, never,noRepeat))
 
       this.historyService.setUndoArray(data)
       this.historyService.redoArray$.next([])
+      const group = this.checkedGroupStorageService.getCheckedGroup()
+      group && this.workTimeGroupsApi.getWorkTimeGroupById(group.uid).subscribe(data=>{
+        this.checkedGroupStorageService.setCheckedGroup(data)
+      })
       const wts= await firstValueFrom(this.workTimeSettingsApi.getWorkTimeSettingByUid(uid, year))
       this.workTimeSettingStorageService.setWorkTimeSetting(wts)
   }
+
+
+ 
 
 
 
