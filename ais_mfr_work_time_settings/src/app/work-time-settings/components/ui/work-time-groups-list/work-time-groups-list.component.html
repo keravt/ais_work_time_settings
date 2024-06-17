@@ -19,27 +19,33 @@
   </div>
   <mat-sidenav-container [@.disabled]="true" [hasBackdrop]='false'  class="sidenav-container">
     <mat-sidenav-content>
+      <div class="main">
+        <app-header  (onSort)="sortGroup($event)" title="Группы рабочего времени" [type]="'../work-time'">
+          <div class="changeActions">
+            <button (click)="undo()"  class="change" [ngClass]="{'changeActive':undoActive}" matTooltip="отменить"   mat-icon-button color="black">
+              <mat-icon>undo</mat-icon>
+            </button> 
+            <button (click)="redo()" class="change"  [ngClass]="{'changeActive':redoActive}"  matTooltip="вернуть"   mat-icon-button color="black">
+              <mat-icon>redo</mat-icon>
+            </button> 
+          </div>
+       
+        </app-header>
+      
+      
+         
+         
+            <div class="groupList">
+              <div class="groupList-container">
+                <app-create-work-time-group-item *ngIf="isGroupCreator" (onGroupClose)="changeGroupCreator(false)" (onGroupCreate)="onCreateGroup()"/>
+                <app-work-time-group-item [opened]="opened" (onGroupUpdate)="updateItem()" (onGroupCopy)="addCopySettings()"  (click)="checkGroup(group)" [checkedGroup]="checkedGroup"  (onGroupDelete)="filtrGroups()" [wtg]="group" *ngFor="let group of workTimesGroups | async"/>
+              </div>
+     
+            </div>
+      </div>
 
      
-  <app-header  (onSort)="sortGroup($event)" title="Группы рабочего времени" [type]="'../work-time'">
-    <div class="changeActions">
-      <button (click)="undo()"  class="change" [ngClass]="{'changeActive':undoActive}" matTooltip="отменить"   mat-icon-button color="black">
-        <mat-icon>undo</mat-icon>
-      </button> 
-      <button (click)="redo()" class="change"  [ngClass]="{'changeActive':redoActive}"  matTooltip="вернуть"   mat-icon-button color="black">
-        <mat-icon>redo</mat-icon>
-      </button> 
-    </div>
- 
-  </app-header>
 
-
-   
-   
-      <div class="groupList">
-        <app-create-work-time-group-item *ngIf="isGroupCreator" (onGroupClose)="changeGroupCreator(false)" (onGroupCreate)="onCreateGroup()"/>
-        <app-work-time-group-item [opened]="opened" (onGroupUpdate)="updateItem()" (onGroupCopy)="addCopySettings()"  (click)="checkGroup(group)" [checkedGroup]="checkedGroup"  (onGroupDelete)="filtrGroups()" [wtg]="group" *ngFor="let group of workTimesGroups | async"/>
-      </div>
     </mat-sidenav-content>
     <mat-sidenav mode="side"  position="end" #drawer [(opened)]="opened"     >
       <app-add-person-to-work-time-settings 
