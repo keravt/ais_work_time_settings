@@ -26,6 +26,7 @@ import { HistoryGroupService } from 'src/app/work-time-settings/services/history
 import { WorkTimeInfoComponent } from 'src/app/work-time-settings/components/modals/work-time-info/work-time-info.component';
 import { GroupService } from 'src/app/work-time-settings/services/group.service';
 import { AllSettingsStorageService } from 'src/app/work-time-settings/services/all-settings-storage.service';
+import { SortType } from 'src/app/work-time-settings/models/SortType.model';
 
 
 @Component({
@@ -58,8 +59,6 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
   wtg:WorkTimeGroup | null = null
   @Output() onGroupSave = new EventEmitter()
   @Output() onClose = new EventEmitter()
-  @Output() onGroupDelete = new EventEmitter<string>()
-  @Output() onGroupCopy = new EventEmitter<string>()
   @Output() onPreviewVisible = new EventEmitter<boolean>()
   personsControl = new FormControl('');
   checkedUsers:Person[] = []
@@ -67,7 +66,7 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
   settingsControl = new FormControl('');
   persons: Person[] = [];
   allPersons: Person[] = [];
-  settings:WorkTimeSetting[] = []
+  
   GroupSettings:WorkTimeSetting[] = []
   filteredPersons: Person[] = [];
   filteredPersonsByDivision: Person[] = [];
@@ -77,7 +76,6 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
   isUpdate = false
   checkedWtg:WorkTimeGroup | null = null
   workTimeGroups:WorkTimeGroup[] = []
-  lockedUsers:{userUid:string, groupName:string}[] = []
   divisions:Division[] = []
   fiteredDivisions:Division[] = []
   divionInput = new FormControl()
@@ -91,146 +89,27 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
   changedName = ''
   year = moment().year()
   checkActive = false
-  sortName = {active: 'name', direction: ''}
-  sortCity = {active: 'city', direction: ''}
-  sortType = 'name'
+
+  sort:SortType = {active:'name', direction:''}
   allChecked = false
   allSettingChecked = false
 
   ngOnInit(): void {
 
 
-    this.workTimeSettingStorageService.year$.subscribe(data=>{
-      this.year = data
-    })
-    this.divionInput.valueChanges.subscribe(data=>{
-      this.fiteredDivisions  = this.groupService._filterDivisions(data, this.divisions)
-      this.cdr.markForCheck()
-    })
-    this.UserApi.getAllDivisions().subscribe(data=>{
-      console.log('diviss', data);
-      
-      this.divisions = data.sort((a,b)=>{
-        if (a.name < b.name) {
-          return -1;
-        }
-        if (a.name > b.name) {
-          return 1;
-        }
-        return 0;
-      })
-      this.fiteredDivisions =  [...this.divisions]
-      this.cdr.markForCheck()
-   
-      
-    })
-
-    this.UserApi.fetch().subscribe( async data => {
-
-      this.allPersons = data.filter(el=>el.keycloakUid)
-      this.cdr.markForCheck()
-        
-      });
-
-      this.checkedGroupStorageService.checkedGroup$.subscribe(group=>{
-          console.log('@@@', group);
-          
-        this.wtg = group
-        if (this.wtg) {
-          this.checkWtg(this.wtg)
-        }
   
-        this.cdr.markForCheck()
-      })
-
-      this.allSettingsStorageService.AllSettings$.subscribe(data=>{
-        if (!this.wtg) return
-        this.workTimeGroupsApi.getWorkTimeGroupById(this.wtg.uid).subscribe(group=>{
-          this.wtg = group
-       
-            this.checkWtg(this.wtg)
-    
-    
-          this.cdr.markForCheck()
-        })
-      })
-      
-  }
-
-
-  userChecked(person: Person) {
-    if (this.checkedUsers.find(el=>el.keycloakUid === person.keycloakUid)) {
-      this.checkedUsers = this.checkedUsers.filter(el => el.keycloakUid !== person.keycloakUid)
-    } else {
-      this.checkedUsers = [...this.checkedUsers,person]
-    }
-
-    
-  }
-
-
-  checkAllUsers(){
-    this.checkedUsers = Array.from(new Set([...this.checkedUsers, ...this.filteredPersons]))
-    this.allChecked = true
-  }
-
-  uncheckAllUsers(){
-    this.checkedUsers = []
-    this.allChecked = false
-  }
-
-  checkAllSettings(){
-    this.checkedSettings = Array.from(new Set([...this.checkedSettings, ...this.GroupSettings]))
-    this.allSettingChecked = true
-  }
-
-  uncheckAllSettnigs(){
-    this.checkedSettings = []
-    this.allSettingChecked = false
-  }
-
-  changeName(wts:WorkTimeSetting){
-    this.changedName = wts.uid
-    this.settingValue = wts.title 
-  }
-
-  closeChanged(){
-    this.changedName = ''
-    this.settingValue = ''
   }
 
 
 
-  sortData(sort:any){
-   if (sort.active === 'name') {
-     this.sortName.direction = sort.direction
-     this.sortType = 'name'
-   }
-
-   if (sort.active === 'city') {
-    this.sortCity.direction = sort.direction
-    this.sortType = 'city'
-  }
 
 
-   this.filteredPersons = this.groupService.sortUsers(this.filteredPersons, this.checkedUsers, this.sortType, this.sortCity, this.sortName)
 
-  }
 
 
 
  
 
-  onDivisionChange(division:Division | null){
-    console.log('ddd', division);
-    
-    this.selectedDivision = division
-    this.divionInput.setValue(division?.name ?? '')
-    this.filteredPersonsByDivision = []
-    this.filteredPersonsByDivision =  this.groupService.passageByDivisionTree(division, this.filteredPersonsByDivision, this.persons,  this.divisions)
-    this.filteredPersons = this.groupService._filter(this.personsControl.value ?? '', this.filteredPersonsByDivision,  this.checkedUsers, this.sortType, this.sortCity, this.sortName)
-    this.cdr.markForCheck()
-  }
 
   chooseOption(option:number){
     if (option === 1) {
@@ -245,293 +124,25 @@ export class AddPersonToWorkTimeSettingsComponent implements   OnInit {
   }
 
 
-  openAllSettings(){
-    
-    const dialogRef = this.dialog.open(AllSettingsComponent, {
-      minWidth: '600px',
-      maxWidth:'600px',
-      autoFocus: false, 
-      backdropClass: 'cdk-overlay-transparent-backdrop',
-      scrollStrategy:new NoopScrollStrategy(),
-      data:this.wtg
-    });
-
-    dialogRef.componentInstance.onChange.subscribe(()=>{
-
-      console.log('__@'); 
-      if (!this.wtg) return
-      this.updateWtsPostitions(true)
-      this.onGroupSave.emit()
-      this.cdr.markForCheck()
-
-   
-    })
-  }
 
 
 
 
-  openAllUsers(){
-    
-    const dialogRef = this.dialog.open(AllUsersComponent, {
-      minWidth: '600px',
-      maxWidth:'600px',
-      autoFocus: false, 
-      backdropClass: 'cdk-overlay-transparent-backdrop',
-      scrollStrategy:new NoopScrollStrategy(),
-      data:this.wtg
-    });
-
-    dialogRef.componentInstance.onChange.subscribe(()=>{
-
-      
-      if (!this.wtg) return
-  
-     this.workTimeGroupsApi.getWorkTimeGroupById(this.wtg.uid).subscribe((data)=>{
-      const newPersons = this.allPersons.filter(el=>data.userIds.includes(el.keycloakUid))
-      this.persons = newPersons
-      this.onDivisionChange(this.selectedDivision)
-      this.onGroupSave.emit()
-      this.cdr.markForCheck()
-
-     })
-    })
-
-  
-  }
-
-  gunt(){
-    const startDate = moment({year:2024, month:0, date:1}).valueOf()
-    const endDate = moment({year:2024, month:1, date:1}).valueOf()
-    this.workTimeSettingsApi.getHolidays(startDate,endDate,["8fb28591-ad86-4102-8a02-8d834e2ffef9","921107b0-66e7-4e98-83db-1458effdc908"]).subscribe(data=>{
-      console.log('data', data);
-      
-    })
-  }
-
-  openInfo(){
-    const dialogRef = this.dialog.open(WorkTimeInfoComponent, {
-      minWidth: '600px',
-      maxWidth:'600px',
-      autoFocus: false, 
-      backdropClass: 'cdk-overlay-transparent-backdrop',
-      scrollStrategy:new NoopScrollStrategy(),
-      data:this.wtg
-    });
-  }
-
-
-  drop(event: CdkDragDrop<string[]>) {
-
-    moveItemInArray(this.GroupSettings, event.previousIndex, event.currentIndex);
-    console.log('this.GroupSettings', this.GroupSettings);
-    
-    
-    if (this.wtg) {
-  this.updateWtsPostitions(false)
-    
-      
-    }
-  }
-
-
-  removeAllUsers(){
-    if (!this.wtg )  return
-    this.persons = [...this.persons.filter(elOne=>!this.checkedUsers.find(elTwo=>elTwo.keycloakUid == elOne.keycloakUid))]
-
-    this.workTimeGroupsApi.getWorkTimeGroupById(this.wtg.uid).subscribe(data=>{
-      const newUsers = data.userIds.filter(el=> !this.checkedUsers.find(elTwo=>elTwo.keycloakUid  === el) )
-    
-      this.checkedUsers = []
-      this.workTimeGroupsApi.updateWorkTimeGroup({...this.wtg, userIds:newUsers }).subscribe({next:(group)=>{
-        this.checkedGroupStorageService.setCheckedGroup(group[0].redo.obj  as WorkTimeGroup)
-        this.historyGroupService.setUndoArray(group)
-        this.historyGroupService.redoArray$.next([])
-        this.onGroupSave.emit()
-        this.onDivisionChange(this.selectedDivision)
-        this.allChecked = false
-        
-    this.cdr.markForCheck()
-    }})
-    })
- 
-
-  }
-
-  settingChecked(setting: WorkTimeSetting) {
-    if (this.checkedSettings.find(el=>el.uid === setting.uid)) {
-      this.checkedSettings = this.checkedSettings.filter(el => el.uid !== setting.uid)
-    } else {
-      this.checkedSettings = [...this.checkedSettings, setting] 
-    }
-    
-
-  }
-
- async checkWtg(wtg:WorkTimeGroup){
-   //this.chooseOption(1)
-   this.workTimeSettingStorageService.setWorkTimeGroupId(wtg.uid)
-    this.GroupSettings = [...wtg.workTimeSettings].sort((a,b)=>{
-      const first = wtg.settingPositions.find(el=>el.uid === a.uid)
-      const second = wtg.settingPositions.find(el=>el.uid === b.uid)
-      if (second && first) {
-        return first?.position - second?.position
-      }
-      return -1
-
-    })
-
-    this.checkedWtg = wtg
-    this.settingPositions = wtg.settingPositions
-    this.persons = [...this.persons.filter(elOne=>!this.checkedUsers.find(elTwo=>elTwo.keycloakUid == elOne.keycloakUid))]
-    await this.groupService.updateWtsStorage(wtg,String(this.year))
-    this.isLoading = true
-    this.isLoadingSettings = true
-   
-    this.UserApi.fetch().subscribe( async data => {
-
-      
-    this.persons = data.filter(el=>el.keycloakUid && wtg.userIds.includes(el.keycloakUid))
-
-    
-      this.filteredPersonsByDivision = [...this.persons]
-      this.isLoading = false
- 
-      this.filteredPersons = [...this.persons]
-      this.personsControl.valueChanges.subscribe((value)=>{
-        this.filteredPersons = this.groupService._filter(value || '',this.filteredPersonsByDivision,  this.checkedUsers, this.sortType, this.sortCity, this.sortName)
-       });
-        this.onDivisionChange(this.selectedDivision)
-        this.cdr.markForCheck()
-    });
-
-    this.workTimeGroupsApi.getWorkTimeGroups().subscribe(data=>{
-      this.lockedUsers = []
-      this.workTimeGroups = data
-      data.forEach(el=>{
-        if (el.uid !== this.checkedWtg?.uid) {
-          const title = el.title
-          const uids = el.userIds
-          for(const uid of uids){
-            this.lockedUsers.push({groupName:title,userUid:uid})
-          }
-        }
-
-       
-      })
-      this.cdr.markForCheck()
-    })
-
-    this.workTimeSettingsApi.getWorkTimeSettings().subscribe( async settings => {
-      this.settings = settings
-      this.isLoadingSettings = false
-
-      wtg.settingPositions.forEach(sett => {
-        const setting = this.settings.find(el=>el.uid === sett.uid)
-        const index = this.settings.findIndex(el=>el.uid === sett.uid)
-        if (setting) {
-          this.settings.splice(index,1)
-          this.settings.splice(sett.position,0,setting)
-
-        }
-    });
-    this.cdr.markForCheck()
-    });
-
-
-  }
 
 
 
- async updateWtsPostitions(isUpdatebyApi:boolean){
-
-    if(!this.checkedWtg) return
-    let {groupSettings, settingPositions} = await  this.groupService.updateWtsPostitions(this.checkedWtg,this.GroupSettings,this.settingPositions,this.year, isUpdatebyApi) 
-
-
-    this.GroupSettings = groupSettings
-    this.settingPositions = settingPositions
-
-    this.snackBar.open(`рабочее время обновлено`, undefined,{
-      duration: 2000
-    }); 
-    this.onGroupSave.emit()
-    this.isUpdate = false
-    this.cdr.markForCheck()
-  }
-
-  async deleteFromGroup(){
-    this.GroupSettings = this.GroupSettings.filter(el => !this.checkedSettings.find(checked=>checked.uid === el.uid))
-    await this.groupService.updateGroup(this.checkedWtg, this.GroupSettings)
-    this.checkedSettings = []
-    this.allSettingChecked = false
-    this.snackBar.open(`рабочее время обновлено`, undefined,{
-      duration: 2000
-    }); 
-    this.onGroupSave.emit()
-    this.cdr.markForCheck()
-  }
 
 
 
-async  updateWorkTimeSetting() {
-  this.isUpdate = true
-  this.workTimeGroups = [...this.workTimeGroups.map(el=>{
-    if (this.checkedWtg && this.checkedWtg.uid !== el.uid) {
-      return el
-    }else{
-      return {...el, userIds :Array.from(this.persons.map(el=>el.keycloakUid)) }
-    }
 
-  })]
- 
-   const group =await  firstValueFrom(this.workTimeGroupsApi.updateWorkTimeGroup({...this.checkedWtg, userIds:Array.from(this.persons.map(el=>el.keycloakUid)) , workTimeSettings:this.GroupSettings, settingPositions:this.settingPositions, title:this.inputValue }))
-   if (this.checkedWtg) await   this.groupService.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String( moment().year()))
-    
-  this.snackBar.open(`рабочее время обновлено`, undefined,{duration: 2000}); 
-  this.onGroupSave.emit()
-  this.isUpdate = false
-  this.cdr.markForCheck()
-  }
+
+
 
   close(){
  this.chooseOption(1)
 this.onClose.emit()
   }
 
-
-
-  upItem(wts:WorkTimeSetting){
-    const id = this.GroupSettings.findIndex(el=>el.uid === wts.uid)
-    if (id > 0) {
-      [this.GroupSettings[id], this.GroupSettings[id - 1]] =
-      [this.GroupSettings[id- 1], this.GroupSettings[id]];
-    }
-    if (this.wtg) {
-
-     
-      this.updateWtsPostitions(false)
-      
-    }
-
-
-
-  }
-
-  downItem(wts:WorkTimeSetting){
-    const id = this.GroupSettings.findIndex(el=>el.uid === wts.uid)
-    if (id < this.GroupSettings.length - 1) {
-      [this.GroupSettings[id], this.GroupSettings[id + 1]] =
-      [this.GroupSettings[id+ 1], this.GroupSettings[id]];
-    
-  }
-
-  if (this.wtg) {
-
-
-    this.updateWtsPostitions(false)
-  }
-  }
 
 
 

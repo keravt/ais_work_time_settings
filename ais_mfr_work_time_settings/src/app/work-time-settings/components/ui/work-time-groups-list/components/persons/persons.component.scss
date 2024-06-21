@@ -1,0 +1,508 @@
+:host{
+    display: block;
+    height: 100%;
+  }
+  .group-options{
+    display: flex;
+    width: 100%;
+    gap: 20px;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  
+  .group{
+    position: relative;
+  z-index: 4;
+  
+  }
+  
+  .headers-FIO{
+    flex:  0 0 56%;
+    display: flex;
+    justify-content: center;
+  
+  }
+  
+  .open-all-setting{
+   display: flex;
+   align-self: center;
+   gap:20px;
+   padding-left: 9px;
+  }
+  
+  .headers{
+    border-bottom: 1px solid rgba(0, 0, 0,0.2);
+    display: flex;
+    width: 100%;
+  
+  }
+  
+  
+  .headers-city{
+    display: flex;
+    justify-content: center;
+    flex: 1 1 auto;
+  
+  }
+  .group-option{
+    display: flex;
+    align-items: center;
+  
+  
+  
+    cursor: pointer;
+    &.active{
+      color: #38a0ba;
+   
+  
+   
+    }
+  }
+  
+  .remove{
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  
+  .rows-count {
+    background: none;
+    color: #191919;
+    opacity: 0.6;
+    font-size: 14px;
+    line-height: 28px;
+    font-weight: 500;
+    flex: 1 1 auto;
+    white-space: nowrap;
+    font-family: Roboto,Helvetica Neue,sans-serif;
+  
+    display: flex;
+    align-items: center;
+  }
+  
+  
+  
+  .check{
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  
+  .user{
+   flex: 0 0 60%;
+   display: flex;
+   align-items: center;
+  }
+  
+  .headers-users{
+    display: flex;
+    
+  }
+  
+  .header{
+    background-color: #F7F7F9;
+    height: 65px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .content{
+    width: 0px;
+    height: 0px;
+    opacity: 0;
+    display: none;
+    &.active{
+  width: 100%;
+  height: auto;
+  opacity: 1;
+  display: block;
+    }
+  }
+  .body{
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+  
+  }
+  .loader{
+    display: none;
+    overflow: visible;
+   z-index: 20000;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &::before{
+    
+    content: '';
+    opacity: 0.5;
+    position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  
+  }
+  
+  
+  }
+  
+  .loaderSettings{
+    align-self: center;
+  }
+  
+  .history{
+    color: rgba(0, 0, 0,0.4);
+  }
+  
+  .updateName{
+    display: flex;
+    flex: 1 1 auto;
+  
+  }
+  .item-control{
+    display: flex;
+  
+  }
+  
+  .inputSetting {
+    color: #191919;
+    background: transparent;
+    padding-left: 0px;
+    padding-right: 0px;
+    height: 28px !important;
+    font-size: 14px;
+    line-height: 28px;
+    padding: 6px 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: none;
+    outline: none;
+    
+    width: 0px ;
+    pointer-events: none;
+  
+  
+  }
+  
+  .changeName{
+    flex: 1 1 auto;
+    margin-top: 10px;
+   height: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  
+    pointer-events: visible;
+  }
+  
+  .persons-list{
+    flex: 1 1 auto;
+    max-height: 100%;
+    padding: 10px;
+  }
+  .list{
+  
+    ::ng-deep .mat-mdc-checkbox{
+  padding-right: 5px;
+  
+     flex: 0 0 60%;
+    }
+  
+  
+  
+  }
+  
+  .setting-list{
+  
+    ::ng-deep .mat-mdc-checkbox{
+      padding-right: 5px;
+      
+  
+        }
+  }
+  
+  
+  .city{
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+    flex:  1 1 auto;
+  }
+  .edit{
+    color: rgba(0, 0, 0,0.7);
+    &:hover{
+        color: rgba(0, 0,0, 1);
+        transform: scale(1.1);
+    }
+  }
+  
+  .cdk-drag-preview {
+    cursor: grab;
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  }
+  
+  .list-item{
+  
+    cursor: grab;
+    min-height: 48px;
+    width: 100%;
+    display: flex;
+   align-items: center;
+   justify-content: space-between;
+   margin-bottom: 5px;
+   :first-child{
+    flex:  1 1 auto;
+   }
+  }
+  
+  .item-title{
+    flex: 1 1 auto;
+  }
+  
+  .list-item-user{
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+   display: flex;
+  
+  }
+  
+  .list-user{
+    overflow-y:auto;
+    max-height: calc(100vh - 600px);
+  }
+  
+  .list-settings{
+    overflow-y:auto;
+    max-height: calc(100vh - 400px);
+  }
+  
+  
+  ::-webkit-scrollbar {
+    width: 12px;
+  
+  
+  }
+  
+  .icon{
+  cursor: pointer;
+  }
+  ::-webkit-scrollbar-track {
+    /* -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); */
+      border-radius: 10px;
+      background: rgba(216, 218, 220,0.6);
+  
+  }
+  
+   .checkAll{
+    padding: 0 10px;
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+   }
+  
+  .divisions{
+    padding: 0 10px;
+    margin-top: 20px;
+  }
+  .divisions-field{
+    width: 100% ;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #8f9091;
+    border-radius: 8px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(103, 103, 104);
+  }
+  
+  
+  
+  .item{
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    height: 50px;
+    padding-left: 10px;
+    cursor: pointer;
+  
+    &.active{
+      background-color: rgba(
+        0,
+        0,
+        0,
+        0.04
+      ); 
+    }
+    &:hover {
+      background-color: rgba(
+        0,
+        0,
+        0,
+        0.04
+      ); /* Define the desired hover background color */
+    }
+  }
+  .title{
+    color: #000;
+    white-space: wrap;
+    word-break: normal;
+  }
+  
+  .check-group{
+    cursor: pointer;
+  }
+  
+  .inputControll{
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    align-items: center;
+    padding-left: 18px;
+    padding-right: 20px;
+    background: #F7F7F9;
+    height: 35px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+  
+  }
+  
+  .change-name{
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    align-items: center;
+  }
+  .input {
+  
+  
+    color: #191919;
+    background: transparent;
+    padding-left: 0px;
+    padding-right: 0px;
+    height: 28px !important;
+    font-size: 14px;
+    line-height: 28px;
+    padding: 6px 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: none;
+    outline: none;
+    border-radius: 4px;
+   flex: 0 0 50%;
+  
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+    height: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: white;
+  
+  }
+  
+  .inputTitle {
+    &:hover{
+      border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+    }
+    cursor: pointer;
+    width: 400px;
+    color: #191919;
+    background: transparent;
+    padding-left: 0px;
+    padding-right: 0px;
+    height: 28px !important;
+    font-size: 14px;
+    line-height: 28px;
+    padding: 6px 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    border: none;
+    outline: none;
+    text-align: center;
+    text-overflow: ellipsis;
+  
+  
+  
+  
+  
+  }
+  
+  .checkAllButton{
+    width: 100%;
+  }
+  .usersButtons{
+    display: flex;
+  
+    gap: 5px;
+    padding: 0 10px;
+  
+  }
+  
+  
+  
+  mat-list-item:hover {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.04
+  ); /* Define the desired hover background color */
+  }
+  
+  .input:focus {
+    box-shadow: 0px 0px 0px calc(2px) #4484CD;
+    background-color: white;
+  }
+  
+  .input:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+  
+  .divisionInput{
+    width: 100%;
+  }
+  
+  .buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    flex: 1 1 auto;
+    padding-right: 20px;
+    align-items: flex-end;
+    margin-bottom: 30px;
+  }
+  
+  .controls{
+    height: 100%;
+  }
+  
+  .group-title{
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    padding: 4px 0 ;
+    border-bottom: 1px solid rgba(0, 0, 0,0.2);
+    border-top: 1px solid rgba(0, 0, 0,0.2);
+  }
+  
+  .persons{
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+  }
