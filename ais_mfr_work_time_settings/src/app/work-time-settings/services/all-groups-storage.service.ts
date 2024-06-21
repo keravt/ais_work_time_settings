@@ -25,6 +25,10 @@ export class AllGroupsStorageService {
     this.AllGroups.next([allGroups])
   }
 
+  getAllGroups() {
+    return this.AllGroups.value
+  }
+
 
  
   clearGroup() {

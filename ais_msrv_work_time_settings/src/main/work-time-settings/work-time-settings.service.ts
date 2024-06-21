@@ -58,6 +58,23 @@ export class WorkTimeSettingsService {
     console.log('uid', uid);
     const setting = await this.workTimeSettingRepo.findOne({where:{uid:uid}, relations:{workTimeGroups:true}})
     await this.workTimeSettingRepo.delete({ uid });
+    const allGroups = await this.workTimeGroupService.getWorkTimeGroups()
+    for(const group of allGroups){
+      const setting = group.settingPositions.find(el=>el.uid === uid)
+      if (setting) {
+
+       let settingPositions = [...group.settingPositions]
+        settingPositions = settingPositions
+        .filter(el=>el.uid !== setting.uid)
+        .sort((a,b)=> a.position - b.position)
+        .map((el,i)=>({uid:el.uid,position:i}))
+
+        group.settingPositions = settingPositions
+
+        await this.workTimeGroupService.updateWorkTimeGroup(group)
+      }
+    }
+
 
     return [{
       undo:{method:'delete', schema:'setting',obj:setting},

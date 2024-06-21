@@ -1,0 +1,77 @@
+<div class="persons">
+    <div class="open-all-users">
+      <button matTooltip="добавить сотрудников"  color="basic" (click)="openAllUsers()" mat-icon-button   aria-label="Example icon-button with a menu">
+        <mat-icon >group_add</mat-icon>
+      </button>
+
+      
+    </div>
+    <div class="divisions">
+     
+
+      <mat-form-field  class="divisions-field">
+        <mat-label>Подразделения</mat-label>
+        <input type="text"
+               placeholder="Pick one"
+               aria-label="Number"
+               ngClass="text"
+       
+               matInput
+               autofocus="false"
+
+               [formControl]="divionInput"
+               [matAutocomplete]="auto">
+               <mat-autocomplete   #auto="matAutocomplete">
+                <mat-option            (click)="onDivisionChange(null)"   [value]="''" >Все Подразделения</mat-option>
+                <mat-option           (click)="onDivisionChange(division)" [value]="''" *ngFor="let division of fiteredDivisions">{{division.name}} {{division.parentDivision ? '(' + division.parentDivision.name + ')' : '' }}</mat-option>
+              
+            </mat-autocomplete>
+      </mat-form-field>
+    </div>
+
+
+    <div class="inputControll">
+
+
+      <div class="check">
+        <mat-icon *ngIf="!allChecked" (click)="checkAllUsers()" >check_box_outline_blank</mat-icon>
+        <mat-icon *ngIf="allChecked" (click)="uncheckAllUsers()" >check_box</mat-icon>
+      </div>
+      <input class="input" placeholder="Искать в таблице" [formControl]="personsControl" />
+      <div  class="rows-count">
+        Найдено: {{this.filteredPersons.length}} из {{persons.length}}
+      </div>
+      <div class="remove">
+        <mat-icon matTooltip="удалить сотрудников"  color="basic" (click)="removeAllUsers()" >group_remove</mat-icon>
+      </div>
+      
+
+    </div>
+
+    <div class="persons-list">
+        <mat-spinner class="loaderSettings"  *ngIf="isLoading"></mat-spinner>
+        <div class="list"  *ngIf="!isLoading">
+             <div matSort  (matSortChange)="sortData($event)"  class="headers">
+              <div mat-sort-header="name" class="headers-FIO">ФИО</div>
+              <div  mat-sort-header="city" class="headers-city">город</div>
+              <div (click)="openInfo()"><mat-icon>info</mat-icon></div>
+             </div>
+             <div class="list-user">
+              <div class="list-item-user"    *ngFor="let person of filteredPersons">
+                <mat-checkbox
+                (change)="userChecked(person)"
+                class="example-margin"
+                [checked]="person.keycloakUid | isUserInWorkTimeSetting : checkedUsers"
+                appTrimOnCopy
+                ><div>{{person.name}}</div></mat-checkbox>
+                <div appTrimOnCopy class="city">{{person.city}}</div>
+
+              </div>
+             </div>
+
+
+
+        </div>
+    </div>
+  
+  </div>

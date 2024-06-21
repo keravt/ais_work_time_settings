@@ -33,6 +33,8 @@ import { AllUsersComponent } from './components/modals/all-users/all-users.compo
 import { WtsInGroupPipe } from './pipes/wts-in-group.pipe';
 import { TrimOnCopyDirective } from './directives/trim-on-copy.directive';
 import { WorkTimeInfoComponent } from './components/modals/work-time-info/work-time-info.component';
+import { PersonsComponent } from './components/ui/work-time-groups-list/components/persons/persons.component';
+import { GroupSettingsComponent } from './components/ui/work-time-groups-list/components/group-settings/group-settings.component';
 
 
 @NgModule({
@@ -67,6 +69,8 @@ import { WorkTimeInfoComponent } from './components/modals/work-time-info/work-t
     WtsInGroupPipe,
     TrimOnCopyDirective,
     WorkTimeInfoComponent,
+    PersonsComponent,
+    GroupSettingsComponent,
 
 
   ],

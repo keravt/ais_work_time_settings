@@ -10,6 +10,7 @@ import { CheckedGroupStorageService } from './checked-group-storage.service';
 import { HistoryGroupService } from './history-group.service';
 import { WorkTimeGroupsApi } from '../api/work-time-groups.api';
 import * as moment from 'moment';
+import { SortType } from '../models/SortType.model';
 
 
 @Injectable({
@@ -33,19 +34,19 @@ export class GroupService {
 
 
 
-  sortUsers(persons:Person[], checkedUsers:Person[], sortType:any, sortCity:any, sortName:any){
-    if (sortType === 'name') {
+  sortUsers(persons:Person[], checkedUsers:Person[], sort:SortType){
+    if (sort.active === 'name') {
       persons.sort((a,b)=>{
-        const isAsc = sortName.direction === 'asc';
+        const isAsc = sort.direction === 'asc';
         return this.compare(a.name, b.name, isAsc);
       })
 
       return Array.from(new Set([...checkedUsers,...persons]))
     }
 
-    if (sortType === 'city') {
+    if (sort.active === 'city') {
       persons.sort((a,b)=>{
-        const isAsc = sortCity.direction === 'asc';
+        const isAsc = sort.direction === 'asc';
         return this.compare(a.city, b.city, isAsc);
       })
 
@@ -53,12 +54,12 @@ export class GroupService {
     }
 
     persons.sort((a,b)=>{
-      const isAsc = sortName.direction === 'asc';
+      const isAsc = sort.direction === 'asc';
       return this.compare(a.name, b.name, isAsc);
     })
 
 
-      console.log('dd##', Array.from(new Set([...checkedUsers,...persons])));
+    
       
     return Array.from(new Set([...checkedUsers,...persons]))
 
@@ -70,7 +71,7 @@ export class GroupService {
 
 
 
-   _filter(value: string, filteredPersonsByDivision:Person[],checkedUsers:any, sortType:any, sortCity:any, sortName:any): Person[] {
+   _filter(value: string, filteredPersonsByDivision:Person[],checkedUsers:any, sort:SortType): Person[] {
     console.log('{{{[');
     
     const filterValue = value.toLowerCase();
@@ -84,7 +85,7 @@ export class GroupService {
 
 
 
-  persons = this.sortUsers(persons, checkedUsers, sortType, sortCity, sortName)
+  persons = this.sortUsers(persons, checkedUsers, sort)
   
 
 
@@ -147,13 +148,28 @@ if (isUpdatebyApi) {
   checkedGroup = await firstValueFrom(this.workTimeGroupsApi.getWorkTimeGroupById(checkedWtg.uid))
   const settingsForSort = [...groupSettings]
   groupSettings = []
-  checkedGroup.settingPositions.forEach(pos=>{
-    const item = checkedGroup.workTimeSettings.find(el=>el.uid === pos.uid)
-    item && groupSettings.push(item)
+  
+  console.log('checkedGroup333', checkedGroup.settingPositions, checkedGroup.workTimeSettings );
+  if (checkedGroup.settingPositions.length > 0) {
+    checkedGroup.settingPositions.sort((a,b)=> a.position - b.position).forEach(pos=>{
+      const item = checkedGroup.workTimeSettings.find(el=>el.uid === pos.uid)
+      item && groupSettings.push(item)
+  
+    })
+  }else{
+  
+    
+    groupSettings = [...checkedGroup.workTimeSettings]
+    console.log('groupSettings', groupSettings);
+  }
 
-  })
 
-  groupSettings = checkedGroup.workTimeSettings
+
+
+
+
+
+
     this.updateWtsStorage(checkedGroup  as WorkTimeGroup,String(year))
     this.checkedGroupStorageService.setCheckedGroup(checkedGroup  as WorkTimeGroup )
 
@@ -172,8 +188,8 @@ if (isUpdatebyApi) {
    return {groupSettings, settingPositions}
   }
 
-  async updateGroup(checkedWtg:WorkTimeGroup | null, GroupSettings:WorkTimeSetting[],){
-    const group = await firstValueFrom(this.workTimeGroupsApi.updateWorkTimeGroup({...checkedWtg, workTimeSettings:GroupSettings }))
+  async updateGroup(checkedWtg:WorkTimeGroup){
+    const group = await firstValueFrom(this.workTimeGroupsApi.updateWorkTimeGroup({...checkedWtg }))
     
  
     this.checkedGroupStorageService.setCheckedGroup(group[0].redo.obj  as WorkTimeGroup )
@@ -181,6 +197,25 @@ if (isUpdatebyApi) {
     this.historyGroupService.redoArray$.next([])
 
     this.updateWtsStorage(group[0].redo.obj  as WorkTimeGroup,String( moment().year()))
+  }
+
+  async removeAllUsers(wtg:WorkTimeGroup | null, persons:Person[], checkedUsers:Person[]):Promise<{persons:Person[], checkedUsers:Person[]}>{
+    if (!wtg )  return  {persons, checkedUsers}
+    persons = [...persons.filter(elOne=>!checkedUsers.find(elTwo=>elTwo.keycloakUid == elOne.keycloakUid))]
+    const data = await firstValueFrom(this.workTimeGroupsApi.getWorkTimeGroupById(wtg.uid))
+ 
+    const newUsers = data.userIds.filter(el=> !checkedUsers.find(elTwo=>elTwo.keycloakUid  === el) )
+    
+    checkedUsers = []
+    const group = await firstValueFrom(this.workTimeGroupsApi.updateWorkTimeGroup({...wtg, userIds:newUsers }))
+
+    this.checkedGroupStorageService.setCheckedGroup(group[0].redo.obj  as WorkTimeGroup)
+    this.historyGroupService.setUndoArray(group)
+    this.historyGroupService.redoArray$.next([])
+    
+    return {persons, checkedUsers}
+ 
+ 
   }
 
 
