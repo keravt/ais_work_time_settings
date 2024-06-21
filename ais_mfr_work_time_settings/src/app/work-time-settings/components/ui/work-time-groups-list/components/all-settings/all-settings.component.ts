@@ -48,8 +48,11 @@ export class AllSettingsComponent implements OnInit {
 
 
   ngOnInit(): void {
+
+
     this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
       this.checkedWts = data.workTimeSettings
+      this.data = data
       this.cdr.markForCheck()
    
     })
@@ -60,7 +63,7 @@ export class AllSettingsComponent implements OnInit {
     })
 
     this.checkedGroupStorageService.checkedGroup$.subscribe(group=>{
-      console.log('###', group);
+    
       if (group) {
     
         
@@ -133,14 +136,17 @@ export class AllSettingsComponent implements OnInit {
   sortWorkTimesSettings(groups:WorkTimeSetting[], onHistroy:boolean = false){
 
     let filtrGroups = [...groups]
+
+    
     const checkedWtsForSort:WorkTimeSetting[] = []
-    groups.forEach(el=>{
-      const item = this.checkedWts.find(item=>item.uid === el.uid)
+  
+    this.data.workTimeSettings.forEach(el=>{
+      const item = groups.find(item=>item.uid === el.uid)
       item  && checkedWtsForSort.push(item)
     })
  
     this.checkedWts = [...checkedWtsForSort]
-
+    console.log('groups', this.checkedWts);
    
     if(this.allSearch !== ''){
       filtrGroups = [...filtrGroups.filter(group=>group.title.includes(this.allSearch))]
@@ -194,13 +200,34 @@ export class AllSettingsComponent implements OnInit {
     addToGroup(){
     
       this.workTimeGroupsApi.getWorkTimeGroupById(this.data.uid).subscribe(data=>{
-  
-        this.workTimeGroupsApi.updateWorkTimeGroup({...data, workTimeSettings:this.checkedWts  }).subscribe({next:(group)=>{
-          console.log('___', group);
-          
+
+    
+        const removedSettings = data.workTimeSettings.filter(el=>!this.checkedWts.find(item=>item.uid == el.uid))
+        console.log('this.checkedWts', this.checkedWts);
+        
+
+        let settingPositions = data.settingPositions
+
+        settingPositions = settingPositions
+        .filter(el=>!removedSettings.find(item=>item.uid == el.uid))
+        .sort((a,b)=> a.position - b.position)
+        .map((el,i)=>({uid:el.uid,position:i}))
+
+
+        const addedSettings = this.checkedWts
+        .filter(el=>!data.workTimeSettings.find(item=>item.uid == el.uid))
+        .map((el,i)=>({uid:el.uid, position:settingPositions.length + i }))
+        
+        settingPositions = [...settingPositions, ...addedSettings]
+   
+        this.workTimeGroupsApi.updateWorkTimeGroup({...data, workTimeSettings:this.checkedWts, settingPositions  }).subscribe({next:(group)=>{
+   
+      
           this.workTimesSettings =
           this.workTimeSettingsApi.getWorkTimeSettings().pipe(map(groups => this.sortWorkTimesSettings(groups)))
-    
+          if(!isSetting(group[0].redo.obj)){
+            this.data = group[0].redo.obj
+          }
           this.historyGroupService.setUndoArray(group)
           this.historyGroupService.redoArray$.next([])
           this.onChange.emit()

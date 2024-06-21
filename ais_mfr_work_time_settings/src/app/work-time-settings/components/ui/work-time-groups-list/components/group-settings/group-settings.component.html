@@ -1,0 +1,58 @@
+<div class="settings">
+    <div class="persons-list">
+      <mat-spinner class="loaderSettings"  *ngIf="isLoadingSettings"></mat-spinner>
+      <div class="open-all-setting">
+        <div class="check">
+          <mat-icon matTooltip="выделить все" *ngIf="!allSettingChecked" (click)="checkAllSettings()" >check_box_outline_blank</mat-icon>
+          <mat-icon matTooltip="отменить все" *ngIf="allSettingChecked" (click)="uncheckAllSettnigs()" >check_box</mat-icon>
+        </div>
+        <mat-icon matTooltip="добавить" class="icon"  (click)="openAllSettings()" >add</mat-icon>
+
+        <mat-icon matTooltip="удалить" class="icon"  (click)="deleteFromGroup()">remove_circle_outline</mat-icon>
+
+
+
+      </div>
+      <div  cdkDropList class="setting-list"  *ngIf="!isLoadingSettings" (cdkDropListDropped)="drop($event)">
+      <div *ngIf="GroupSettings.length === 0" >Список рабочего времени пуст</div>   
+      <div class="list-settings">
+        <div  class="list-item"    *ngFor="let setting of GroupSettings, let i = index">
+          <mat-checkbox
+          cdkDrag
+          (change)="settingChecked(setting)"
+          class="example-margin"
+          [checked]="setting | wtsInGroup : checkedSettings"
+          appTrimOnCopy
+          >  <div    class="item-title">{{ setting.title }}</div>
+           </mat-checkbox>
+            
+
+              <div class="item-control">
+
+
+
+                <div class="icon" *ngIf="i !== 0 || i !== GroupSettings.length - 1" class="icon">
+                  <button  mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                </div>
+
+                <mat-menu  #menu="matMenu">
+                  <button  *ngIf="i !== 0"   (click)="upItem(setting)" mat-menu-item>
+                    <mat-icon>arrow_upwards</mat-icon>
+                    <span>поднять в списке</span>
+                  </button>
+                  <button *ngIf="i !== GroupSettings.length - 1"   (click)="downItem(setting)"  mat-menu-item>
+                    <mat-icon>arrow_downward</mat-icon>
+                    <span>опустить в списке</span>
+                  </button>
+
+
+                </mat-menu>
+              </div>
+        </div>
+      </div>  
+
+      </div>
+    </div>
+  </div>
